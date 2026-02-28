@@ -1,8 +1,9 @@
 import { useEffect } from "react";
 import { useDataContext } from "../context/context";
-import InputForm from "./InputForm";
-import Table from "./Table";
+import InputForm from "../components/InputForm";
+import Table from "../components/Table";
 import { getStudents } from "../helper/backend";
+
 export default function Main() {
   const { setData, setError, setLoading } = useDataContext();
 
