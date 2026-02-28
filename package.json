@@ -16,7 +16,6 @@
     "react": "^19.2.0",
     "react-csv": "^2.2.2",
     "react-dom": "^19.2.0",
-    "react-router-dom": "^7.13.1",
     "title-case": "^4.3.2"
   },
   "devDependencies": {

@@ -1,20 +1,67 @@
 import "../assets/CSS/table.css";
 import { useDataContext } from "../context/context";
-import { incrementVisits } from "../helper/backend";
 import { CSVLink } from "react-csv";
 import type { Data } from "../types/types";
 import exportImage from "../assets/Images/file-export_24.png";
+import { useEffect } from "react";
+import { supabaseClient } from "../supabase-client";
+import { getName } from "../helper/functions";
 
 export default function Table() {
-  const { Data, setData, error, setError, Loading } = useDataContext();
+  const { Data, setData, error, setError, Loading, setLoading, Session } =
+    useDataContext();
+
+  let name = "";
+  if (Session) {
+    name = getName(Session.user.email);
+  }
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true);
+      setError(null);
+
+      let fetchError;
+      let Data;
+      if (name === "Lara") {
+        const { error, data } = await supabaseClient
+          .from("Students")
+          .select("*");
+
+        fetchError = error;
+        Data = data;
+      } else {
+        const { error, data } = await supabaseClient
+          .from("Students")
+          .select("*")
+          .eq("added_by", name);
+
+        fetchError = error;
+        Data = data;
+      }
+
+      if (fetchError) {
+        console.error("An Error has occurred: ", fetchError.message);
+        console.error("Error Details: ", fetchError.details);
+        setError(`Failed to fetch Data. Error Details: ${fetchError.details}`);
+        setLoading(false);
+        return;
+      }
+
+      setLoading(false);
+      if (Data) setData(Data);
+    }
+    fetchData();
+  }, [setError, setLoading, setData, name]);
 
   async function handleClick(student: Data) {
-    const error = await incrementVisits(student);
+    const { error } = await supabaseClient
+      .from("Students")
+      .update({ nb_visits: student.nb_visits + 1 })
+      .eq("studentId", student.studentId);
 
     if (error) {
       console.error("An Error has occurred: ", error.message);
-      console.error("Error Details: ", error.details);
-      setError("Failed to increment the number of visits");
+      setError(`Failed to increment visits. Error message: ${error.message}`);
       return;
     }
 

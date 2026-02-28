@@ -1,3 +1,4 @@
+import { titleCase } from "title-case";
 import type { Data } from "../types/types";
 
 export function formatDate(): string {
@@ -20,4 +21,12 @@ export function checkDupes(data: Data[], id: number): boolean {
     }
   }
   return false;
+}
+
+export function getName(email: string | undefined) {
+  if (email) {
+    const name = email.slice(0, email.indexOf("@"));
+    return titleCase(name);
+  }
+  return "email not found";
 }

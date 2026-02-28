@@ -1,9 +1,9 @@
 import { useState, type SubmitEvent } from "react";
 import type { Data, Input } from "../types/types";
 import { titleCase } from "title-case";
-import { checkDupes, formatDate } from "../helper/functions";
+import { checkDupes, formatDate, getName } from "../helper/functions";
 import { useDataContext } from "../context/context";
-import { addStudent } from "../helper/backend";
+import { supabaseClient } from "../supabase-client";
 
 export default function InputForm() {
   const [Input, setInput] = useState<Input>({
@@ -11,12 +11,15 @@ export default function InputForm() {
     studentId: NaN,
   });
 
-  const { Data, setData, setError } = useDataContext();
+  const { Data, setData, setError, Session } = useDataContext();
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const person = "bahaa";
+    let name = "";
+    if (Session) {
+      name = getName(Session.user.email);
+    }
 
     if (checkDupes(Data, Input.studentId)) {
       alert("the ID already exists!!");
@@ -28,15 +31,18 @@ export default function InputForm() {
       studentName: titleCase(Input.studentName),
       id: crypto.randomUUID(),
       added_at: formatDate(),
-      added_by: titleCase(person),
+      added_by: name,
       nb_visits: 1,
     };
 
-    const error = await addStudent(newStudent);
+    const { error } = await supabaseClient
+      .from("Students")
+      .insert(newStudent)
+      .single();
+
     if (error) {
       console.error("An Error has occurred: ", error.message);
-      console.error("Error Details: ", error.details);
-      setError("Failed to Add Student!");
+      setError(`Failed to add student. Error message: ${error.message}`);
       return;
     }
 
