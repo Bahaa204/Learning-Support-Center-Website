@@ -13,13 +13,13 @@ export default function Table({ Data, setData }: TableProps) {
   }
 
   return (
-    <div className="table-responsive">
-      <table
-        className="table table-secondary table-striped table-hover table-bordered text-center align-middle"
-        style={{ height: "50vh" }}
-      >
+    <div
+      className="table-responsive"
+      style={{ maxHeight: "50vh", overflowY: "auto" }}
+    >
+      <table className="table table-secondary table-striped table-hover table-bordered text-center align-middle">
         <thead className="table-light">
-          <tr>
+          <tr className="sticky-top">
             <th scope="col">Student ID</th>
             <th scope="col">Student Name</th>
             <th scope="col">Added At</th>
