@@ -105,15 +105,17 @@ export default function Table() {
       ) : (
         <>
           <div className="d-flex justify-content-end mb-3">
-            <CSVLink
-              data={Data}
-              headers={headers}
-              filename="students.csv"
-              className="btn btn-success"
-            >
-              <img src={exportImage} alt="" />
-              Export CSV
-            </CSVLink>
+            {name === "Lara" && (
+              <CSVLink
+                data={Data}
+                headers={headers}
+                filename="students.csv"
+                className="btn btn-success"
+              >
+                <img src={exportImage} alt="" />
+                Export CSV
+              </CSVLink>
+            )}
           </div>
           <div
             className="table-responsive"

@@ -54,7 +54,7 @@ export default function InputForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="d-flex flex-wrap gap-5 justify-content-center align-items-center"
+      className="d-flex flex-column flex-wrap gap-3 justify-content-center align-items-center"
       style={{ height: "50vh" }}
     >
       <div className="form-group">
@@ -62,7 +62,7 @@ export default function InputForm() {
         <input
           required
           type="text"
-          className="form-control"
+          className="form-control border-2 border-secondary"
           id="name"
           value={Input.studentName}
           onChange={(event) => {
@@ -79,7 +79,7 @@ export default function InputForm() {
           required
           type="number"
           id="id"
-          className="form-control"
+          className="form-control border-2 border-secondary"
           value={isNaN(Input.studentId) ? "" : Input.studentId}
           onChange={(event) => {
             setInput((prev: Input) => ({
