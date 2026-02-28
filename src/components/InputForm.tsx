@@ -1,15 +1,19 @@
 import { useState, type SubmitEvent } from "react";
-import type { Data, Input, InputFormProps } from "../types/types";
+import type { Data, Input } from "../types/types";
 import { titleCase } from "title-case";
 import { checkDupes, formatDate } from "../helper/functions";
+import { useDataContext } from "../context/context";
+import { addStudent } from "../helper/backend";
 
-export default function InputForm({ Data, setData }: InputFormProps) {
+export default function InputForm() {
   const [Input, setInput] = useState<Input>({
     studentName: "",
     studentId: NaN,
   });
 
-  function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
+  const { Data, setData, setError } = useDataContext();
+
+  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const person = "bahaa";
@@ -19,7 +23,7 @@ export default function InputForm({ Data, setData }: InputFormProps) {
       return;
     }
 
-    const newData: Data = {
+    const newStudent: Data = {
       ...Input,
       studentName: titleCase(Input.studentName),
       id: crypto.randomUUID(),
@@ -28,7 +32,15 @@ export default function InputForm({ Data, setData }: InputFormProps) {
       nb_visits: 1,
     };
 
-    setData((prev) => [...prev, newData]);
+    const error = await addStudent(newStudent);
+    if (error) {
+      console.error("An Error has occurred: ", error.message);
+      console.error("Error Details: ", error.details);
+      setError("Failed to Add Student!");
+      return;
+    }
+
+    setData((prev) => [...prev, newStudent]);
 
     setInput({ studentName: "", studentId: NaN });
   }

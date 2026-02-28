@@ -1,56 +1,91 @@
-import type { TableProps } from "../types/types";
 import "../assets/CSS/table.css";
+import { useDataContext } from "../context/context";
+import { incrementVisits } from "../helper/backend";
+import type { Data } from "../types/types";
 
-export default function Table({ Data, setData }: TableProps) {
-  function handleClick(studentID: number): void {
+export default function Table() {
+  const { Data, setData, error, setError, Loading } = useDataContext();
+
+  async function handleClick(student: Data) {
+    const error = await incrementVisits(student);
+
+    if (error) {
+      console.error("An Error has occurred: ", error.message);
+      console.error("Error Details: ", error.details);
+      setError("Failed to increment the number of visits");
+      return;
+    }
+
     setData((prev) =>
       prev.map((data) =>
-        data.studentId === studentID
+        data.studentId === student.studentId
           ? { ...data, nb_visits: data.nb_visits + 1 }
           : data,
       ),
     );
   }
 
+  if (error) {
+    return (
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ height: "50vh" }}
+      >
+        {error}
+      </div>
+    );
+  }
+
   return (
-    <div
-      className="table-responsive"
-      style={{ maxHeight: "50vh", overflowY: "auto" }}
-    >
-      <table className="table table-secondary table-striped table-hover table-bordered text-center align-middle">
-        <thead className="table-light">
-          <tr className="sticky-top">
-            <th scope="col">Student ID</th>
-            <th scope="col">Student Name</th>
-            <th scope="col">Added At</th>
-            <th scope="col">Added By</th>
-            <th scope="col">Nb of Visits</th>
-          </tr>
-        </thead>
-        <tbody>
-          {Data.map((data) => (
-            <tr key={data.id} className="text-center">
-              <th scope="row">{data.studentId}</th>
-              <td className="hover-cell">{data.studentName}</td>
-              <td>{data.added_at}</td>
-              <td>{data.added_by}</td>
-              <td className="hover-cell">
-                <div className="d-flex flex-wrap align-items-center">
-                  <span className="flex-grow-1 text-center">
-                    {data.nb_visits}
-                  </span>
-                  <button
-                    className="btn btn-sm btn-secondary hover-btn"
-                    onClick={() => handleClick(data.studentId)}
-                  >
-                    +
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <>
+      {Loading ? (
+        <div
+          className="d-flex justify-content-center align-items-center"
+          style={{ height: "50vh" }}
+        >
+          Loading Data Please Wait...
+        </div>
+      ) : (
+        <div
+          className="table-responsive"
+          style={{ maxHeight: "50vh", overflowY: "auto" }}
+        >
+          <table className="table table-secondary table-striped table-hover table-bordered text-center align-middle">
+            <thead className="table-light">
+              <tr className="sticky-top">
+                <th scope="col">Student ID</th>
+                <th scope="col">Student Name</th>
+                <th scope="col">Added At</th>
+                <th scope="col">Added By</th>
+                <th scope="col">Nb of Visits</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Data.map((student) => (
+                <tr key={student.id} className="text-center">
+                  <th scope="row">{student.studentId}</th>
+                  <td className="hover-cell">{student.studentName}</td>
+                  <td>{student.added_at}</td>
+                  <td>{student.added_by}</td>
+                  <td className="hover-cell">
+                    <div className="d-flex flex-wrap align-items-center">
+                      <span className="flex-grow-1 text-center">
+                        {student.nb_visits}
+                      </span>
+                      <button
+                        className="btn btn-sm btn-secondary hover-btn"
+                        onClick={() => handleClick(student)}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </>
   );
 }

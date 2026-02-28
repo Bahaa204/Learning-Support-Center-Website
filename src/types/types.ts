@@ -1,4 +1,6 @@
-import type { Dispatch, SetStateAction } from "react";
+import type { Dispatch, ReactNode, SetStateAction } from "react";
+
+type UpdaterFunction<T> = Dispatch<SetStateAction<T>>;
 
 export type Input = {
   studentName: string;
@@ -12,12 +14,17 @@ export type Data = Input & {
   nb_visits: number;
 };
 
-export type InputFormProps = {
-  Data: Data[],
-  setData: Dispatch<SetStateAction<Data[]>>;
+
+export type Props = {
+  Data: Data[];
+  setData: UpdaterFunction<Data[]>;
 };
 
-export type TableProps = {
-  Data: Data[];
-  setData: Dispatch<SetStateAction<Data[]>>;
+export type DataContext = Props & {
+  Loading: boolean;
+  setLoading: UpdaterFunction<boolean>;
+  error: string | null;
+  setError: UpdaterFunction<string | null>;
 };
+
+export type Children = { children: ReactNode };
