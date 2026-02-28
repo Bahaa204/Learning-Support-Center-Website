@@ -1,21 +1,9 @@
 import { useState, type SubmitEvent } from "react";
 import type { Data, Input, InputFormProps } from "../types/types";
 import { titleCase } from "title-case";
+import { checkDupes, formatDate } from "../helper/functions";
 
-export default function InputForm({ setData }: InputFormProps) {
-  function formatDate(): string {
-    return new Date().toLocaleString("en-LB", {
-      timeZone: "Asia/Beirut",
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
-  }
-
+export default function InputForm({ Data, setData }: InputFormProps) {
   const [Input, setInput] = useState<Input>({
     studentName: "",
     studentId: NaN,
@@ -25,6 +13,11 @@ export default function InputForm({ setData }: InputFormProps) {
     event.preventDefault();
 
     const person = "bahaa";
+
+    if (checkDupes(Data, Input.studentId)) {
+      alert("the ID already exists!!");
+      return;
+    }
 
     const newData: Data = {
       ...Input,

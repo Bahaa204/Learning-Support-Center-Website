@@ -13,6 +13,7 @@ export type Data = Input & {
 };
 
 export type InputFormProps = {
+  Data: Data[],
   setData: Dispatch<SetStateAction<Data[]>>;
 };
 

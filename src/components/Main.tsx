@@ -7,7 +7,7 @@ export default function Main() {
 
   return (
     <>
-      <InputForm setData={setData} />
+      <InputForm Data={Data} setData={setData} />
       <Table Data={Data} setData={setData} />
     </>
   );
