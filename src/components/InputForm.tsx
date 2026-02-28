@@ -1,24 +1,19 @@
-import {
-  useState,
-  type Dispatch,
-  type SetStateAction,
-  type SubmitEvent,
-} from "react";
-import type { Data, Input } from "../types/types";
+import { useState, type SubmitEvent } from "react";
+import type { Data, Input, InputFormProps } from "../types/types";
 import { titleCase } from "title-case";
 
-export default function InputForm({
-  setData,
-}: {
-  setData: Dispatch<SetStateAction<Data[]>>;
-}) {
+export default function InputForm({ setData }: InputFormProps) {
   function formatDate(): string {
-    const formatted_date = new Date().toLocaleString("en-LB", {
+    return new Date().toLocaleString("en-LB", {
       timeZone: "Asia/Beirut",
-      dateStyle: "short",
-      timeStyle: "medium",
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
     });
-    return formatted_date;
   }
 
   const [Input, setInput] = useState<Input>({
@@ -29,18 +24,15 @@ export default function InputForm({
   function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!Input.studentName || !Input.studentId) {
-      alert("Please Fill Both Fields");
-      return;
-    }
-
     const person = "bahaa";
 
     const newData: Data = {
       ...Input,
+      studentName: titleCase(Input.studentName),
       id: crypto.randomUUID(),
-      created_at: formatDate(),
+      added_at: formatDate(),
       added_by: titleCase(person),
+      nb_visits: 1,
     };
 
     setData((prev) => [...prev, newData]);
@@ -49,32 +41,46 @@ export default function InputForm({
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <label htmlFor="name">Student Name:</label>
-      <input
-        type="text"
-        id="name"
-        value={Input.studentName}
-        onChange={(event) => {
-          setInput((prev: Input) => ({
-            ...prev,
-            studentName: titleCase(event.target.value),
-          }));
-        }}
-      />
-      <label htmlFor="id">Student ID:</label>
-      <input
-        type="number"
-        id="id"
-        value={isNaN(Input.studentId) ? "" : Input.studentId}
-        onChange={(event) => {
-          setInput((prev: Input) => ({
-            ...prev,
-            studentId: parseInt(event.target.value.trim()) || NaN,
-          }));
-        }}
-      />
-      <button type="submit">Add Student</button>
+    <form
+      onSubmit={handleSubmit}
+      className="d-flex flex-wrap gap-5 justify-content-center align-items-center"
+      style={{ height: "50vh" }}
+    >
+      <div className="form-group">
+        <label htmlFor="name">Student Name:</label>
+        <input
+          required
+          type="text"
+          className="form-control"
+          id="name"
+          value={Input.studentName}
+          onChange={(event) => {
+            setInput((prev: Input) => ({
+              ...prev,
+              studentName: event.target.value,
+            }));
+          }}
+        />
+      </div>
+      <div className="form-group">
+        <label htmlFor="id">Student ID:</label>
+        <input
+          required
+          type="number"
+          id="id"
+          className="form-control"
+          value={isNaN(Input.studentId) ? "" : Input.studentId}
+          onChange={(event) => {
+            setInput((prev: Input) => ({
+              ...prev,
+              studentId: parseInt(event.target.value.trim()) || NaN,
+            }));
+          }}
+        />
+      </div>
+      <button type="submit" className="btn btn-dark">
+        Submit
+      </button>
     </form>
   );
 }

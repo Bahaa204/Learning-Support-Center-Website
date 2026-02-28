@@ -1,0 +1,8 @@
+.hover-btn {
+  opacity: 0;
+  /* transition: opacity 0.2s ease-in-out; */
+}
+
+.hover-cell:hover .hover-btn {
+  opacity: 1;
+}
