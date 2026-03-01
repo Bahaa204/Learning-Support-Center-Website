@@ -1,15 +1,24 @@
-import { useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import InputForm from "../components/InputForm";
 import Table from "../components/Table";
 import { useDataContext } from "../context/context";
 
 export default function Main() {
-  const { Session } = useDataContext();
-  const navigate = useNavigate();
+  const { Session, Loading } = useDataContext();
+
+  if (Loading) {
+    return (
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ height: "50vh" }}
+      >
+        Checking Authentication Please Wait...
+      </div>
+    );
+  }
 
   if (!Session) {
-    navigate("/login");
-    return;
+    return <Navigate to="/login" replace />;
   }
 
   return (

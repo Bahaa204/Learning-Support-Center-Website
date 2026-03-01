@@ -3,15 +3,12 @@ import { useDataContext } from "../context/context";
 import { CSVLink } from "react-csv";
 import type { Data } from "../types/types";
 import exportImage from "../assets/Images/file-export_24.png";
-import {useState } from "react";
+import { useState } from "react";
 import { supabaseClient } from "../supabase-client";
 
 export default function Table() {
-  const { Data, setData, error, setError, Loading, name } =
-    useDataContext();
+  const { Data, setData, error, setError, Loading, name } = useDataContext();
   const [AddingVisits, setAddingVisits] = useState<number>(0);
-
-  console.log(Data);
 
   async function handleClick(student: Data) {
     if (AddingVisits === student.studentId) return;
