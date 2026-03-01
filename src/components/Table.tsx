@@ -3,13 +3,14 @@ import { useDataContext } from "../context/context";
 import { CSVLink } from "react-csv";
 import type { Data } from "../types/types";
 import exportImage from "../assets/Images/file-export_24.png";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { supabaseClient } from "../supabase-client";
 import { getName } from "../helper/functions";
 
 export default function Table() {
   const { Data, setData, error, setError, Loading, setLoading, Session } =
     useDataContext();
+  const [AddingVisits, setAddingVisits] = useState<number>(0);
 
   let name = "";
   if (Session) {
@@ -54,6 +55,8 @@ export default function Table() {
   }, [setError, setLoading, setData, name]);
 
   async function handleClick(student: Data) {
+    if (AddingVisits === student.studentId) return;
+    setAddingVisits(student.studentId);
     const { error: IncrementingError } = await supabaseClient
       .from("Students")
       .update({ nb_visits: student.nb_visits + 1 })
@@ -74,6 +77,7 @@ export default function Table() {
           : data,
       ),
     );
+    setAddingVisits(0);
   }
 
   if (error) {
@@ -148,6 +152,7 @@ export default function Table() {
                         <button
                           className="btn btn-sm btn-secondary hover-btn"
                           onClick={() => handleClick(student)}
+                          disabled={AddingVisits === student.studentId}
                         >
                           +
                         </button>

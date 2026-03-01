@@ -10,12 +10,16 @@ export default function InputForm() {
     studentName: "",
     studentId: NaN,
   });
+  const [isAdding, setIsAdding] = useState(false);
 
   const { Data, setData, setError, Session } = useDataContext();
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
+    if (isAdding) return;
+
+    setIsAdding(true);
     let name = "";
     if (Session) {
       name = getName(Session.user.email);
@@ -35,7 +39,7 @@ export default function InputForm() {
       nb_visits: 1,
     };
 
-    const { error:InsertError } = await supabaseClient
+    const { error: InsertError } = await supabaseClient
       .from("Students")
       .insert(newStudent)
       .single();
@@ -49,6 +53,7 @@ export default function InputForm() {
     setData((prev) => [...prev, newStudent]);
 
     setInput({ studentName: "", studentId: NaN });
+    setIsAdding(false);
   }
 
   return (
@@ -89,7 +94,7 @@ export default function InputForm() {
           }}
         />
       </div>
-      <button type="submit" className="btn btn-dark">
+      <button type="submit" className="btn btn-dark" disabled={isAdding}>
         Submit
       </button>
     </form>
