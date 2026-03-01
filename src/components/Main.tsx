@@ -12,16 +12,15 @@ export default function Main() {
 
   useEffect(() => {
     async function getSession() {
-      const { data, error } = await supabaseClient.auth.getSession();
+      const { data, error:SessionError } = await supabaseClient.auth.getSession();
 
-      if (error) {
-        console.error("An Error has occurred: ", error.message);
-        setError(`Failed to fetch Data. Error message: ${error.message}`);
+      if (SessionError) {
+        console.error("An Error has occurred: ", SessionError.message);
+        setError(`Failed to fetch Data. Error message: ${SessionError.message}`);
         return;
       }
 
       if (data.session) {
-        console.log(data.session);
         setSession(data.session);
       }
     }

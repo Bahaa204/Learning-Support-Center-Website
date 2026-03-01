@@ -35,14 +35,14 @@ export default function InputForm() {
       nb_visits: 1,
     };
 
-    const { error } = await supabaseClient
+    const { error:InsertError } = await supabaseClient
       .from("Students")
       .insert(newStudent)
       .single();
 
-    if (error) {
-      console.error("An Error has occurred: ", error.message);
-      setError(`Failed to add student. Error message: ${error.message}`);
+    if (InsertError) {
+      console.error("An Error has occurred: ", InsertError.message);
+      setError(`Failed to add student. Error message: ${InsertError.message}`);
       return;
     }
 

@@ -18,18 +18,18 @@ export default function Login() {
     const email = `${Login.username}@learningcenter.com`;
     const password = Login.password;
 
-    const { error, data } = await supabaseClient.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) {
-      console.error("An error has occurred: ", error.message);
+    const { error: LogInError, data: session } =
+      await supabaseClient.auth.signInWithPassword({
+        email,
+        password,
+      });
+    if (LogInError) {
+      console.error("An error has occurred: ", LogInError.message);
       setError("Failed to Login");
       return;
     }
 
-    console.log(data.session);
-    setSession(data.session);
+    setSession(session.session);
   }
 
   return (

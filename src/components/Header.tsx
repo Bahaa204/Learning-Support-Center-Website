@@ -13,10 +13,10 @@ export default function Header() {
   }
 
   async function LogOut() {
-    const { error } = await supabaseClient.auth.signOut();
-    if (error) {
-      console.error("An Error has occurred: ", error.message);
-      setError(`Failed to LogOut. Error message: ${error.message}`);
+    const { error: LogOutError } = await supabaseClient.auth.signOut();
+    if (LogOutError) {
+      console.error("An Error has occurred: ", LogOutError.message);
+      setError(`Failed to LogOut. Error message: ${LogOutError.message}`);
       return;
     }
   }

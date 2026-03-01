@@ -23,19 +23,19 @@ export default function Table() {
       let fetchError;
       let Data;
       if (name === "Lara") {
-        const { error, data } = await supabaseClient
+        const { error: FetchingError, data } = await supabaseClient
           .from("Students")
           .select("*");
 
-        fetchError = error;
+        fetchError = FetchingError;
         Data = data;
       } else {
-        const { error, data } = await supabaseClient
+        const { error: FetchingError, data } = await supabaseClient
           .from("Students")
           .select("*")
           .eq("added_by", name);
 
-        fetchError = error;
+        fetchError = FetchingError;
         Data = data;
       }
 
@@ -54,14 +54,16 @@ export default function Table() {
   }, [setError, setLoading, setData, name]);
 
   async function handleClick(student: Data) {
-    const { error } = await supabaseClient
+    const { error: IncrementingError } = await supabaseClient
       .from("Students")
       .update({ nb_visits: student.nb_visits + 1 })
       .eq("studentId", student.studentId);
 
-    if (error) {
-      console.error("An Error has occurred: ", error.message);
-      setError(`Failed to increment visits. Error message: ${error.message}`);
+    if (IncrementingError) {
+      console.error("An Error has occurred: ", IncrementingError.message);
+      setError(
+        `Failed to increment visits. Error message: ${IncrementingError.message}`,
+      );
       return;
     }
 
@@ -135,7 +137,7 @@ export default function Table() {
                 {Data.map((student) => (
                   <tr key={student.id} className="text-center">
                     <th scope="row">{student.studentId}</th>
-                    <td className="hover-cell">{student.studentName}</td>
+                    <td>{student.studentName}</td>
                     <td>{student.added_at}</td>
                     <td>{student.added_by}</td>
                     <td className="hover-cell">
