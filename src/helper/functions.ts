@@ -1,5 +1,6 @@
 import { titleCase } from "title-case";
 import type { Data } from "../types/types";
+import type { Session } from "@supabase/supabase-js";
 
 export function formatDate(): string {
   return new Date().toLocaleString("en-LB", {
@@ -23,10 +24,11 @@ export function checkDupes(data: Data[], id: number): boolean {
   return false;
 }
 
-export function getName(email: string | undefined) {
+export function getName(session: Session | null): string {
+  const email = session?.user.email || "";
   if (email) {
     const name = email.slice(0, email.indexOf("@"));
     return titleCase(name);
   }
-  return "email not found";
+  return "";
 }

@@ -2,6 +2,7 @@ import { useState, type SubmitEvent } from "react";
 import type { LoginInput } from "../types/types";
 import { useDataContext } from "../context/context";
 import { supabaseClient } from "../supabase-client";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [Login, setLogin] = useState<LoginInput>({
@@ -10,6 +11,7 @@ export default function Login() {
   });
 
   const { setSession, error, setError } = useDataContext();
+  const navigate = useNavigate();
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -30,6 +32,7 @@ export default function Login() {
     }
 
     setSession(session.session);
+    navigate("/");
   }
 
   return (

@@ -1,7 +1,7 @@
 import { useState, type SubmitEvent } from "react";
 import type { Data, Input } from "../types/types";
 import { titleCase } from "title-case";
-import { checkDupes, formatDate, getName } from "../helper/functions";
+import { checkDupes, formatDate } from "../helper/functions";
 import { useDataContext } from "../context/context";
 import { supabaseClient } from "../supabase-client";
 
@@ -12,7 +12,7 @@ export default function InputForm() {
   });
   const [isAdding, setIsAdding] = useState(false);
 
-  const { Data, setData, setError, Session } = useDataContext();
+  const { Data, setData, setError, name } = useDataContext();
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -20,10 +20,6 @@ export default function InputForm() {
     if (isAdding) return;
 
     setIsAdding(true);
-    let name = "";
-    if (Session) {
-      name = getName(Session.user.email);
-    }
 
     if (checkDupes(Data, Input.studentId)) {
       alert("the ID already exists!!");

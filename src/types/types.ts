@@ -27,6 +27,7 @@ export type DataContext = Props & {
   setError: UpdaterFunction<string | null>;
   Session: Session | null;
   setSession: UpdaterFunction<Session | null>;
+  name: string;
 };
 
 export type Children = { children: ReactNode };

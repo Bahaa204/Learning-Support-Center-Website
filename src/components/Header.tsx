@@ -1,16 +1,10 @@
 import { useDataContext } from "../context/context";
-import { getName } from "../helper/functions";
 import { supabaseClient } from "../supabase-client";
 import accountImage from "../assets/Images/account_circle_30.png";
 import logoutImage from "../assets/Images/logout_24.png";
 
 export default function Header() {
-  const { setError, Session } = useDataContext();
-
-  let name = "";
-  if (Session) {
-    name = getName(Session.user.email);
-  }
+  const { setError, name } = useDataContext();
 
   async function LogOut() {
     const { error: LogOutError } = await supabaseClient.auth.signOut();
