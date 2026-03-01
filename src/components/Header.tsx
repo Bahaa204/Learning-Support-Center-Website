@@ -5,7 +5,7 @@ import accountImage from "../assets/Images/account_circle_30.png";
 import logoutImage from "../assets/Images/logout_24.png";
 
 export default function Header() {
-  const { setError, setSession, Session } = useDataContext();
+  const { setError, Session } = useDataContext();
 
   let name = "";
   if (Session) {
@@ -19,7 +19,6 @@ export default function Header() {
       setError(`Failed to LogOut. Error message: ${error.message}`);
       return;
     }
-    setSession(null); // to trigger a refresh
   }
   return (
     <header className="bg-dark text-white d-flex justify-content-between align-items-center p-3">

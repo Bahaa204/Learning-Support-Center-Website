@@ -27,6 +27,14 @@ export default function Main() {
     }
 
     getSession();
+
+    const { data: authListener } = supabaseClient.auth.onAuthStateChange(
+      (_event, session) => setSession(session),
+    );
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
   }, [setSession, setError]);
 
   return (
