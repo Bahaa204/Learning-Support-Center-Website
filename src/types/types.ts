@@ -15,12 +15,9 @@ export type Data = Input & {
   nb_visits: number;
 };
 
-export type Props = {
+export type DataContext = {
   Data: Data[];
   setData: UpdaterFunction<Data[]>;
-};
-
-export type DataContext = Props & {
   Loading: boolean;
   setLoading: UpdaterFunction<boolean>;
   error: string | null;
@@ -33,3 +30,8 @@ export type DataContext = Props & {
 export type Children = { children: ReactNode };
 
 export type LoginInput = { username: string; password: string };
+
+export type User = {
+  password: string;
+  username: string;
+};
