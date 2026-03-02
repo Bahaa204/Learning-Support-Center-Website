@@ -1,4 +1,4 @@
-import { useState, type SubmitEvent } from "react";
+import { useEffect, useState, type SubmitEvent } from "react";
 import type { LoginInput, User } from "../types/types";
 import { supabaseClient } from "../supabase-client";
 import { Navigate, useNavigate } from "react-router-dom";
@@ -13,12 +13,43 @@ export default function WorkStudy() {
   });
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [Users, setUsers] = useState<User[]>([]);
   const { Session } = useGetSession();
-  const {
-    Data: Users,
-    Error,
-    Loading,
-  } = useFetchFromTable<"Users">("Users", "Lara");
+  const { Data, Error, Loading } = useFetchFromTable<"Users">("Users", "Lara");
+
+  // Real Time Listeners to update the State
+  useEffect(() => {
+    (async () => setUsers(Data))();
+  }, [Data]);
+
+  useEffect(() => {
+    const channel = supabaseClient.channel("Users-Channel");
+
+    channel
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "Users" },
+        (payload) => {
+          const newUser = payload.new as User;
+          setUsers((prev) => [...prev, newUser]);
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "Users" },
+        (payload) => {
+          const oldUser = payload.old as User;
+          setUsers((prev) => prev.filter((user) => user.id !== oldUser.id));
+        },
+      )
+      .subscribe((status) => {
+        console.log(status);
+      });
+
+    return () => {
+      supabaseClient.removeChannel(channel);
+    };
+  }, []);
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();

@@ -54,7 +54,7 @@ export default function InputForm({ Students }: Props) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="d-flex flex-column flex-wrap gap-3 justify-content-center align-items-center"
+      className="d-flex flex-column flex-wrap gap-3 justify-content-evenly align-items-center"
       style={{ height: "50vh" }}
     >
       <div className="form-group">
