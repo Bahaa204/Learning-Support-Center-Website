@@ -12,6 +12,7 @@ export default function InputForm({ Students }: Props) {
   });
   const [isAdding, setIsAdding] = useState(false);
 
+  // Getting the name from the current Session
   const { Session } = useGetSession();
   const name = getName(Session);
 

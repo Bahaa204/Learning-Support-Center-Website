@@ -5,8 +5,8 @@ import { getName } from "../helper/functions";
 import { useGetSession } from "../hooks/CustomHooks";
 
 export default function Header() {
+  // Getting the name from the current Session
   const { Session } = useGetSession();
-
   const name = getName(Session);
 
   async function LogOut() {

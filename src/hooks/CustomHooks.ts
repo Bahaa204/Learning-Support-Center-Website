@@ -3,6 +3,7 @@ import { supabaseClient } from "../supabase-client";
 import type { Data, RowType, TableName } from "../types/types";
 import type { Session } from "@supabase/supabase-js";
 
+// Custom Hook to fetch the data from supabase
 export function useFetchFromTable<T extends TableName>(
   table_name: T,
   added_by: string,
@@ -44,6 +45,7 @@ export function useFetchFromTable<T extends TableName>(
   return { Data, Error, Loading };
 }
 
+// Custom Hook to get the current session and listens to any changes that may occur to the session
 export function useGetSession() {
   const [Session, setSession] = useState<Session | null>(null);
   const [Loading, setLoading] = useState<boolean>(true);

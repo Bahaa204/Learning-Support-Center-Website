@@ -2,6 +2,7 @@ import { titleCase } from "title-case";
 import type { Student } from "../types/types";
 import type { Session } from "@supabase/supabase-js";
 
+// Formatting the Date to this format: Day, Month, Year at HH:MM AM/PM
 export function formatDate(): string {
   return new Date().toLocaleString("en-LB", {
     timeZone: "Asia/Beirut",
@@ -15,6 +16,7 @@ export function formatDate(): string {
   });
 }
 
+// Preventing duplication in the Table
 export function checkDupes(students: Student[], id: number): boolean {
   for (const student of students) {
     if (student.studentId === id) {
@@ -24,6 +26,7 @@ export function checkDupes(students: Student[], id: number): boolean {
   return false;
 }
 
+// Gets the name of the user from the current session
 export function getName(session: Session | null): string {
   const email = session?.user.email || "";
   if (email) {

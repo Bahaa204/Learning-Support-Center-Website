@@ -8,6 +8,7 @@ import { getName } from "../helper/functions";
 import { useGetSession } from "../hooks/CustomHooks";
 
 export default function Table({ Students }: Props) {
+  // Getting the name from the current Session
   const { Session } = useGetSession();
   const name = getName(Session);
 
@@ -44,6 +45,7 @@ export default function Table({ Students }: Props) {
   return (
     <>
       <div className="d-flex justify-content-end mb-3">
+        {/* Button to extract the table to a csv file */}
         {name === "Lara" && (
           <CSVLink
             data={Students}
