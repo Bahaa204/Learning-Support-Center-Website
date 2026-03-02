@@ -44,7 +44,7 @@ export default function InputForm({ Students }: Props) {
       .single();
 
     if (InsertError) {
-      console.error("An Error has occurred: ", InsertError.message);
+      alert(`An Error has occurred: ${InsertError.message}`);
       return;
     }
 

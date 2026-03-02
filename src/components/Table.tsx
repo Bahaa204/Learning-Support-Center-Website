@@ -25,8 +25,7 @@ export default function Table({ Students }: Props) {
       .eq("studentId", student.studentId);
 
     if (error) {
-      const msg = `Failed to increment visits. Error message: ${error.message}`;
-      console.error(msg);
+      alert(`Failed to increment visits. Error message: ${error.message}`);
       setIsAdding(null);
       return;
     }

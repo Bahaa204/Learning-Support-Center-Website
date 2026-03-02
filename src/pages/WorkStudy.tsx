@@ -16,7 +16,8 @@ export default function WorkStudy() {
 
   const name = getName(Session);
   const navigate = useNavigate();
-  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [isAdding, setIsAdding] = useState<boolean>(false);
+  const [DeleteUser, setDeleteUser] = useState<string | null>(null);
   const [Users, setUsers] = useState<User[]>([]);
   const { Data, Error, Loading } = useFetchFromTable<"Users">(
     "Users",
@@ -59,12 +60,12 @@ export default function WorkStudy() {
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (isEditing) return;
+    if (isAdding) return;
     if (name !== "Laraabouorm") {
       alert("You cannot insert any user");
       return;
     }
-    setIsEditing(true);
+    setIsAdding(true);
 
     const email = `${Input.username}@learningcenter.com`;
     const password = Input.password;
@@ -76,7 +77,7 @@ export default function WorkStudy() {
 
     if (SignUpError) {
       alert(`An Error has occurred: ${SignUpError.message}`);
-      setIsEditing(false);
+      setIsAdding(false);
       return;
     }
 
@@ -103,16 +104,16 @@ export default function WorkStudy() {
 
     setInput({ username: "", password: "" });
 
-    setIsEditing(false);
+    setIsAdding(false);
   }
 
   async function handleClick(user: User) {
-    if (isEditing) return;
+    if (DeleteUser === user.id) return;
     if (name !== "Laraabouorm") {
       alert("You cannot delete any user");
       return;
     }
-    setIsEditing(true);
+    setDeleteUser(user.id);
 
     const { error: DeleteError } = await supabaseClient
       .from("Users")
@@ -124,7 +125,7 @@ export default function WorkStudy() {
       return;
     }
 
-    setIsEditing(false);
+    setDeleteUser(null);
   }
 
   if (SessionLoading) {
@@ -193,7 +194,7 @@ export default function WorkStudy() {
             }}
           />
         </div>
-        <button type="submit" className="btn btn-dark" disabled={isEditing}>
+        <button type="submit" className="btn btn-dark" disabled={isAdding}>
           Submit
         </button>
       </form>
@@ -243,7 +244,7 @@ export default function WorkStudy() {
                           <button
                             className="btn btn-sm btn-danger hover-btn"
                             onClick={() => handleClick(user)}
-                            disabled={isEditing}
+                            disabled={DeleteUser === user.id}
                           >
                             <img src={deleteImage} alt="delete user" />
                           </button>
