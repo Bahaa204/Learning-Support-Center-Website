@@ -5,6 +5,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import deleteImage from "../assets/Images/delete_24dppng.png";
 import { titleCase } from "title-case";
 import { useFetchFromTable, useGetSession } from "../hooks/CustomHooks";
+import { getName } from "../helper/functions";
 
 export default function WorkStudy() {
   const [Input, setInput] = useState<LoginInput>({
@@ -12,6 +13,8 @@ export default function WorkStudy() {
     password: "",
   });
   const { Session, Loading: SessionLoading } = useGetSession();
+
+  const name = getName(Session);
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [Users, setUsers] = useState<User[]>([]);
@@ -122,6 +125,10 @@ export default function WorkStudy() {
         Wait...
       </div>
     );
+  }
+
+  if (name !== "Lara") {
+    return <Navigate to="/" replace />;
   }
 
   if (!Session) {

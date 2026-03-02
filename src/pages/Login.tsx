@@ -10,11 +10,14 @@ export default function Login() {
     password: "",
   });
   const [Error, setError] = useState<string | null>(null);
+  const [isDisabled, setIsDisabled] = useState<boolean>(false);
   const { Session, Loading: SessionLoading } = useGetSession();
   const navigate = useNavigate();
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    setIsDisabled(true);
 
     const email = `${Login.username}@learningcenter.com`;
     const password = Login.password;
@@ -92,7 +95,11 @@ export default function Login() {
             />
           </div>
 
-          <button type="submit" className="btn btn-primary w-100">
+          <button
+            type="submit"
+            className="btn btn-primary w-100"
+            disabled={isDisabled}
+          >
             Login
           </button>
         </form>
