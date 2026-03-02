@@ -51,6 +51,11 @@ export default function WorkStudy() {
       return;
     }
 
+    await supabaseClient.auth.signInWithPassword({
+      email: "lara@learningcenter.com",
+      password: "supportcenter",
+    });
+
     const newUser: User = {
       id: crypto.randomUUID(),
       username: titleCase(Input.username),
@@ -98,6 +103,19 @@ export default function WorkStudy() {
 
     setIsDeleting(false);
   }
+
+  if (Loading) {
+    return (
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ height: "50vh" }}
+      >
+        Checking Authentication Please Wait...
+      </div>
+    );
+  }
+
+  console.log("Session: ", Session);
 
   if (!Session) {
     return <Navigate to="/login" replace />;

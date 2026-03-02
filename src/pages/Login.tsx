@@ -2,7 +2,7 @@ import { useState, type SubmitEvent } from "react";
 import type { LoginInput } from "../types/types";
 import { useDataContext } from "../context/context";
 import { supabaseClient } from "../supabase-client";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [Login, setLogin] = useState<LoginInput>({
@@ -10,7 +10,7 @@ export default function Login() {
     password: "",
   });
 
-  const { setSession, error, setError } = useDataContext();
+  const { setSession, error, setError, Loading, Session } = useDataContext();
   const navigate = useNavigate();
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
@@ -33,6 +33,21 @@ export default function Login() {
 
     setSession(session.session);
     navigate("/");
+  }
+
+  if (Loading) {
+    return (
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ height: "50vh" }}
+      >
+        Checking Authentication Please Wait...
+      </div>
+    );
+  }
+
+  if (Session) {
+    return <Navigate to="/" replace />;
   }
 
   return (
