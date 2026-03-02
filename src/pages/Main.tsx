@@ -76,7 +76,6 @@ export default function Main() {
     );
   }
 
-
   if (!Session) {
     return <Navigate to="/login" replace />;
   }
@@ -96,7 +95,7 @@ export default function Main() {
   return (
     <>
       <InputForm Students={Students} />
-      {name === "Lara" && (
+      {name === "Laraabouorm" && (
         <div className="d-flex justify-content-center ">
           <button
             className="btn btn-success"

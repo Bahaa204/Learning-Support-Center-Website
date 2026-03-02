@@ -46,7 +46,7 @@ export default function Table({ Students }: Props) {
     <>
       <div className="d-flex justify-content-end mb-3">
         {/* Button to extract the table to a csv file */}
-        {name === "Lara" && (
+        {name === "Laraabouorm" && (
           <CSVLink
             data={Students}
             headers={headers}

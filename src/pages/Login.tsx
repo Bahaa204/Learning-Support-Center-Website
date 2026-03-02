@@ -30,6 +30,7 @@ export default function Login() {
       const msg = `Error: ${LogInError.message}`;
       console.error(msg);
       setError(msg);
+      setIsDisabled(false);
       return;
     }
 

@@ -18,7 +18,10 @@ export default function WorkStudy() {
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [Users, setUsers] = useState<User[]>([]);
-  const { Data, Error, Loading } = useFetchFromTable<"Users">("Users", "Lara");
+  const { Data, Error, Loading } = useFetchFromTable<"Users">(
+    "Users",
+    "Laraabouorm",
+  );
 
   // Real Time Listeners to update the State
   useEffect(() => {
@@ -57,7 +60,7 @@ export default function WorkStudy() {
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     if (isEditing) return;
-    if (name !== "Lara") {
+    if (name !== "Laraabouorm") {
       alert("You cannot insert any user");
       return;
     }
@@ -105,7 +108,7 @@ export default function WorkStudy() {
 
   async function handleClick(user: User) {
     if (isEditing) return;
-    if (name !== "Lara") {
+    if (name !== "Laraabouorm") {
       alert("You cannot delete any user");
       return;
     }
@@ -228,7 +231,7 @@ export default function WorkStudy() {
               </thead>
               <tbody>
                 {Users.map((user) => {
-                  if (user.username === "Lara") return;
+                  if (user.username === "Lara Abou Orm") return;
                   return (
                     <tr key={user.password} className="text-center">
                       <th scope="row">{user.password}</th>
