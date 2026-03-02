@@ -1,7 +1,7 @@
 import { useState, type SubmitEvent } from "react";
 import type { LoginInput, User } from "../types/types";
 import { supabaseClient } from "../supabase-client";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import deleteImage from "../assets/Images/delete_24dppng.png";
 import { titleCase } from "title-case";
 import { useFetchFromTable, useGetSession } from "../hooks/CustomHooks";
@@ -11,6 +11,7 @@ export default function WorkStudy() {
     username: "",
     password: "",
   });
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const { Session } = useGetSession();
   const {
@@ -158,40 +159,56 @@ export default function WorkStudy() {
           Loading Data Please Wait...
         </div>
       ) : (
-        <div
-          className="table-responsive"
-          style={{ maxHeight: "50vh", overflowY: "auto" }}
-        >
-          <table className="table table-secondary table-striped table-hover table-bordered text-center align-middle">
-            <thead className="table-light">
-              <tr className="sticky-top">
-                <th scope="col">WorkStudy ID</th>
-                <th scope="col">WorkStudy Name</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Users.map((user) => (
-                <tr key={user.password} className="text-center">
-                  <th scope="row">{user.password}</th>
-                  <td className="hover-cell">
-                    <div className="d-flex flex-wrap align-items-center">
-                      <span className="flex-grow-1 text-center">
-                        {user.username}
-                      </span>
-                      <button
-                        className="btn btn-sm btn-danger hover-btn"
-                        onClick={() => handleClick(user)}
-                        disabled={isEditing}
-                      >
-                        <img src={deleteImage} alt="delete user" />
-                      </button>
-                    </div>
-                  </td>
+        <>
+          <div className="d-flex justify-content-center mb-5">
+            <button
+              className="btn btn-success"
+              onClick={() => {
+                navigate("/");
+              }}
+            >
+              Go Back
+            </button>
+          </div>
+
+          <div
+            className="table-responsive"
+            style={{ maxHeight: "50vh", overflowY: "auto" }}
+          >
+            <table className="table table-secondary table-striped table-hover table-bordered text-center align-middle">
+              <thead className="table-light">
+                <tr className="sticky-top">
+                  <th scope="col">WorkStudy ID</th>
+                  <th scope="col">WorkStudy Name</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {Users.map((user) => {
+                  if (user.username === "Lara") return;
+                  return (
+                    <tr key={user.password} className="text-center">
+                      <th scope="row">{user.password}</th>
+                      <td className="hover-cell">
+                        <div className="d-flex flex-wrap align-items-center">
+                          <span className="flex-grow-1 text-center">
+                            {user.username}
+                          </span>
+                          <button
+                            className="btn btn-sm btn-danger hover-btn"
+                            onClick={() => handleClick(user)}
+                            disabled={isEditing}
+                          >
+                            <img src={deleteImage} alt="delete user" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </>
   );
