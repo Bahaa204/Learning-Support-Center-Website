@@ -81,7 +81,7 @@ export default function WorkStudy() {
     }
 
     await supabaseClient.auth.signInWithPassword({
-      email: "lara@learningcenter.com",
+      email: "laraabouorm@learningcenter.com",
       password: "supportcenter",
     });
 
