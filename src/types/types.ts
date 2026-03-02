@@ -32,6 +32,7 @@ export type Children = { children: ReactNode };
 export type LoginInput = { username: string; password: string };
 
 export type User = {
-  password: string;
+  id: string;
   username: string;
+  password: string;
 };

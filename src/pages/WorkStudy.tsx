@@ -2,8 +2,9 @@ import { useEffect, useState, type SubmitEvent } from "react";
 import type { LoginInput, User } from "../types/types";
 import { supabaseClient } from "../supabase-client";
 import { useDataContext } from "../context/context";
-import { titleCase } from "title-case";
 import { Navigate } from "react-router-dom";
+import deleteImage from "../assets/Images/delete_24dppng.png";
+import { titleCase } from "title-case";
 
 export default function WorkStudy() {
   const [Users, setUsers] = useState<User[]>([]);
@@ -12,8 +13,8 @@ export default function WorkStudy() {
     password: "",
   });
   const [isAdding, setIsAdding] = useState<boolean>(false);
-  const { error, setError, Loading, setLoading, Session, name } =
-    useDataContext();
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const { error, setError, Loading, setLoading, Session } = useDataContext();
 
   useEffect(() => {
     async function getUsers() {
@@ -46,46 +47,60 @@ export default function WorkStudy() {
 
     if (SignUpError) {
       console.error("An Error has occurred: ", SignUpError.message);
-      setError(
-        `Failed to increment visits. Error message: ${SignUpError.message}`,
-      );
+      setError(`Failed to Sign Up. Error message: ${SignUpError.message}`);
       return;
     }
 
-    const { data: user } = await supabaseClient.auth.getUser();
-
-    console.log(user.user);
-
-    const uuid = user.user?.id;
+    const newUser: User = {
+      id: crypto.randomUUID(),
+      username: titleCase(Input.username),
+      password: Input.password,
+    };
 
     const { error: InsertError } = await supabaseClient
       .from("Users")
-      .insert({
-        id: uuid,
-        username: titleCase(Input.username),
-        password: Input.password,
-      })
+      .insert(newUser)
       .single();
 
     if (InsertError) {
       console.error("An Error has occurred: ", InsertError.message);
-      setError(`Failed to add student. Error message: ${InsertError.message}`);
+      setError(
+        `Failed to add Workstudy. Error message: ${InsertError.message}`,
+      );
       return;
     }
 
-    setUsers((prev) => [...prev, Input]);
+    setUsers((prev) => [...prev, newUser]);
 
     setInput({ username: "", password: "" });
 
     setIsAdding(false);
   }
 
-  if (!Session) {
-    return <Navigate to="/login" replace />;
+  async function handleClick(user: User) {
+    if (isDeleting) return;
+    setIsDeleting(true);
+
+    const { error: DeleteError } = await supabaseClient
+      .from("Users")
+      .delete()
+      .eq("id", user.id);
+
+    if (DeleteError) {
+      console.error("An Error has occurred: ", DeleteError.message);
+      setError(
+        `Failed to remove workstudy. Error message: ${DeleteError.message}`,
+      );
+      return;
+    }
+
+    setUsers(Users.filter((u) => u.id !== user.id));
+
+    setIsDeleting(false);
   }
 
-  if (name !== "Lara") {
-    return <Navigate to="/" replace />;
+  if (!Session) {
+    return <Navigate to="/login" replace />;
   }
 
   if (error) {
@@ -166,7 +181,20 @@ export default function WorkStudy() {
               {Users.map((user) => (
                 <tr key={user.password} className="text-center">
                   <th scope="row">{user.password}</th>
-                  <td>{user.username}</td>
+                  <td className="hover-cell">
+                    <div className="d-flex flex-wrap align-items-center">
+                      <span className="flex-grow-1 text-center">
+                        {user.username}
+                      </span>
+                      <button
+                        className="btn btn-sm btn-danger hover-btn"
+                        onClick={() => handleClick(user)}
+                        disabled={isDeleting}
+                      >
+                        <img src={deleteImage} alt="delete user" />
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
