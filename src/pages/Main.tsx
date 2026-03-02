@@ -9,9 +9,11 @@ import { supabaseClient } from "../supabase-client";
 
 export default function Main() {
   const [Students, setStudents] = useState<Student[]>([]);
-  const navigate = useNavigate();
-
-  const { Session, Error: SessionError } = useGetSession();
+  const {
+    Session,
+    Loading: SessionLoading,
+    Error: SessionError,
+  } = useGetSession();
 
   const name = getName(Session);
 
@@ -20,6 +22,8 @@ export default function Main() {
     Loading: LoadingData,
     Error: FetchError,
   } = useFetchFromTable<"Students">("Students", name);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     (async () => setStudents(Data))();
@@ -60,18 +64,21 @@ export default function Main() {
     };
   }, []);
 
-  if (!Session) {
-    return <Navigate to="/login" replace />;
-  }
-  if (LoadingData) {
+  if (SessionLoading || LoadingData) {
     return (
       <div
         className="d-flex justify-content-center align-items-center"
         style={{ height: "50vh" }}
       >
-        Loading Data Please Wait...
+        {SessionLoading ? "Checking Authentication" : "Loading Data"} Please
+        Wait...
       </div>
     );
+  }
+
+
+  if (!Session) {
+    return <Navigate to="/login" replace />;
   }
 
   const error = FetchError || SessionError;

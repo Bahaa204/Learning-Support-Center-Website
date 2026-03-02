@@ -11,10 +11,10 @@ export default function WorkStudy() {
     username: "",
     password: "",
   });
+  const { Session, Loading: SessionLoading } = useGetSession();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [Users, setUsers] = useState<User[]>([]);
-  const { Session } = useGetSession();
   const { Data, Error, Loading } = useFetchFromTable<"Users">("Users", "Lara");
 
   // Real Time Listeners to update the State
@@ -112,13 +112,14 @@ export default function WorkStudy() {
     setIsEditing(false);
   }
 
-  if (Loading) {
+  if (SessionLoading) {
     return (
       <div
         className="d-flex justify-content-center align-items-center"
         style={{ height: "50vh" }}
       >
-        Checking Authentication Please Wait...
+        {SessionLoading ? "Checking Authentication" : "Loading Data"} Please
+        Wait...
       </div>
     );
   }

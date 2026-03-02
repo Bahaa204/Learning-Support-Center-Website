@@ -9,7 +9,7 @@ export function useFetchFromTable<T extends TableName>(
   added_by: string,
 ) {
   const [Data, setData] = useState<RowType<T>[]>([]);
-  const [Loading, setLoading] = useState(true);
+  const [Loading, setLoading] = useState(false);
   const [Error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -65,12 +65,8 @@ export function useGetSession() {
         setLoading(false);
         return;
       }
-
-      if (data.session) {
-        setLoading(false);
-        setError(null);
-        setSession(data.session);
-      }
+      setSession(data.session);
+      setLoading(false);
     }
 
     getSession();

@@ -10,7 +10,7 @@ export default function Login() {
     password: "",
   });
   const [Error, setError] = useState<string | null>(null);
-  const { Session } = useGetSession();
+  const { Session, Loading: SessionLoading } = useGetSession();
   const navigate = useNavigate();
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
@@ -31,6 +31,17 @@ export default function Login() {
     }
 
     navigate("/");
+  }
+
+  if (SessionLoading) {
+    return (
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ height: "50vh" }}
+      >
+        Checking Authentication Please Wait...
+      </div>
+    );
   }
 
   if (Session) {
