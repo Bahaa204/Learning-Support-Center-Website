@@ -29,18 +29,20 @@ export default function Header() {
         <p className="mb-0">{name}</p>
       </div>
 
-      <button
-        className="btn btn-danger d-flex align-items-center"
-        onClick={LogOut}
-      >
-        <img
-          src={logoutImage}
-          alt="Logout"
-          className="me-2"
-          style={{ width: "20px", height: "20px" }}
-        />
-        Logout
-      </button>
+      {Session && (
+        <button
+          className="btn btn-danger d-flex align-items-center"
+          onClick={LogOut}
+        >
+          <img
+            src={logoutImage}
+            alt="Logout"
+            className="me-2"
+            style={{ width: "20px", height: "20px" }}
+          />
+          Logout
+        </button>
+      )}
     </header>
   );
 }

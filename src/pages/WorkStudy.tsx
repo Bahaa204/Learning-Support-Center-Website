@@ -57,6 +57,10 @@ export default function WorkStudy() {
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     if (isEditing) return;
+    if (name !== "Lara") {
+      alert("You cannot insert any user");
+      return;
+    }
     setIsEditing(true);
 
     const email = `${Input.username}@learningcenter.com`;
@@ -68,7 +72,8 @@ export default function WorkStudy() {
     });
 
     if (SignUpError) {
-      console.error("An Error has occurred: ", SignUpError.message);
+      alert(`An Error has occurred: ${SignUpError.message}`);
+      setIsEditing(false);
       return;
     }
 
@@ -89,7 +94,7 @@ export default function WorkStudy() {
       .single();
 
     if (InsertError) {
-      console.error("An Error has occurred: ", InsertError.message);
+      alert(`An Error has occurred: ${InsertError.message}`);
       return;
     }
 
@@ -100,6 +105,10 @@ export default function WorkStudy() {
 
   async function handleClick(user: User) {
     if (isEditing) return;
+    if (name !== "Lara") {
+      alert("You cannot delete any user");
+      return;
+    }
     setIsEditing(true);
 
     const { error: DeleteError } = await supabaseClient
@@ -108,7 +117,7 @@ export default function WorkStudy() {
       .eq("id", user.id);
 
     if (DeleteError) {
-      console.error("An Error has occurred: ", DeleteError.message);
+      alert(`An Error has occurred: ${DeleteError.message}`);
       return;
     }
 
@@ -125,10 +134,6 @@ export default function WorkStudy() {
         Wait...
       </div>
     );
-  }
-
-  if (name !== "Lara") {
-    return <Navigate to="/" replace />;
   }
 
   if (!Session) {

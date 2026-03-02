@@ -25,6 +25,7 @@ export default function InputForm({ Students }: Props) {
 
     if (checkDupes(Students, Input.studentId)) {
       alert("the ID already exists!!");
+      setIsAdding(false);
       return;
     }
 
