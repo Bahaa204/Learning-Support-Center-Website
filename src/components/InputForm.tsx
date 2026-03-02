@@ -1,18 +1,19 @@
 import { useState, type SubmitEvent } from "react";
-import type { Data, Input } from "../types/types";
+import type { Input, Props, Student } from "../types/types";
 import { titleCase } from "title-case";
-import { checkDupes, formatDate } from "../helper/functions";
-import { useDataContext } from "../context/context";
+import { checkDupes, formatDate, getName } from "../helper/functions";
 import { supabaseClient } from "../supabase-client";
+import { useGetSession } from "../hooks/CustomHooks";
 
-export default function InputForm() {
+export default function InputForm({ Students }: Props) {
   const [Input, setInput] = useState<Input>({
     studentName: "",
     studentId: NaN,
   });
   const [isAdding, setIsAdding] = useState(false);
 
-  const { Data, setData, setError, name } = useDataContext();
+  const { Session } = useGetSession();
+  const name = getName(Session);
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -21,12 +22,12 @@ export default function InputForm() {
 
     setIsAdding(true);
 
-    if (checkDupes(Data, Input.studentId)) {
+    if (checkDupes(Students, Input.studentId)) {
       alert("the ID already exists!!");
       return;
     }
 
-    const newStudent: Data = {
+    const newStudent: Student = {
       ...Input,
       studentName: titleCase(Input.studentName),
       id: crypto.randomUUID(),
@@ -42,11 +43,8 @@ export default function InputForm() {
 
     if (InsertError) {
       console.error("An Error has occurred: ", InsertError.message);
-      setError(`Failed to add student. Error message: ${InsertError.message}`);
       return;
     }
-
-    setData((prev) => [...prev, newStudent]);
 
     setInput({ studentName: "", studentId: NaN });
     setIsAdding(false);

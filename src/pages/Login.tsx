@@ -1,49 +1,36 @@
 import { useState, type SubmitEvent } from "react";
 import type { LoginInput } from "../types/types";
-import { useDataContext } from "../context/context";
 import { supabaseClient } from "../supabase-client";
 import { Navigate, useNavigate } from "react-router-dom";
+import { useGetSession } from "../hooks/CustomHooks";
 
 export default function Login() {
   const [Login, setLogin] = useState<LoginInput>({
     username: "",
     password: "",
   });
-
-  const { setSession, error, setError, Loading, Session } = useDataContext();
+  const [Error, setError] = useState<string | null>(null);
+  const { Session } = useGetSession();
   const navigate = useNavigate();
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError(null);
 
     const email = `${Login.username}@learningcenter.com`;
     const password = Login.password;
 
-    const { error: LogInError, data: session } =
-      await supabaseClient.auth.signInWithPassword({
-        email,
-        password,
-      });
+    const { error: LogInError } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password,
+    });
     if (LogInError) {
-      console.error("An error has occurred: ", LogInError.message);
-      setError("Failed to Login");
+      const msg = `Error: ${LogInError.message}`;
+      console.error(msg);
+      setError(msg);
       return;
     }
 
-    setSession(session.session);
     navigate("/");
-  }
-
-  if (Loading) {
-    return (
-      <div
-        className="d-flex justify-content-center align-items-center"
-        style={{ height: "50vh" }}
-      >
-        Checking Authentication Please Wait...
-      </div>
-    );
   }
 
   if (Session) {
@@ -55,9 +42,9 @@ export default function Login() {
       <div className="card shadow-sm p-4" style={{ width: "350px" }}>
         <h2 className="text-center mb-4">Login</h2>
 
-        {error && (
+        {Error && (
           <div className="alert alert-danger" role="alert">
-            {error}
+            {Error}
           </div>
         )}
 

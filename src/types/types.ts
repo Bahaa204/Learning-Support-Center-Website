@@ -1,38 +1,26 @@
-import type { Session } from "@supabase/supabase-js";
-import type { Dispatch, ReactNode, SetStateAction } from "react";
+import type { PostgrestError } from "@supabase/supabase-js";
+import type { Dispatch, SetStateAction } from "react";
+import type { Database } from "../../database.types";
 
-type UpdaterFunction<T> = Dispatch<SetStateAction<T>>;
+export type UpdaterFunction<T> = Dispatch<SetStateAction<T>>;
+
+export type TableName = keyof Database["public"]["Tables"];
+export type RowType<T extends TableName> =
+  Database["public"]["Tables"][T]["Row"];
+
+export type Data<T extends TableName> = {
+  data: RowType<T>[] | null;
+  error: PostgrestError | null;
+};
+
+export type Student = RowType<"Students">;
+export type User = RowType<"Users">;
+
+export type LoginInput = { username: string; password: string };
 
 export type Input = {
   studentName: string;
   studentId: number;
 };
 
-export type Data = Input & {
-  id: string;
-  added_at: string;
-  added_by: string;
-  nb_visits: number;
-};
-
-export type DataContext = {
-  Data: Data[];
-  setData: UpdaterFunction<Data[]>;
-  Loading: boolean;
-  setLoading: UpdaterFunction<boolean>;
-  error: string | null;
-  setError: UpdaterFunction<string | null>;
-  Session: Session | null;
-  setSession: UpdaterFunction<Session | null>;
-  name: string;
-};
-
-export type Children = { children: ReactNode };
-
-export type LoginInput = { username: string; password: string };
-
-export type User = {
-  id: string;
-  username: string;
-  password: string;
-};
+export type Props = { Students: Student[] };

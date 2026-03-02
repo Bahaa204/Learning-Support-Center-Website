@@ -1,41 +1,28 @@
-import { useEffect, useState, type SubmitEvent } from "react";
+import { useState, type SubmitEvent } from "react";
 import type { LoginInput, User } from "../types/types";
 import { supabaseClient } from "../supabase-client";
-import { useDataContext } from "../context/context";
 import { Navigate } from "react-router-dom";
 import deleteImage from "../assets/Images/delete_24dppng.png";
 import { titleCase } from "title-case";
+import { useFetchFromTable, useGetSession } from "../hooks/CustomHooks";
 
 export default function WorkStudy() {
-  const [Users, setUsers] = useState<User[]>([]);
   const [Input, setInput] = useState<LoginInput>({
     username: "",
     password: "",
   });
-  const [isAdding, setIsAdding] = useState<boolean>(false);
-  const [isDeleting, setIsDeleting] = useState<boolean>(false);
-  const { error, setError, Loading, setLoading, Session } = useDataContext();
-
-  useEffect(() => {
-    async function getUsers() {
-      setLoading(false);
-      setError(null);
-      const { data, error } = await supabaseClient.from("Users").select("*");
-
-      if (error) {
-        console.error("An Error has occurred: ", error.message);
-        setError(`Failed to increment visits. Error message: ${error.message}`);
-        return;
-      }
-      setUsers(data);
-    }
-    getUsers();
-  }, [setError, setLoading]);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const { Session } = useGetSession();
+  const {
+    Data: Users,
+    Error,
+    Loading,
+  } = useFetchFromTable<"Users">("Users", "Lara");
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (isAdding) return;
-    setIsAdding(true);
+    if (isEditing) return;
+    setIsEditing(true);
 
     const email = `${Input.username}@learningcenter.com`;
     const password = Input.password;
@@ -47,7 +34,6 @@ export default function WorkStudy() {
 
     if (SignUpError) {
       console.error("An Error has occurred: ", SignUpError.message);
-      setError(`Failed to Sign Up. Error message: ${SignUpError.message}`);
       return;
     }
 
@@ -69,22 +55,17 @@ export default function WorkStudy() {
 
     if (InsertError) {
       console.error("An Error has occurred: ", InsertError.message);
-      setError(
-        `Failed to add Workstudy. Error message: ${InsertError.message}`,
-      );
       return;
     }
 
-    setUsers((prev) => [...prev, newUser]);
-
     setInput({ username: "", password: "" });
 
-    setIsAdding(false);
+    setIsEditing(false);
   }
 
   async function handleClick(user: User) {
-    if (isDeleting) return;
-    setIsDeleting(true);
+    if (isEditing) return;
+    setIsEditing(true);
 
     const { error: DeleteError } = await supabaseClient
       .from("Users")
@@ -93,15 +74,10 @@ export default function WorkStudy() {
 
     if (DeleteError) {
       console.error("An Error has occurred: ", DeleteError.message);
-      setError(
-        `Failed to remove workstudy. Error message: ${DeleteError.message}`,
-      );
       return;
     }
 
-    setUsers(Users.filter((u) => u.id !== user.id));
-
-    setIsDeleting(false);
+    setIsEditing(false);
   }
 
   if (Loading) {
@@ -115,19 +91,17 @@ export default function WorkStudy() {
     );
   }
 
-  console.log("Session: ", Session);
-
   if (!Session) {
     return <Navigate to="/login" replace />;
   }
 
-  if (error) {
+  if (Error) {
     return (
       <div
         className="d-flex justify-content-center align-items-center"
         style={{ height: "50vh" }}
       >
-        {error}
+        {Error}
       </div>
     );
   }
@@ -171,7 +145,7 @@ export default function WorkStudy() {
             }}
           />
         </div>
-        <button type="submit" className="btn btn-dark" disabled={isAdding}>
+        <button type="submit" className="btn btn-dark" disabled={isEditing}>
           Submit
         </button>
       </form>
@@ -207,7 +181,7 @@ export default function WorkStudy() {
                       <button
                         className="btn btn-sm btn-danger hover-btn"
                         onClick={() => handleClick(user)}
-                        disabled={isDeleting}
+                        disabled={isEditing}
                       >
                         <img src={deleteImage} alt="delete user" />
                       </button>

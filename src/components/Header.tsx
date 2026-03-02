@@ -1,16 +1,19 @@
-import { useDataContext } from "../context/context";
 import { supabaseClient } from "../supabase-client";
 import accountImage from "../assets/Images/account_circle_30.png";
 import logoutImage from "../assets/Images/logout_24.png";
+import { getName } from "../helper/functions";
+import { useGetSession } from "../hooks/CustomHooks";
 
 export default function Header() {
-  const { setError, name } = useDataContext();
+  const { Session } = useGetSession();
+
+  const name = getName(Session);
 
   async function LogOut() {
     const { error: LogOutError } = await supabaseClient.auth.signOut();
     if (LogOutError) {
-      console.error("An Error has occurred: ", LogOutError.message);
-      setError(`Failed to LogOut. Error message: ${LogOutError.message}`);
+      const msg = `Failed to LogOut. Error message: ${LogOutError.message}`;
+      console.error(msg);
       return;
     }
   }

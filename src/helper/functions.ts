@@ -1,5 +1,5 @@
 import { titleCase } from "title-case";
-import type { Data } from "../types/types";
+import type { Student } from "../types/types";
 import type { Session } from "@supabase/supabase-js";
 
 export function formatDate(): string {
@@ -15,8 +15,8 @@ export function formatDate(): string {
   });
 }
 
-export function checkDupes(data: Data[], id: number): boolean {
-  for (const student of data) {
+export function checkDupes(students: Student[], id: number): boolean {
+  for (const student of students) {
     if (student.studentId === id) {
       return true;
     }
