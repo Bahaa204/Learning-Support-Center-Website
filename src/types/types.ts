@@ -24,3 +24,5 @@ export type Input = {
 };
 
 export type Props = { Students: Student[] };
+
+export type SpinnerProps = { text: string };

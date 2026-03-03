@@ -6,6 +6,7 @@ import { getName } from "../helper/functions";
 import { useEffect, useState } from "react";
 import type { Student } from "../types/types";
 import { supabaseClient } from "../supabase-client";
+import Spinner from "../components/Spinner";
 
 export default function Main() {
   const [Students, setStudents] = useState<Student[]>([]);
@@ -70,8 +71,7 @@ export default function Main() {
         className="d-flex justify-content-center align-items-center"
         style={{ height: "50vh" }}
       >
-        {SessionLoading ? "Checking Authentication" : "Loading Data"} Please
-        Wait...
+        <Spinner text={SessionLoading? "Checking Authentication": "Loading Data"} />
       </div>
     );
   }

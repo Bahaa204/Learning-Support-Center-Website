@@ -6,6 +6,7 @@ import deleteImage from "../assets/Images/delete_24dppng.png";
 import { titleCase } from "title-case";
 import { useFetchFromTable, useGetSession } from "../hooks/CustomHooks";
 import { getName } from "../helper/functions";
+import Spinner from "../components/Spinner";
 
 export default function WorkStudy() {
   const [Input, setInput] = useState<LoginInput>({
@@ -128,14 +129,15 @@ export default function WorkStudy() {
     setDeleteUser(null);
   }
 
-  if (SessionLoading) {
+  if (SessionLoading || Loading) {
     return (
       <div
         className="d-flex justify-content-center align-items-center"
         style={{ height: "50vh" }}
       >
-        {SessionLoading ? "Checking Authentication" : "Loading Data"} Please
-        Wait...
+        <Spinner
+          text={SessionLoading ? "Checking Authentication" : "Loading Data"}
+        />
       </div>
     );
   }
@@ -199,65 +201,54 @@ export default function WorkStudy() {
         </button>
       </form>
 
-      {Loading ? (
-        <div
-          className="d-flex justify-content-center align-items-center"
-          style={{ height: "50vh" }}
+      <div className="d-flex justify-content-center mb-5">
+        <button
+          className="btn btn-success"
+          onClick={() => {
+            navigate("/");
+          }}
         >
-          Loading Data Please Wait...
-        </div>
-      ) : (
-        <>
-          <div className="d-flex justify-content-center mb-5">
-            <button
-              className="btn btn-success"
-              onClick={() => {
-                navigate("/");
-              }}
-            >
-              Go Back
-            </button>
-          </div>
+          Go Back
+        </button>
+      </div>
 
-          <div
-            className="table-responsive"
-            style={{ maxHeight: "50vh", overflowY: "auto" }}
-          >
-            <table className="table table-secondary table-striped table-hover table-bordered text-center align-middle">
-              <thead className="table-light">
-                <tr className="sticky-top">
-                  <th scope="col">WorkStudy ID</th>
-                  <th scope="col">WorkStudy Name</th>
+      <div
+        className="table-responsive"
+        style={{ maxHeight: "50vh", overflowY: "auto" }}
+      >
+        <table className="table table-secondary table-striped table-hover table-bordered text-center align-middle">
+          <thead className="table-light">
+            <tr className="sticky-top">
+              <th scope="col">WorkStudy ID</th>
+              <th scope="col">WorkStudy Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Users.map((user) => {
+              if (user.username === "Lara Abou Orm") return;
+              return (
+                <tr key={user.password} className="text-center">
+                  <th scope="row">{user.password}</th>
+                  <td className="hover-cell">
+                    <div className="d-flex flex-wrap align-items-center">
+                      <span className="flex-grow-1 text-center">
+                        {user.username}
+                      </span>
+                      <button
+                        className="btn btn-sm btn-danger hover-btn"
+                        onClick={() => handleClick(user)}
+                        disabled={DeleteUser === user.id}
+                      >
+                        <img src={deleteImage} alt="delete user" />
+                      </button>
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {Users.map((user) => {
-                  if (user.username === "Lara Abou Orm") return;
-                  return (
-                    <tr key={user.password} className="text-center">
-                      <th scope="row">{user.password}</th>
-                      <td className="hover-cell">
-                        <div className="d-flex flex-wrap align-items-center">
-                          <span className="flex-grow-1 text-center">
-                            {user.username}
-                          </span>
-                          <button
-                            className="btn btn-sm btn-danger hover-btn"
-                            onClick={() => handleClick(user)}
-                            disabled={DeleteUser === user.id}
-                          >
-                            <img src={deleteImage} alt="delete user" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </>
-      )}
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 }

@@ -3,6 +3,7 @@ import type { LoginInput } from "../types/types";
 import { supabaseClient } from "../supabase-client";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useGetSession } from "../hooks/CustomHooks";
+import Spinner from "../components/Spinner";
 
 export default function Login() {
   const [Login, setLogin] = useState<LoginInput>({
@@ -10,40 +11,46 @@ export default function Login() {
     password: "",
   });
   const [Error, setError] = useState<string | null>(null);
-  const [isDisabled, setIsDisabled] = useState<boolean>(false);
+  const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false);
   const { Session, Loading: SessionLoading } = useGetSession();
   const navigate = useNavigate();
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    setIsDisabled(true);
+    setIsLoggingIn(true);
 
     const email = `${Login.username}@learningcenter.com`;
     const password = Login.password;
 
-    const { error: LogInError } = await supabaseClient.auth.signInWithPassword({
+    const response = supabaseClient.auth.signInWithPassword({
       email,
       password,
     });
+
+    const { error: LogInError } = await response;
+
     if (LogInError) {
       const msg = `Error: ${LogInError.message}`;
       console.error(msg);
       setError(msg);
-      setIsDisabled(false);
+      setIsLoggingIn(false);
       return;
     }
 
+    setIsLoggingIn(false);
     navigate("/");
   }
 
-  if (SessionLoading) {
+  if (SessionLoading || isLoggingIn) {
     return (
       <div
         className="d-flex justify-content-center align-items-center"
         style={{ height: "50vh" }}
       >
-        Checking Authentication Please Wait...
+        <Spinner
+          text={isLoggingIn ? "Logging in" : "Checking Authentication"}
+        />
       </div>
     );
   }
@@ -96,11 +103,7 @@ export default function Login() {
             />
           </div>
 
-          <button
-            type="submit"
-            className="btn btn-primary w-100"
-            disabled={isDisabled}
-          >
+          <button type="submit" className="btn btn-primary w-100">
             Login
           </button>
         </form>
