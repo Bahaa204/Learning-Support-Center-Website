@@ -7,6 +7,8 @@ import { titleCase } from "title-case";
 import { useFetchFromTable, useGetSession } from "../hooks/CustomHooks";
 import { getName } from "../helper/functions";
 import Spinner from "../components/Spinner";
+import SmallSpinnerButton from "../components/SmallSpinnerButton";
+import SpinnerButton from "../components/SpinnerButton";
 
 export default function WorkStudy() {
   const [Input, setInput] = useState<LoginInput>({
@@ -196,9 +198,13 @@ export default function WorkStudy() {
             }}
           />
         </div>
-        <button type="submit" className="btn btn-dark" disabled={isAdding}>
-          Submit
-        </button>
+        {isAdding ? (
+          <SpinnerButton />
+        ) : (
+          <button type="submit" className="btn btn-dark" disabled={isAdding}>
+            Submit
+          </button>
+        )}
       </form>
 
       <div className="d-flex justify-content-center mb-5">
@@ -234,13 +240,17 @@ export default function WorkStudy() {
                       <span className="flex-grow-1 text-center">
                         {user.username}
                       </span>
-                      <button
-                        className="btn btn-sm btn-danger hover-btn"
-                        onClick={() => handleClick(user)}
-                        disabled={DeleteUser === user.id}
-                      >
-                        <img src={deleteImage} alt="delete user" />
-                      </button>
+                      {DeleteUser === user.id ? (
+                        <SmallSpinnerButton />
+                      ) : (
+                        <button
+                          className="btn btn-sm btn-danger hover-btn"
+                          onClick={() => handleClick(user)}
+                          disabled={DeleteUser === user.id}
+                        >
+                          <img src={deleteImage} alt="delete user" />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

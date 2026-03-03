@@ -6,6 +6,7 @@ import { supabaseClient } from "../supabase-client";
 import { useState } from "react";
 import { getName } from "../helper/functions";
 import { useGetSession } from "../hooks/CustomHooks";
+import SmallSpinnerButton from "./SmallSpinnerButton";
 
 export default function Table({ Students }: Props) {
   // Getting the name from the current Session
@@ -83,13 +84,17 @@ export default function Table({ Students }: Props) {
                     <span className="flex-grow-1 text-center">
                       {student.nb_visits}
                     </span>
-                    <button
-                      className="btn btn-sm btn-secondary hover-btn"
-                      onClick={() => handleClick(student)}
-                      disabled={isAdding === student.studentId}
-                    >
-                      +
-                    </button>
+                    {isAdding === student.studentId ? (
+                      <SmallSpinnerButton />
+                    ) : (
+                      <button
+                        className="btn btn-sm btn-secondary hover-btn"
+                        onClick={() => handleClick(student)}
+                        disabled={isAdding === student.studentId}
+                      >
+                        +
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>

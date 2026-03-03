@@ -4,13 +4,14 @@ import { titleCase } from "title-case";
 import { checkDupes, formatDate, getName } from "../helper/functions";
 import { supabaseClient } from "../supabase-client";
 import { useGetSession } from "../hooks/CustomHooks";
+import SpinnerButton from "./SpinnerButton";
 
 export default function InputForm({ Students }: Props) {
   const [Input, setInput] = useState<Input>({
     studentName: "",
     studentId: NaN,
   });
-  const [isAdding, setIsAdding] = useState(false);
+  const [isAdding, setIsAdding] = useState<boolean>(false);
 
   // Getting the name from the current Session
   const { Session } = useGetSession();
@@ -90,9 +91,13 @@ export default function InputForm({ Students }: Props) {
           }}
         />
       </div>
-      <button type="submit" className="btn btn-dark" disabled={isAdding}>
-        Submit
-      </button>
+      {isAdding ? (
+        <SpinnerButton />
+      ) : (
+        <button type="submit" className="btn btn-dark" disabled={isAdding}>
+          Submit
+        </button>
+      )}
     </form>
   );
 }

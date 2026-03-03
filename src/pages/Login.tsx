@@ -42,15 +42,13 @@ export default function Login() {
     navigate("/");
   }
 
-  if (SessionLoading || isLoggingIn) {
+  if (SessionLoading) {
     return (
       <div
         className="d-flex justify-content-center align-items-center"
         style={{ height: "50vh" }}
       >
-        <Spinner
-          text={isLoggingIn ? "Logging in" : "Checking Authentication"}
-        />
+        <Spinner text="Checking Authentication" />
       </div>
     );
   }
@@ -103,8 +101,21 @@ export default function Login() {
             />
           </div>
 
-          <button type="submit" className="btn btn-primary w-100">
-            Login
+          <button
+            type="submit"
+            className="btn btn-dark w-100"
+            disabled={isLoggingIn}
+          >
+            {isLoggingIn ? (
+              <>
+                <div className="spinner-border spinner-border-sm" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </div>
+                <span>Logging In</span>
+              </>
+            ) : (
+              "Login"
+            )}
           </button>
         </form>
       </div>
