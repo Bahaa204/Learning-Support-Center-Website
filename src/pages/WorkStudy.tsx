@@ -4,13 +4,16 @@ import { supabaseClient } from "../supabase-client";
 import { Navigate, useNavigate } from "react-router-dom";
 import deleteImage from "../assets/Images/delete_24dppng.png";
 import { titleCase } from "title-case";
-import { useFetchFromTable, useGetSession } from "../hooks/CustomHooks";
+import { useDocumentTitle, useFetchFromTable, useGetSession } from "../hooks/CustomHooks";
 import { getName } from "../helper/functions";
 import Spinner from "../components/Spinner";
 import SmallSpinnerButton from "../components/SmallSpinnerButton";
 import SpinnerButton from "../components/SpinnerButton";
 
 export default function WorkStudy() {
+
+  useDocumentTitle("Workstudy")
+
   const [Input, setInput] = useState<LoginInput>({
     username: "",
     password: "",

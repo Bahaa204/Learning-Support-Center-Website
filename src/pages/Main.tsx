@@ -1,7 +1,7 @@
 import { Navigate, useNavigate } from "react-router-dom";
 import InputForm from "../components/InputForm";
 import Table from "../components/Table";
-import { useFetchFromTable, useGetSession } from "../hooks/CustomHooks";
+import { useDocumentTitle, useFetchFromTable, useGetSession } from "../hooks/CustomHooks";
 import { getName } from "../helper/functions";
 import { useEffect, useState } from "react";
 import type { Student } from "../types/types";
@@ -9,6 +9,9 @@ import { supabaseClient } from "../supabase-client";
 import Spinner from "../components/Spinner";
 
 export default function Main() {
+
+  useDocumentTitle("Home")
+
   const [Students, setStudents] = useState<Student[]>([]);
   const {
     Session,

@@ -2,10 +2,12 @@ import { useState, type SubmitEvent } from "react";
 import type { LoginInput } from "../types/types";
 import { supabaseClient } from "../supabase-client";
 import { Navigate, useNavigate } from "react-router-dom";
-import { useGetSession } from "../hooks/CustomHooks";
+import { useDocumentTitle, useGetSession } from "../hooks/CustomHooks";
 import Spinner from "../components/Spinner";
 
 export default function Login() {
+  useDocumentTitle("Login");
+
   const [Login, setLogin] = useState<LoginInput>({
     username: "",
     password: "",
