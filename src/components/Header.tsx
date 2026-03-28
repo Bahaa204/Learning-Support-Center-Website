@@ -1,20 +1,15 @@
-import { supabaseClient } from "../supabase-client";
 import accountImage from "../assets/Images/account_circle_30.png";
 import logoutImage from "../assets/Images/logout_24.png";
 import { getName } from "../helper/functions";
-import { useGetSession } from "../hooks/CustomHooks";
+import { useAuth } from "../hooks/useAuth";
 
 export default function Header() {
   // Getting the name from the current Session
-  const { Session } = useGetSession();
+  const { Session, SignOut } = useAuth();
   const name = getName(Session);
 
   async function LogOut() {
-    const { error: LogOutError } = await supabaseClient.auth.signOut();
-    if (LogOutError) {
-      alert(`Failed to LogOut. Error message: ${LogOutError.message}`);
-      return;
-    }
+    await SignOut();
   }
   return (
     <header className="bg-dark text-white d-flex justify-content-between align-items-center p-3">

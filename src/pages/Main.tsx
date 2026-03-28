@@ -1,80 +1,36 @@
 import { Navigate, useNavigate } from "react-router-dom";
 import InputForm from "../components/InputForm";
 import Table from "../components/Table";
-import { useDocumentTitle, useFetchFromTable, useGetSession } from "../hooks/CustomHooks";
 import { getName } from "../helper/functions";
-import { useEffect, useState } from "react";
-import type { Student } from "../types/types";
-import { supabaseClient } from "../supabase-client";
 import Spinner from "../components/Spinner";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import { useAuth } from "../hooks/useAuth";
+import { useStudents } from "../hooks/useStudents";
 
 export default function Main() {
+  useDocumentTitle("Home");
 
-  useDocumentTitle("Home")
-
-  const [Students, setStudents] = useState<Student[]>([]);
-  const {
-    Session,
-    Loading: SessionLoading,
-    Error: SessionError,
-  } = useGetSession();
+  const { Session, Loading: AuthLoading, Error: AuthError } = useAuth();
 
   const name = getName(Session);
 
   const {
-    Data,
-    Loading: LoadingData,
-    Error: FetchError,
-  } = useFetchFromTable<"Students">("Students", name);
+    Students,
+    Loading: DataLoading,
+    Error: DataError,
+  } = useStudents(name);
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    (async () => setStudents(Data))();
-  }, [Data]);
-
-  // Real Time Listeners to update the State
-  useEffect(() => {
-    const channel = supabaseClient.channel("Students-Channel");
-    channel
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "Students" },
-        (payload) => {
-          const newStudent = payload.new as Student;
-          setStudents((prev) => [...prev, newStudent]);
-        },
-      )
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "Students" },
-        (payload) => {
-          const newStudent = payload.new as Student;
-          setStudents((prev) =>
-            prev.map((student) =>
-              student.studentId === newStudent.studentId
-                ? { ...student, nb_visits: student.nb_visits + 1 }
-                : student,
-            ),
-          );
-        },
-      )
-      .subscribe((status) => {
-        console.log(status);
-      });
-
-    return () => {
-      supabaseClient.removeChannel(channel);
-    };
-  }, []);
-
-  if (SessionLoading || LoadingData) {
+  if (AuthLoading || DataLoading) {
     return (
       <div
         className="d-flex justify-content-center align-items-center"
         style={{ height: "50vh" }}
       >
-        <Spinner text={SessionLoading? "Checking Authentication": "Loading Data"} />
+        <Spinner
+          text={AuthLoading ? "Checking Authentication" : "Loading Data"}
+        />
       </div>
     );
   }
@@ -83,7 +39,7 @@ export default function Main() {
     return <Navigate to="/login" replace />;
   }
 
-  const error = FetchError || SessionError;
+  const error = AuthError || DataError;
   if (error) {
     return (
       <div

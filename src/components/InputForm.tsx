@@ -3,8 +3,8 @@ import type { Input, Props, Student } from "../types/types";
 import { titleCase } from "title-case";
 import { checkDupes, formatDate, getName } from "../helper/functions";
 import { supabaseClient } from "../supabase-client";
-import { useGetSession } from "../hooks/CustomHooks";
 import SpinnerButton from "./SpinnerButton";
+import { useAuth } from "../hooks/useAuth";
 
 export default function InputForm({ Students }: Props) {
   const [Input, setInput] = useState<Input>({
@@ -14,7 +14,7 @@ export default function InputForm({ Students }: Props) {
   const [isAdding, setIsAdding] = useState<boolean>(false);
 
   // Getting the name from the current Session
-  const { Session } = useGetSession();
+  const { Session } = useAuth();
   const name = getName(Session);
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {

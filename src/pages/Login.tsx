@@ -1,50 +1,36 @@
 import { useState, type SubmitEvent } from "react";
 import type { LoginInput } from "../types/types";
-import { supabaseClient } from "../supabase-client";
 import { Navigate, useNavigate } from "react-router-dom";
-import { useDocumentTitle, useGetSession } from "../hooks/CustomHooks";
 import Spinner from "../components/Spinner";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import { useAuth } from "../hooks/useAuth";
 
 export default function Login() {
   useDocumentTitle("Login");
 
-  const [Login, setLogin] = useState<LoginInput>({
+  const InitialValue: LoginInput = {
     username: "",
     password: "",
-  });
-  const [Error, setError] = useState<string | null>(null);
-  const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false);
-  const { Session, Loading: SessionLoading } = useGetSession();
+  };
+
+  const [Login, setLogin] = useState<LoginInput>(InitialValue);
+  const {
+    Session,
+    Loading: AuthLoading,
+    Error: AuthError,
+    SignInWithPassword,
+  } = useAuth();
   const navigate = useNavigate();
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    setIsLoggingIn(true);
+    const ok = await SignInWithPassword(Login.username, Login.password);
 
-    const email = `${Login.username}@learningcenter.com`;
-    const password = Login.password;
-
-    const response = supabaseClient.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    const { error: LogInError } = await response;
-
-    if (LogInError) {
-      const msg = `Error: ${LogInError.message}`;
-      console.error(msg);
-      setError(msg);
-      setIsLoggingIn(false);
-      return;
-    }
-
-    setIsLoggingIn(false);
-    navigate("/");
+    if (ok) navigate("/");
   }
 
-  if (SessionLoading) {
+  if (AuthLoading) {
     return (
       <div
         className="d-flex justify-content-center align-items-center"
@@ -64,9 +50,9 @@ export default function Login() {
       <div className="card shadow-sm p-4" style={{ width: "350px" }}>
         <h2 className="text-center mb-4">Login</h2>
 
-        {Error && (
+        {AuthError && (
           <div className="alert alert-danger" role="alert">
-            {Error}
+            {AuthError}
           </div>
         )}
 
@@ -106,9 +92,9 @@ export default function Login() {
           <button
             type="submit"
             className="btn btn-dark w-100"
-            disabled={isLoggingIn}
+            disabled={AuthLoading}
           >
-            {isLoggingIn ? (
+            {AuthLoading ? (
               <>
                 <div className="spinner-border spinner-border-sm" role="status">
                   <span className="visually-hidden">Loading...</span>

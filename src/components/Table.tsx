@@ -5,12 +5,12 @@ import exportImage from "../assets/Images/file-export_24.png";
 import { supabaseClient } from "../supabase-client";
 import { useState } from "react";
 import { getName } from "../helper/functions";
-import { useGetSession } from "../hooks/CustomHooks";
 import SmallSpinnerButton from "./SmallSpinnerButton";
+import { useAuth } from "../hooks/useAuth";
 
 export default function Table({ Students }: Props) {
   // Getting the name from the current Session
-  const { Session } = useGetSession();
+  const { Session } = useAuth();
   const name = getName(Session);
 
   const [isAdding, setIsAdding] = useState<number | null>(null);

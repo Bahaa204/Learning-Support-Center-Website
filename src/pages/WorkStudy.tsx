@@ -1,96 +1,55 @@
-import { useEffect, useState, type SubmitEvent } from "react";
+import { useState, type SubmitEvent } from "react";
 import type { LoginInput, User } from "../types/types";
 import { supabaseClient } from "../supabase-client";
 import { Navigate, useNavigate } from "react-router-dom";
 import deleteImage from "../assets/Images/delete_24dppng.png";
 import { titleCase } from "title-case";
-import { useDocumentTitle, useFetchFromTable, useGetSession } from "../hooks/CustomHooks";
 import { getName } from "../helper/functions";
 import Spinner from "../components/Spinner";
 import SmallSpinnerButton from "../components/SmallSpinnerButton";
 import SpinnerButton from "../components/SpinnerButton";
+import { useAuth } from "../hooks/useAuth";
+import { useFetchFromTable } from "../hooks/useFetchFromTable";
+import { useRealTimeListeners } from "../hooks/useRealTimeListeners";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 export default function WorkStudy() {
+  useDocumentTitle("Workstudy");
 
-  useDocumentTitle("Workstudy")
+  const InitialValue: LoginInput = { username: "", password: "" };
 
-  const [Input, setInput] = useState<LoginInput>({
-    username: "",
-    password: "",
-  });
-  const { Session, Loading: SessionLoading } = useGetSession();
+  const [Input, setInput] = useState<LoginInput>(InitialValue);
+  const {
+    Session,
+    Loading: AuthLoading,
+    Error: AuthError,
+    SignInWithPassword,
+    SignUp,
+  } = useAuth();
 
   const name = getName(Session);
   const navigate = useNavigate();
-  const [isAdding, setIsAdding] = useState<boolean>(false);
   const [DeleteUser, setDeleteUser] = useState<string | null>(null);
-  const [Users, setUsers] = useState<User[]>([]);
-  const { Data, Error, Loading } = useFetchFromTable<"Users">(
-    "Users",
-    "Laraabouorm",
-  );
+  // const [Users, setUsers] = useState<User[]>([]);
+  const {
+    Data,
+    Loading: DataLoading,
+    Error: DataError,
+  } = useFetchFromTable("Users", "Laraabouorm");
 
-  // Real Time Listeners to update the State
-  useEffect(() => {
-    (async () => setUsers(Data))();
-  }, [Data]);
-
-  useEffect(() => {
-    const channel = supabaseClient.channel("Users-Channel");
-
-    channel
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "Users" },
-        (payload) => {
-          const newUser = payload.new as User;
-          setUsers((prev) => [...prev, newUser]);
-        },
-      )
-      .on(
-        "postgres_changes",
-        { event: "DELETE", schema: "public", table: "Users" },
-        (payload) => {
-          const oldUser = payload.old as User;
-          setUsers((prev) => prev.filter((user) => user.id !== oldUser.id));
-        },
-      )
-      .subscribe((status) => {
-        console.log(status);
-      });
-
-    return () => {
-      supabaseClient.removeChannel(channel);
-    };
-  }, []);
+  const { Users } = useRealTimeListeners();
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (isAdding) return;
+    if (AuthLoading) return;
     if (name !== "Laraabouorm") {
       alert("You cannot insert any user");
       return;
     }
-    setIsAdding(true);
 
-    const email = `${Input.username}@learningcenter.com`;
-    const password = Input.password;
+    await SignUp(Input.username, Input.password);
 
-    const { error: SignUpError } = await supabaseClient.auth.signUp({
-      email,
-      password,
-    });
-
-    if (SignUpError) {
-      alert(`An Error has occurred: ${SignUpError.message}`);
-      setIsAdding(false);
-      return;
-    }
-
-    await supabaseClient.auth.signInWithPassword({
-      email: "laraabouorm@learningcenter.com",
-      password: "supportcenter",
-    });
+    await SignInWithPassword("laraabouorm@learningcenter.com", "supportcenter");
 
     const newUser: User = {
       id: crypto.randomUUID(),
@@ -108,9 +67,7 @@ export default function WorkStudy() {
       return;
     }
 
-    setInput({ username: "", password: "" });
-
-    setIsAdding(false);
+    setInput(InitialValue);
   }
 
   async function handleClick(user: User) {
@@ -134,14 +91,14 @@ export default function WorkStudy() {
     setDeleteUser(null);
   }
 
-  if (SessionLoading || Loading) {
+  if (AuthLoading || DataLoading) {
     return (
       <div
         className="d-flex justify-content-center align-items-center"
         style={{ height: "50vh" }}
       >
         <Spinner
-          text={SessionLoading ? "Checking Authentication" : "Loading Data"}
+          text={AuthLoading ? "Checking Authentication" : "Loading Data"}
         />
       </div>
     );
@@ -151,13 +108,14 @@ export default function WorkStudy() {
     return <Navigate to="/login" replace />;
   }
 
-  if (Error) {
+  const error = DataError || AuthError;
+  if (error) {
     return (
       <div
         className="d-flex justify-content-center align-items-center"
         style={{ height: "50vh" }}
       >
-        {Error}
+        {error}
       </div>
     );
   }
@@ -201,10 +159,10 @@ export default function WorkStudy() {
             }}
           />
         </div>
-        {isAdding ? (
+        {AuthLoading ? (
           <SpinnerButton />
         ) : (
-          <button type="submit" className="btn btn-dark" disabled={isAdding}>
+          <button type="submit" className="btn btn-dark" disabled={AuthLoading}>
             Submit
           </button>
         )}
@@ -236,7 +194,7 @@ export default function WorkStudy() {
             {Users.map((user) => {
               if (user.username === "Lara Abou Orm") return;
               return (
-                <tr key={user.password} className="text-center">
+                <tr key={user.id} className="text-center">
                   <th scope="row">{user.password}</th>
                   <td className="hover-cell">
                     <div className="d-flex flex-wrap align-items-center">
