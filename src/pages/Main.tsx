@@ -1,11 +1,17 @@
 import { Navigate, useNavigate } from "react-router-dom";
 import InputForm from "../components/InputForm";
 import Table from "../components/Table";
-import { getName } from "../helper/functions";
+import { checkDupes, formatDate, getName } from "../helper/functions";
 import Spinner from "../components/Spinner";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { useAuth } from "../hooks/useAuth";
 import { useStudents } from "../hooks/useStudents";
+import { useState, type SubmitEvent } from "react";
+import type { Input, Student } from "../types/types";
+import { titleCase } from "title-case";
+import { useServices } from "../hooks/useServices";
+import { CSVLink } from "react-csv";
+import exportImage from "../assets/Images/file-export_24.png";
 
 export default function Main() {
   useDocumentTitle("Home");
@@ -20,9 +26,48 @@ export default function Main() {
     Error: DataError,
   } = useStudents(name);
 
+  const { addStudent, isAdding, incrementStudentVisits, isUpdating } =
+    useServices();
+
+  const InitialValue: Input = { name: "", id: NaN };
+
+  const [Input, setInput] = useState<Input>(InitialValue);
   const navigate = useNavigate();
 
-  if (AuthLoading || DataLoading) {
+  const loading = AuthLoading || DataLoading;
+  const error = AuthError || DataError;
+
+  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (isAdding) return;
+
+    if (checkDupes(Students, Input.id)) {
+      alert("the ID already exists!!");
+      return;
+    }
+
+    const newStudent: Student = {
+      id: crypto.randomUUID(),
+      studentName: titleCase(Input.name),
+      studentId: Input.id,
+      added_at: formatDate(),
+      added_by: name,
+      nb_visits: 1,
+    };
+
+    const ok = await addStudent(newStudent);
+
+    if (ok) setInput(InitialValue);
+  }
+
+  async function handleUpdate(studentId: number) {
+    if (isUpdating) return;
+
+    await incrementStudentVisits(studentId);
+  }
+
+  if (loading) {
     return (
       <div
         className="d-flex justify-content-center align-items-center"
@@ -39,7 +84,6 @@ export default function Main() {
     return <Navigate to="/login" replace />;
   }
 
-  const error = AuthError || DataError;
   if (error) {
     return (
       <div
@@ -51,9 +95,22 @@ export default function Main() {
     );
   }
 
+  const headers = [
+    { label: "Student ID", key: "studentId" },
+    { label: "Student Name", key: "studentName" },
+    { label: "Added AT", key: "added_at" },
+    { label: "Added By", key: "added_by" },
+    { label: "Visits", key: "nb_visits" },
+  ];
+
   return (
     <>
-      <InputForm Students={Students} />
+      <InputForm
+        Input={Input}
+        setInput={setInput}
+        loading={loading}
+        handleSubmit={handleSubmit}
+      />
       {name === "Laraabouorm" && (
         <div className="d-flex justify-content-center ">
           <button
@@ -66,7 +123,25 @@ export default function Main() {
           </button>
         </div>
       )}
-      <Table Students={Students} />
+      <div className="d-flex justify-content-end mb-3">
+        {/* Button to extract the table to a csv file */}
+        {name === "Laraabouorm" && (
+          <CSVLink
+            data={Students}
+            headers={headers}
+            filename="Learning Support Center Student Visits.csv"
+            className="btn btn-success"
+          >
+            <img src={exportImage} alt="" />
+            Export CSV
+          </CSVLink>
+        )}
+      </div>
+      <Table
+        Students={Students}
+        handleUpdate={handleUpdate}
+        isUpdating={isUpdating}
+      />
     </>
   );
 }

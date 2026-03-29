@@ -1,12 +1,13 @@
 import type { PostgrestError } from "@supabase/supabase-js";
-import type { Dispatch, SetStateAction } from "react";
+import type { Dispatch, SetStateAction, SubmitEvent } from "react";
 import type { Database } from "../../database.types";
 
-export type UpdaterFunction<T> = Dispatch<SetStateAction<T>>;
+type UpdaterFunction<T> = Dispatch<SetStateAction<T>>;
 
-export type TableName = keyof Database["public"]["Tables"];
-export type RowType<T extends TableName> =
-  Database["public"]["Tables"][T]["Row"];
+type Tables = Database["public"]["Tables"];
+
+export type TableName = keyof Tables;
+export type RowType<T extends TableName> = Tables[T]["Row"];
 
 export type Data<T extends TableName> = {
   data: RowType<T>[] | null;
@@ -19,10 +20,21 @@ export type User = RowType<"Users">;
 export type LoginInput = { username: string; password: string };
 
 export type Input = {
-  studentName: string;
-  studentId: number;
+  name: string;
+  id: number;
 };
 
-export type Props = { Students: Student[] };
+export type InputFormProps = {
+  loading: boolean;
+  Input: Input;
+  setInput: UpdaterFunction<Input>;
+  handleSubmit: (event: SubmitEvent<HTMLFormElement>) => Promise<void>;
+};
+
+export type TableProps = {
+  Students: Student[];
+  handleUpdate: (studentId: number) => Promise<void>;
+  isUpdating: number | null;
+};
 
 export type SpinnerProps = { text: string };

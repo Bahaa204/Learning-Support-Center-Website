@@ -1,58 +1,12 @@
-import { useState, type SubmitEvent } from "react";
-import type { Input, Props, Student } from "../types/types";
-import { titleCase } from "title-case";
-import { checkDupes, formatDate, getName } from "../helper/functions";
-import { supabaseClient } from "../supabase-client";
+import type { InputFormProps } from "../types/types";
 import SpinnerButton from "./SpinnerButton";
-import { useAuth } from "../hooks/useAuth";
 
-export default function InputForm({ Students }: Props) {
-  const [Input, setInput] = useState<Input>({
-    studentName: "",
-    studentId: NaN,
-  });
-  const [isAdding, setIsAdding] = useState<boolean>(false);
-
-  // Getting the name from the current Session
-  const { Session } = useAuth();
-  const name = getName(Session);
-
-  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    if (isAdding) return;
-
-    setIsAdding(true);
-
-    if (checkDupes(Students, Input.studentId)) {
-      alert("the ID already exists!!");
-      setIsAdding(false);
-      return;
-    }
-
-    const newStudent: Student = {
-      ...Input,
-      studentName: titleCase(Input.studentName),
-      id: crypto.randomUUID(),
-      added_at: formatDate(),
-      added_by: name,
-      nb_visits: 1,
-    };
-
-    const { error: InsertError } = await supabaseClient
-      .from("Students")
-      .insert(newStudent)
-      .single();
-
-    if (InsertError) {
-      alert(`An Error has occurred: ${InsertError.message}`);
-      return;
-    }
-
-    setInput({ studentName: "", studentId: NaN });
-    setIsAdding(false);
-  }
-
+export default function InputForm({
+  loading,
+  Input,
+  setInput,
+  handleSubmit,
+}: InputFormProps) {
   return (
     <form
       onSubmit={handleSubmit}
@@ -66,35 +20,35 @@ export default function InputForm({ Students }: Props) {
           type="text"
           className="form-control border-2 border-secondary"
           id="name"
-          value={Input.studentName}
+          value={Input.name}
           onChange={(event) => {
-            setInput((prev: Input) => ({
+            setInput((prev) => ({
               ...prev,
-              studentName: event.target.value,
+              name: event.target.value,
             }));
           }}
         />
       </div>
       <div className="form-group">
-        <label htmlFor="id">Student ID:</label>
+        <label htmlFor="id">Student ID</label>
         <input
           required
           type="number"
           id="id"
           className="form-control border-2 border-secondary"
-          value={isNaN(Input.studentId) ? "" : Input.studentId}
+          value={isNaN(Input.id) ? "" : Input.id}
           onChange={(event) => {
-            setInput((prev: Input) => ({
+            setInput((prev) => ({
               ...prev,
-              studentId: parseInt(event.target.value.trim()) || NaN,
+              id: parseInt(event.target.value.trim()) || NaN,
             }));
           }}
         />
       </div>
-      {isAdding ? (
+      {loading ? (
         <SpinnerButton />
       ) : (
-        <button type="submit" className="btn btn-dark" disabled={isAdding}>
+        <button type="submit" className="btn btn-dark" disabled={loading}>
           Submit
         </button>
       )}

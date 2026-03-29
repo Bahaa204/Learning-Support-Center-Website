@@ -9,9 +9,9 @@ import Spinner from "../components/Spinner";
 import SmallSpinnerButton from "../components/SmallSpinnerButton";
 import SpinnerButton from "../components/SpinnerButton";
 import { useAuth } from "../hooks/useAuth";
-import { useFetchFromTable } from "../hooks/useFetchFromTable";
-import { useRealTimeListeners } from "../hooks/useRealTimeListeners";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import { UseUsers } from "../hooks/useUsers";
+import { useServices } from "../hooks/useServices";
 
 export default function WorkStudy() {
   useDocumentTitle("Workstudy");
@@ -19,37 +19,29 @@ export default function WorkStudy() {
   const InitialValue: LoginInput = { username: "", password: "" };
 
   const [Input, setInput] = useState<LoginInput>(InitialValue);
-  const {
-    Session,
-    Loading: AuthLoading,
-    Error: AuthError,
-    SignInWithPassword,
-    SignUp,
-  } = useAuth();
+  const { Session, Loading: AuthLoading, Error: AuthError, SignUp } = useAuth();
 
   const name = getName(Session);
   const navigate = useNavigate();
-  const [DeleteUser, setDeleteUser] = useState<string | null>(null);
-  // const [Users, setUsers] = useState<User[]>([]);
-  const {
-    Data,
-    Loading: DataLoading,
-    Error: DataError,
-  } = useFetchFromTable("Users", "Laraabouorm");
+  const { Users, Loading: UsersLoading, Error: UsersError } = UseUsers();
+  const { addUser, deleteUser, isAdding, isDeleting } = useServices();
 
-  const { Users } = useRealTimeListeners();
+  const loading = AuthLoading || UsersLoading;
+  const error = AuthError || UsersError;
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (AuthLoading) return;
+    if (isAdding) return;
     if (name !== "Laraabouorm") {
       alert("You cannot insert any user");
       return;
     }
 
+    const prevSession = Session;
+
     await SignUp(Input.username, Input.password);
 
-    await SignInWithPassword("laraabouorm@learningcenter.com", "supportcenter");
+    if (prevSession) await supabaseClient.auth.setSession(prevSession);
 
     const newUser: User = {
       id: crypto.randomUUID(),
@@ -57,41 +49,33 @@ export default function WorkStudy() {
       password: Input.password,
     };
 
-    const { error: InsertError } = await supabaseClient
-      .from("Users")
-      .insert(newUser)
-      .single();
+    const ok = await addUser(newUser);
 
-    if (InsertError) {
-      alert(`An Error has occurred: ${InsertError.message}`);
-      return;
-    }
-
-    setInput(InitialValue);
+    if (ok) setInput(InitialValue);
   }
 
-  async function handleClick(user: User) {
-    if (DeleteUser === user.id) return;
+  async function handleClick(userId: string) {
+    if (isDeleting === userId) return;
     if (name !== "Laraabouorm") {
       alert("You cannot delete any user");
       return;
     }
-    setDeleteUser(user.id);
 
-    const { error: DeleteError } = await supabaseClient
-      .from("Users")
-      .delete()
-      .eq("id", user.id);
-
-    if (DeleteError) {
-      alert(`An Error has occurred: ${DeleteError.message}`);
-      return;
-    }
-
-    setDeleteUser(null);
+    await deleteUser(userId);
   }
 
-  if (AuthLoading || DataLoading) {
+  if (error) {
+    return (
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ height: "50vh" }}
+      >
+        {error}
+      </div>
+    );
+  }
+
+  if (loading) {
     return (
       <div
         className="d-flex justify-content-center align-items-center"
@@ -106,18 +90,6 @@ export default function WorkStudy() {
 
   if (!Session) {
     return <Navigate to="/login" replace />;
-  }
-
-  const error = DataError || AuthError;
-  if (error) {
-    return (
-      <div
-        className="d-flex justify-content-center align-items-center"
-        style={{ height: "50vh" }}
-      >
-        {error}
-      </div>
-    );
   }
 
   return (
@@ -159,10 +131,10 @@ export default function WorkStudy() {
             }}
           />
         </div>
-        {AuthLoading ? (
+        {isAdding ? (
           <SpinnerButton />
         ) : (
-          <button type="submit" className="btn btn-dark" disabled={AuthLoading}>
+          <button type="submit" className="btn btn-dark" disabled={isAdding}>
             Submit
           </button>
         )}
@@ -201,13 +173,13 @@ export default function WorkStudy() {
                       <span className="flex-grow-1 text-center">
                         {user.username}
                       </span>
-                      {DeleteUser === user.id ? (
+                      {isDeleting === user.id ? (
                         <SmallSpinnerButton />
                       ) : (
                         <button
                           className="btn btn-sm btn-danger hover-btn"
-                          onClick={() => handleClick(user)}
-                          disabled={DeleteUser === user.id}
+                          onClick={() => handleClick(user.id)}
+                          disabled={isDeleting === user.id}
                         >
                           <img src={deleteImage} alt="delete user" />
                         </button>
