@@ -10,7 +10,7 @@ export default function InputForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="d-flex flex-column flex-wrap gap-3 justify-content-evenly align-items-center"
+      className="d-flex flex-column flex-wrap gap-2 justify-content-center align-items-center"
       style={{ height: "50vh" }}
     >
       <div className="form-group">

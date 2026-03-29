@@ -1,4 +1,4 @@
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import InputForm from "../components/InputForm";
 import Table from "../components/Table";
 import { checkDupes, formatDate, getName } from "../helper/functions";
@@ -32,7 +32,6 @@ export default function Main() {
   const InitialValue: Input = { name: "", id: NaN };
 
   const [Input, setInput] = useState<Input>(InitialValue);
-  const navigate = useNavigate();
 
   const loading = AuthLoading || DataLoading;
   const error = AuthError || DataError;
@@ -111,18 +110,6 @@ export default function Main() {
         loading={loading}
         handleSubmit={handleSubmit}
       />
-      {name === "Laraabouorm" && (
-        <div className="d-flex justify-content-center ">
-          <button
-            className="btn btn-success"
-            onClick={() => {
-              navigate("/workstudy");
-            }}
-          >
-            Edit WorkStudy
-          </button>
-        </div>
-      )}
       <div className="d-flex justify-content-end mb-3">
         {/* Button to extract the table to a csv file */}
         {name === "Laraabouorm" && (

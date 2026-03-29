@@ -1,7 +1,7 @@
 import { useState, type SubmitEvent } from "react";
 import type { LoginInput, User } from "../types/types";
 import { supabaseClient } from "../supabase-client";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import deleteImage from "../assets/Images/delete_24dppng.png";
 import { titleCase } from "title-case";
 import { getName } from "../helper/functions";
@@ -22,7 +22,7 @@ export default function WorkStudy() {
   const { Session, Loading: AuthLoading, Error: AuthError, SignUp } = useAuth();
 
   const name = getName(Session);
-  const navigate = useNavigate();
+
   const { Users, Loading: UsersLoading, Error: UsersError } = UseUsers();
   const { addUser, deleteUser, isAdding, isDeleting } = useServices();
 
@@ -96,7 +96,7 @@ export default function WorkStudy() {
     <>
       <form
         onSubmit={handleSubmit}
-        className="d-flex flex-column flex-wrap gap-3 justify-content-center align-items-center"
+        className="d-flex flex-wrap flex-column flex-wrap gap-3 justify-content-center align-items-center"
         style={{ height: "50vh" }}
       >
         <div className="form-group">
@@ -139,17 +139,6 @@ export default function WorkStudy() {
           </button>
         )}
       </form>
-
-      <div className="d-flex justify-content-center mb-5">
-        <button
-          className="btn btn-success"
-          onClick={() => {
-            navigate("/");
-          }}
-        >
-          Go Back
-        </button>
-      </div>
 
       <div
         className="table-responsive"
