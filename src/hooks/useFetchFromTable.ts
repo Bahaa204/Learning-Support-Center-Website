@@ -20,7 +20,7 @@ export function useFetchFromTable<T extends TableName>(
       let query = supabaseClient.from(table_name).select("*");
 
       if (added_by !== "Laraabouorm") {
-        query = query.eq("added_by", added_by as any);
+        query = query.eq("added_by" as any, added_by as any);
       }
 
       const { data, error } = (await query) as Data<T>;
