@@ -24,29 +24,36 @@ export default function Header() {
         <p className="mb-0">{name}</p>
       </div>
 
-      <nav className="d-flex justify-content-between align-items-between w-25">
-        <Link to="/" className="text-white text-decoration-none">
-          Home
-        </Link>
-        <Link to="/workstudy" className="text-white text-white text-decoration-none">
-          Edit Workstudy
-        </Link>
-      </nav>
-
-      {Session && (
-        <button
-          className="btn btn-danger d-flex align-items-center"
-          onClick={LogOut}
-        >
-          <img
-            src={logoutImage}
-            alt="Logout"
-            className="me-2"
-            style={{ width: "20px", height: "20px" }}
-          />
-          Logout
-        </button>
+      {name == "Laraabouorm" && (
+        <nav className="d-flex justify-content-between align-items-between w-25">
+          <Link to="/" className="text-white text-decoration-none">
+            Home
+          </Link>
+          <Link
+            to="/workstudy"
+            className="text-white text-white text-decoration-none"
+          >
+            Edit Workstudy
+          </Link>
+        </nav>
       )}
+
+      <div>
+        {Session && (
+          <button
+            className="btn btn-danger d-flex align-items-center"
+            onClick={LogOut}
+          >
+            <img
+              src={logoutImage}
+              alt="Logout"
+              className="me-2"
+              style={{ width: "20px", height: "20px" }}
+            />
+            Logout
+          </button>
+        )}
+      </div>
     </header>
   );
 }
