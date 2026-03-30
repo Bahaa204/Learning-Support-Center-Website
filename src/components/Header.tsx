@@ -6,7 +6,7 @@ import { useAuth } from "../hooks/useAuth";
 
 export default function Header() {
   // Getting the name from the current Session
-  const { Session, SignOut } = useAuth();
+  const { Session, SignOut, Loading } = useAuth();
   const name = getName(Session);
 
   async function LogOut() {
@@ -43,6 +43,7 @@ export default function Header() {
           <button
             className="btn btn-danger d-flex align-items-center"
             onClick={LogOut}
+            disabled={Loading}
           >
             <img
               src={logoutImage}
