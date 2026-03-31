@@ -7,6 +7,8 @@ export function UseUsers() {
   const { Data, Loading, Error } = useFetchFromTable("Users", "Laraabouorm");
 
   const [Users, setUsers] = useState<User[]>([]);
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [isAdding, setIsAdding] = useState<boolean>(false);
 
   // Sync fetched data to the local State
   useEffect(() => {
@@ -42,5 +44,38 @@ export function UseUsers() {
     };
   }, []);
 
-  return { Users, Loading, Error };
+  async function addUser(user: User) {
+    setIsAdding(true);
+
+    const { error } = await supabaseClient.from("Users").insert(user).single();
+
+    if (error) {
+      const msg = `An Error Occurred: ${error.message}`;
+      console.error(msg);
+      setIsAdding(false);
+      return false;
+    }
+    setIsAdding(false);
+    return true;
+  }
+
+  async function deleteUser(userId: string) {
+    setIsDeleting(userId);
+
+    const { error } = await supabaseClient
+      .from("Users")
+      .delete()
+      .eq("id", userId);
+
+    if (error) {
+      const msg = `An Error Occurred: ${error.message}`;
+      console.error(msg);
+      setIsDeleting(null);
+      return false;
+    }
+    setIsDeleting(null);
+    return true;
+  }
+
+  return { Users, Loading, Error, addUser, deleteUser, isAdding, isDeleting };
 }

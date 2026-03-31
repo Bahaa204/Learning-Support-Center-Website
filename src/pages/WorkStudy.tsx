@@ -11,7 +11,6 @@ import SpinnerButton from "../components/SpinnerButton";
 import { useAuth } from "../hooks/useAuth";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { UseUsers } from "../hooks/useUsers";
-import { useServices } from "../hooks/useServices";
 
 export default function WorkStudy() {
   useDocumentTitle("Workstudy");
@@ -23,8 +22,15 @@ export default function WorkStudy() {
 
   const name = getName(Session);
 
-  const { Users, Loading: UsersLoading, Error: UsersError } = UseUsers();
-  const { addUser, deleteUser, isAdding, isDeleting } = useServices();
+  const {
+    Users,
+    Loading: UsersLoading,
+    Error: UsersError,
+    addUser,
+    deleteUser,
+    isAdding,
+    isDeleting,
+  } = UseUsers();
 
   const loading = AuthLoading || UsersLoading;
   const error = AuthError || UsersError;

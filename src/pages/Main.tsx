@@ -9,7 +9,6 @@ import { useStudents } from "../hooks/useStudents";
 import { useState, type SubmitEvent } from "react";
 import type { Input, Student } from "../types/types";
 import { titleCase } from "title-case";
-import { useServices } from "../hooks/useServices";
 import { CSVLink } from "react-csv";
 import exportImage from "../assets/Images/file-export_24.png";
 
@@ -24,10 +23,11 @@ export default function Main() {
     Students,
     Loading: DataLoading,
     Error: DataError,
+    addStudent,
+    incrementStudentVisits,
+    isAdding,
+    isUpdating,
   } = useStudents(name);
-
-  const { addStudent, isAdding, incrementStudentVisits, isUpdating } =
-    useServices();
 
   const InitialValue: Input = { name: "", id: NaN };
 
