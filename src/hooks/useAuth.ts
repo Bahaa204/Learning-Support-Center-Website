@@ -76,17 +76,18 @@ export function useAuth() {
 
     const email = `${username}@learningcenter.com`;
 
-    const { error: SignUpError } = await supabaseClient.auth.signUp({
-      email,
-      password,
-    });
+    const { error: SignUpError, data } = await supabaseClient.auth.signUp(
+      {
+        email,
+        password,
+      },
+    );
 
     if (SignUpError) {
       SetError(SignUpError);
-      return false;
     }
-
-    return true;
+    
+    return data;
   }
 
   async function SignOut() {

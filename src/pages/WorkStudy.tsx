@@ -39,19 +39,21 @@ export default function WorkStudy() {
 
     const prevSession = Session;
 
-    await SignUp(Input.username, Input.password);
+    const { user } = await SignUp(Input.username, Input.password);
+
+    if (user) {
+      const newUser: User = {
+        id: user.id,
+        username: titleCase(Input.username),
+        password: Input.password,
+      };
+      // console.log(newUser);
+      await addUser(newUser);
+    }
 
     if (prevSession) await supabaseClient.auth.setSession(prevSession);
 
-    const newUser: User = {
-      id: crypto.randomUUID(),
-      username: titleCase(Input.username),
-      password: Input.password,
-    };
-
-    const ok = await addUser(newUser);
-
-    if (ok) setInput(InitialValue);
+    setInput(InitialValue);
   }
 
   async function handleClick(userId: string) {
