@@ -1,3 +1,5 @@
+import type { ExportFormat } from "@/types/settings";
+
 export function exportToCSV(data: any[], filename: string) {
   if (data.length === 0) {
     alert("No data to export");
@@ -74,7 +76,7 @@ export function exportToExcel(data: any[], filename: string) {
 
 export function exportData(
   data: any[],
-  format: "csv" | "excel",
+  format: ExportFormat,
   filename: string,
 ) {
   if (format === "csv") {

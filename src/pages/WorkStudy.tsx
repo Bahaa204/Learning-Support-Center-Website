@@ -20,6 +20,7 @@ import { useDepartments } from "@/hooks/useDepartments";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { useSettings } from "@/hooks/useSettings";
 import { useUsers } from "@/hooks/useUsers";
+import { useTimeSlots } from "@/hooks/useTimeSlots";
 import { exportData } from "@/lib/exportUtils";
 import type { NewUser, User, UserInput } from "@/types/users";
 import { MoreHorizontalIcon } from "lucide-react";
@@ -31,6 +32,7 @@ import LoadingCard from "@/components/loading-card";
 import LoadingModal from "@/components/loading-modal";
 import { simplifyErrorMessage } from "@/helper/functions";
 import { useNavigate } from "react-router-dom";
+import { titleCase } from "title-case";
 
 export default function WorkStudy() {
   useDocumentTitle("Support Center Staff");
@@ -41,6 +43,7 @@ export default function WorkStudy() {
     password: "",
     department_id: NaN,
     isSupervisor: false,
+    time_slots: [],
   };
 
   const [Input, setInput] = useState<UserInput>(InitialValue);
@@ -51,7 +54,6 @@ export default function WorkStudy() {
     Loading: AuthLoading,
     Error: AuthError,
     SignUp,
-    RestoreSession,
     DeleteUser,
   } = useAuth();
 
@@ -69,6 +71,8 @@ export default function WorkStudy() {
   } = useDepartments();
 
   const { Settings } = useSettings();
+
+  const { AddTimeSlots } = useTimeSlots();
 
   const loading = AuthLoading || UsersLoading || DepartmentsLoading;
   const rawError = AuthError || UsersError || DepartmentsError || LocalError;
@@ -99,8 +103,6 @@ export default function WorkStudy() {
 
     setIsSubmitting(true);
 
-    const prevSession = Session;
-
     const SignUpData = await SignUp(
       Input.email,
       Input.password,
@@ -117,10 +119,6 @@ export default function WorkStudy() {
 
     const UserId = SignUpData.user.id;
 
-    if (prevSession) {
-      await RestoreSession(prevSession);
-    }
-
     const newUser: NewUser = {
       id: UserId,
       email: Input.email,
@@ -130,16 +128,33 @@ export default function WorkStudy() {
     };
 
     const Insert_confirmed = await AddUser(newUser);
-
-    setIsSubmitting(false);
-
-    if (Insert_confirmed) {
-      setInput(InitialValue);
-      return true;
+    if (!Insert_confirmed) {
+      setIsSubmitting(false);
+      setLocalError("Failed to insert user.");
+      return false;
     }
 
-    setLocalError("Failed to insert user.");
-    return false;
+    // Insert time slots for the created user (if any)
+    if (Input.time_slots && Input.time_slots.length > 0) {
+      const slotInserts = Input.time_slots.map((s) => ({
+        userId: UserId,
+        Weekday: s.Weekday,
+        start_time: s.start_time,
+        end_time: s.end_time,
+      }));
+
+      const slotsOk = await AddTimeSlots(slotInserts as any);
+
+      if (!slotsOk) {
+        setIsSubmitting(false);
+        setLocalError("Failed to insert time slots.");
+        return false;
+      }
+    }
+
+    setIsSubmitting(false);
+    setInput(InitialValue);
+    return true;
   }
 
   function updateFields(fields: Partial<UserInput>) {
@@ -201,8 +216,8 @@ export default function WorkStudy() {
 
     exportData(
       exportData_formatted,
-      Settings.exportFormat as "csv" | "excel",
-      "support-center-staff",
+      Settings.exportFormat,
+      "Support Center Staff",
     );
   }
 
@@ -260,8 +275,6 @@ export default function WorkStudy() {
           <TableBody>
             {Users.length > 0 ? (
               Users.map((user, index) => {
-                if (user.id === Session.user.id) return null;
-
                 return (
                   <TableRow key={user.id}>
                     <TableHead className='text-center'>{index + 1}</TableHead>
@@ -269,7 +282,9 @@ export default function WorkStudy() {
                       {user.display_name}
                     </TableCell>
                     <TableCell className='text-center'>{user.email}</TableCell>
-                    <TableCell className='text-center'>{user.role}</TableCell>
+                    <TableCell className='text-center'>
+                      {titleCase(user.role)}
+                    </TableCell>
                     <TableCell className='text-center'>
                       {Departments.find(
                         (department) => department.id === user.department_id,
@@ -290,14 +305,20 @@ export default function WorkStudy() {
                           align='center'
                           className='focus:bg-none w-full'
                         >
-                          <DropdownMenuItem variant='destructive'>
-                            <Button
-                              variant='destructive'
-                              onClick={() => handleDelete(user.id)}
-                            >
-                              Remove
-                            </Button>
-                          </DropdownMenuItem>
+                          {user.role === "admin" ? (
+                            <DropdownMenuItem>
+                              No actions available for admin accounts
+                            </DropdownMenuItem>
+                          ) : (
+                            <DropdownMenuItem variant='destructive'>
+                              <Button
+                                variant='destructive'
+                                onClick={() => handleDelete(user.id)}
+                              >
+                                Remove
+                              </Button>
+                            </DropdownMenuItem>
+                          )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>

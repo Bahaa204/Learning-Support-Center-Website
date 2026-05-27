@@ -28,6 +28,7 @@ import { useState, type SubmitEvent } from "react";
 import CoursesMenu from "./CoursesMenu";
 import { DateTimePicker } from "./DateTimePicker.tsx";
 import { simplifyErrorMessage } from "@/helper/functions.ts";
+import TimeSlots from "./TimeSlots.tsx";
 
 export default function InputForm({
   loading,
@@ -75,7 +76,7 @@ export default function InputForm({
       </FieldGroup>
 
       {formError && (
-        <FieldGroup className="bg-red-500/15 rounded-lg p-5">
+        <FieldGroup className='bg-red-500/15 rounded-lg p-5'>
           <Field>
             <FieldError className='px-5 font-bold text-lg'>
               {simplifyErrorMessage(formError)}
@@ -380,6 +381,24 @@ export default function InputForm({
                         : "WorkStudy department is required."}
                     </FieldError>
                   )}
+                </Field>
+                <Field className='field'>
+                  <FieldLabel htmlFor='password'>
+                    Time Slots <span className='required'>*</span>
+                  </FieldLabel>
+                  <TimeSlots
+                    userinput={userInput}
+                    updateFields={updateFields}
+                    disabled={loading}
+                  />
+                  <FieldDescription>
+                    Choose the time slots of the workstudy.
+                  </FieldDescription>
+                  {/* {!userInput.password && (
+                    <FieldError>
+                      Time
+                    </FieldError>
+                  )} */}
                 </Field>
               </>
             )}

@@ -143,11 +143,7 @@ export default function StudentRecords() {
       Visits: student.nb_visits,
     }));
 
-    exportData(
-      exportData_formatted,
-      Settings.exportFormat as "csv" | "excel",
-      "student-records",
-    );
+    exportData(exportData_formatted, Settings.exportFormat, "Student Records");
   }
 
   function UpdateFields(fields: Partial<StudentInput>) {
