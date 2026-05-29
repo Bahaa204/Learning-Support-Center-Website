@@ -39,3 +39,15 @@ export type BreadcrumbItem = {
   label: string;
   path: string;
 };
+
+export type Item = {
+  name: string;
+  avatar?: string;
+  actions: ItemAction[];
+};
+
+type ItemAction = {
+  name: string;
+  link: string;
+  icon: string;
+};

@@ -1263,11 +1263,6 @@ html[data-theme="dark"] .login-hero p {
   z-index: 120;
 }
 
-.footer-info-wrap:hover .footer-tooltip {
-  opacity: 1;
-  visibility: visible;
-}
-
 html[data-theme="dark"] .site-footer {
   background: linear-gradient(180deg, #21182a, #1a1521);
   color: rgba(242, 235, 250, 0.78);
