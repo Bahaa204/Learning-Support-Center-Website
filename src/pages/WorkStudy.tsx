@@ -33,6 +33,7 @@ import LoadingModal from "@/components/loading-modal";
 import { simplifyErrorMessage } from "@/helper/functions";
 import { useNavigate } from "react-router-dom";
 import { titleCase } from "title-case";
+import { TimeSlotsMenu } from "@/components/TimeSlotMenu";
 
 export default function WorkStudy() {
   useDocumentTitle("Support Center Staff");
@@ -267,6 +268,7 @@ export default function WorkStudy() {
               <TableHead className='text-center'>Email</TableHead>
               <TableHead className='text-center'>Role</TableHead>
               <TableHead className='text-center'>Department</TableHead>
+              <TableHead className='text-center'>Time Slots</TableHead>
               <TableHead className='text-center'>Added At</TableHead>
               <TableHead className='text-center'>Actions</TableHead>
             </TableRow>
@@ -289,6 +291,9 @@ export default function WorkStudy() {
                       {Departments.find(
                         (department) => department.id === user.department_id,
                       )?.name || "—"}
+                    </TableCell>
+                    <TableCell>
+                      <TimeSlotsMenu userId={user.id} />
                     </TableCell>
                     <TableCell className='text-center'>
                       {formatDate(user.created_at)}
