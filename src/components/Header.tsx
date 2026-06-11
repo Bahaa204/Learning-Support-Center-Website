@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import RHULogo from "/Images/rhu_logo.png";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -19,27 +19,7 @@ type HeaderProps = {
 export default function Header({ onToggleMenu, isMenuOpen }: HeaderProps) {
   const { Session, SignOut, Loading: AuthLoading } = useAuth();
 
-  const [profilePicture, setProfilePicture] = useState<string>(() => {
-    return localStorage.getItem("profilePicture") || "";
-  });
-
   const [ShowLogoutNotice, setShowLogoutNotice] = useState<string>("");
-
-  useEffect(() => {
-    function syncProfilePicture() {
-      setProfilePicture(localStorage.getItem("profilePicture") || "");
-    }
-
-    syncProfilePicture();
-    window.addEventListener("storage", syncProfilePicture);
-    window.addEventListener("profilePictureUpdated", syncProfilePicture);
-
-    return () => {
-      window.removeEventListener("storage", syncProfilePicture);
-      window.removeEventListener("profilePictureUpdated", syncProfilePicture);
-    };
-  }, []);
-
   async function LogOut() {
     setShowLogoutNotice("Logging Out...");
     const ok = await SignOut();
@@ -108,9 +88,9 @@ export default function Header({ onToggleMenu, isMenuOpen }: HeaderProps) {
                 <DropdownMenuTrigger className='cursor-pointer bg-(--navy) rounded-4xl border-2 z-99999 border-(--gold)'>
                   <div className='size-9 flex items-center justify-center relative text-center'>
                     <span className='text-(--gold-light) text-[0.72rem] font-semibold text-center'>
-                      {profilePicture ? (
+                      {Session.user.user_metadata?.avatar_url ? (
                         <img
-                          src={profilePicture}
+                          src={Session.user.user_metadata?.avatar_url || ""}
                           alt='Profile'
                           className='w-full h-full rounded-full object-cover'
                         />

@@ -4,12 +4,11 @@ import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { simplifyErrorMessage } from "@/helper/functions";
 
 type AccountSectionProps = {
   session: Session;
   updateDisplayName: (displayName: string) => Promise<boolean>;
-  updateProfilePicture: (file: File) => Promise<string | null>;
+  updateProfilePicture: (file: File) => Promise<boolean>;
 };
 
 export default function AccountSection({
@@ -20,57 +19,50 @@ export default function AccountSection({
   const [displayName, setDisplayName] = useState(
     session.user.user_metadata?.display_name || "",
   );
-  const [profilePicture, setProfilePicture] = useState<string>(
-    localStorage.getItem("profilePicture") || "",
-  );
+  const [profilePicture, setProfilePicture] = useState<File | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
 
   async function handleSaveProfile() {
+    if (isSaving) return;
     setIsSaving(true);
     setSaveMessage("");
 
-    try {
-      if (
-        displayName &&
-        displayName !== session.user.user_metadata?.display_name
-      ) {
-        const displayNameUpdated = await updateDisplayName(displayName);
-        if (!displayNameUpdated) {
-          setSaveMessage("Failed to update display name.");
-          setIsSaving(false);
-          return;
-        }
+    if (
+      displayName &&
+      displayName !== session.user.user_metadata?.display_name
+    ) {
+      const displaynameOK = await updateDisplayName(displayName);
+      if (!displaynameOK) {
+        setSaveMessage("Error: Failed to update display name.");
+        setIsSaving(false);
+        return;
       }
-
-      setSaveMessage("Profile updated successfully!");
-      setTimeout(() => setSaveMessage(""), 3000);
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : "Unknown error";
-      setSaveMessage(simplifyErrorMessage(errorMsg));
     }
 
+    if (!profilePicture) {
+      setSaveMessage("Please select a profile picture to upload.");
+      setIsSaving(false);
+      return;
+    }
+
+    const profilePictureOK = await updateProfilePicture(profilePicture);
+
+    if (!profilePictureOK) {
+      setSaveMessage("Error: Failed to update profile picture.");
+      setIsSaving(false);
+      return;
+    }
+
+    setSaveMessage("Profile updated successfully!");
+    setTimeout(() => setSaveMessage(""), 3000);
     setIsSaving(false);
   }
 
-  async function handleProfilePictureChange(
-    event: ChangeEvent<HTMLInputElement>,
-  ) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const publicUrl = await updateProfilePicture(file);
-
-    if (publicUrl) {
-      setProfilePicture(publicUrl);
-      localStorage.setItem("profilePicture", publicUrl);
-      setSaveMessage("Profile picture uploaded successfully!");
-      setTimeout(() => setSaveMessage(""), 3000);
-    } else {
-      setSaveMessage(
-        "Failed to upload profile picture. File may be too large.",
-      );
-    }
+  function handleProfilePictureChange(event: ChangeEvent<HTMLInputElement>) {
+    event.preventDefault();
+    if (event.target.files && event.target.files.length > 0)
+      setProfilePicture(event.target.files[0]);
   }
 
   return (
@@ -84,9 +76,9 @@ export default function AccountSection({
               profilePicture ? "bg-transparent" : "bg-(--navy-light)"
             }`}
           >
-            {profilePicture ? (
+            {session.user.user_metadata?.avatar_url ? (
               <img
-                src={profilePicture}
+                src={session.user.user_metadata?.avatar_url || ""}
                 alt='Profile'
                 className='w-full h-full object-cover'
               />

@@ -1,6 +1,7 @@
 import type { EdgeFunctionError } from "@/lib/functions.types";
 import { invokeFunction } from "@/lib/invokeFunction";
 import { supabaseClient } from "@/supabase-client";
+import { StorageError } from "@supabase/storage-js";
 import type { Department } from "@/types/department";
 import {
   AuthError,
@@ -10,7 +11,7 @@ import {
 } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 
-type Error = PostgrestError | AuthError | EdgeFunctionError;
+type Error = PostgrestError | AuthError | StorageError | EdgeFunctionError;
 
 export function useAuth() {
   const [Session, setSession] = useState<Session | null>(null);
@@ -25,91 +26,32 @@ export function useAuth() {
 
   // Helper function to set the error
   function SetError(error: Error) {
-    const msg = `Failed to fetch Session.\n Error Code: ${error.code}.\n Error message: ${error.message}`;
+    const msg = `An Error has occured\n Error message: ${error.message}`;
     console.error(msg);
     setError(msg);
     setLoading(false);
   }
 
   useEffect(() => {
-    // Helper: fetch user's existing profile picture (if any) and store public URL
-    async function fetchAndStoreProfilePicture(user: User | null) {
-      // console.log("Fetching Profile Picture Started");
-      if (!user) return;
-      try {
-        const bucketName = import.meta.env.VITE_PROFILE_PICTURES_BUCKET;
-        if (!user || !bucketName) return;
-
-        const displayName = user.user_metadata?.display_name || "user";
-        const userId = user.id;
-        const folderPath = `${displayName}_${userId}`;
-
-        // Add a 5-second timeout to prevent hanging on storage.list()
-        const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(), 5000),
-        );
-
-        const listPromise = supabaseClient.storage
-          .from(bucketName)
-          .list(folderPath);
-
-        const { data: files, error: listError } = await Promise.race([
-          listPromise,
-          timeoutPromise,
-        ]);
-
-        if (listError || !files || files.length === 0) return;
-
-        const profileFile = files.find(
-          (f: any) =>
-            typeof f.name === "string" && f.name.startsWith("User_Profile"),
-        );
-
-        if (!profileFile) return;
-
-        const { data: publicUrlData } = supabaseClient.storage
-          .from(bucketName)
-          .getPublicUrl(`${folderPath}/${profileFile.name}`);
-
-        const publicUrl = publicUrlData?.publicUrl;
-        if (publicUrl) {
-          localStorage.setItem("profilePicture", publicUrl);
-          window.dispatchEvent(new Event("profilePictureUpdated"));
-        }
-      } catch (err) {
-        console.warn("Failed to restore profile picture:", err);
-      }
-      // console.log("Fetching Profile Picture Ended");
-    }
     async function getSession() {
-      // console.log("Fetching Session Started");
-
       resetSates();
 
       const { data, error: SessionError } =
         await supabaseClient.auth.getSession();
 
-      if (SessionError) {
-        SetError(SessionError);
-        return;
-      }
+      if (SessionError) return SetError(SessionError);
+
       setSession(data.session);
-      // try to restore profile picture when session is obtained (non-blocking)
-      void fetchAndStoreProfilePicture(data.session?.user || null);
       setLoading(false);
-      // console.log("Fetching Session Ended");
     }
 
     getSession();
 
     const { data: authListener } = supabaseClient.auth.onAuthStateChange(
       (_event, session) => {
-        // console.log("Switching Session Started");
+        resetSates();
         setSession(session);
         setLoading(false);
-        // try to restore profile picture on auth change (non-blocking)
-        void fetchAndStoreProfilePicture(session?.user || null);
-        // console.log("Switching Session Ended");
       },
     );
 
@@ -258,103 +200,52 @@ export function useAuth() {
     return true;
   }
 
-  /**
-   * Upload a profile picture to the "Profile Pictures" bucket.
-   * File size must be <= 1MB. The file is stored in a folder named {displayname}_{userId}.
-   * @param file - The image file to upload
-   * @returns the public URL of the uploaded file if successful, null otherwise
-   */
-  async function UpdateProfilePicture(file: File): Promise<string | null> {
+  async function UpdateProfilePicture(file: File) {
     resetSates();
 
-    if (!Session?.user) {
-      setError("No user session");
-      setLoading(false);
-      return null;
+    const user = Session?.user;
+
+    if (!user) {
+      const error = new AuthError("No Authenticated User", 401, "no_user");
+      SetError(error);
+      return false;
     }
 
-    // Check file size (1 MB = 1048576 bytes)
-    const MAX_FILE_SIZE = 1048576;
-    if (file.size > MAX_FILE_SIZE) {
-      setError(
-        `File size exceeds 1MB limit. Your file is ${(file.size / 1024 / 1024).toFixed(2)}MB.`,
+    const bucketName = "Profile Pictures";
+    const path = `${user.id}/profile_picture`;
+
+    const { error: UploadError } = await supabaseClient.storage
+      .from(bucketName)
+      .upload(path, file, { upsert: true,cacheControl: "0" });
+
+    if (UploadError) {
+      SetError(UploadError);
+      return false;
+    }
+
+    const { data } = supabaseClient.storage.from(bucketName).getPublicUrl(path);
+
+    if (!data?.publicUrl) {
+      const error = new StorageError(
+        "Failed to retrieve public URL after upload",
       );
-      setLoading(false);
-      return null;
+      SetError(error);
+      return false;
     }
 
-    const displayName = Session.user.user_metadata?.display_name || "user";
-    const userId = Session.user.id;
-    const folderPath = `${displayName}_${userId}`;
+    const { error: UpdateError } = await supabaseClient.auth.updateUser({
+      data: {
+        avatar_url: data.publicUrl,
+      },
+    });
 
-    // Use a stable filename so uploads overwrite the previous profile picture.
-    // Preserve the file extension if present (e.g. .jpg, .png).
-    const originalName = file.name || "";
-    const lastDot = originalName.lastIndexOf(".");
-    const ext = lastDot > 0 ? originalName.slice(lastDot) : "";
-    const targetFileName = `User_Profile${ext}`;
-    const filePath = `${folderPath}/${targetFileName}`;
-
-    const bucketName = import.meta.env.VITE_PROFILE_PICTURES_BUCKET;
-
-    if (!bucketName) {
-      setError("Missing VITE_PROFILE_PICTURES_BUCKET environment variable.");
-      setLoading(false);
-      return null;
+    if (UpdateError) {
+      SetError(UpdateError);
+      return false;
     }
-
-    // Remove any existing User_Profile files in the folder (different extensions)
-    try {
-      const { data: existingFiles, error: listError } =
-        await supabaseClient.storage.from(bucketName).list(folderPath);
-
-      if (listError) {
-        // non-fatal: continue to upload; we'll report upload errors below
-        console.warn(
-          "Failed to list existing profile pictures:",
-          listError.message,
-        );
-      } else if (Array.isArray(existingFiles) && existingFiles.length > 0) {
-        const toRemove = existingFiles
-          .filter(
-            (f: any) =>
-              typeof f.name === "string" && f.name.startsWith("User_Profile"),
-          )
-          .map((f: any) => `${folderPath}/${f.name}`);
-
-        if (toRemove.length > 0) {
-          const { error: removeError } = await supabaseClient.storage
-            .from(bucketName)
-            .remove(toRemove);
-          if (removeError) {
-            console.warn(
-              "Failed to remove existing profile pictures:",
-              removeError.message,
-            );
-          }
-        }
-      }
-    } catch (err) {
-      console.warn("Error while cleaning existing profile pictures:", err);
-    }
-
-    const { error: uploadError } = await supabaseClient.storage
-      .from(bucketName)
-      .upload(filePath, file, { upsert: true });
-
-    if (uploadError) {
-      setError(`Failed to upload profile picture: ${uploadError.message}`);
-      setLoading(false);
-      return null;
-    }
-
-    // Get public URL
-    const { data: publicUrlData } = supabaseClient.storage
-      .from(bucketName)
-      .getPublicUrl(filePath);
 
     setLoading(false);
-    return publicUrlData?.publicUrl || null;
+    return true;
   }
 
   return {
