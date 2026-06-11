@@ -37,7 +37,7 @@ export function ItemAvatar({ items }: ItemAvatarProps) {
             <ItemContent>
               <ItemTitle>{item.name}</ItemTitle>
               <ItemDescription>
-                Contact with Github or LinkedIn
+                {item.description}
               </ItemDescription>
             </ItemContent>
             <ItemActions>

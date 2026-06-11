@@ -31,6 +31,7 @@ export default function FooterModal({ IsOpen, setIsOpen }: FooterModal) {
   const items: Item[] = [
     {
       name: "Bahaa El Rawass",
+      description: "Contact with Github or LinkedIn",
       avatar: BahaaProfile,
       actions: [
         {
@@ -47,17 +48,13 @@ export default function FooterModal({ IsOpen, setIsOpen }: FooterModal) {
     },
     {
       name: "Mahdi Dagher",
-      //   avatar: MahdiProfile,
+      // avatar: MahdiProfile,
+      description: "Contact with Github",
       actions: [
         {
           name: "Github",
           link: "https://github.com/mahdidagher",
           icon: Github,
-        },
-        {
-          name: "LinkedIn",
-          link: "https://www.linkedin.com/in/mahdidagher" /* Replace this is with the actual LinkedIn profile link */,
-          icon: LinkedIn,
         },
       ],
     },

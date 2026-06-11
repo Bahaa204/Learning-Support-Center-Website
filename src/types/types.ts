@@ -42,6 +42,7 @@ export type BreadcrumbItem = {
 
 export type Item = {
   name: string;
+  description: string;
   avatar?: string;
   actions: ItemAction[];
 };
