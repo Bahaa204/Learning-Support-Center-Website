@@ -69,12 +69,10 @@ export default function Home() {
 
   return (
     <>
-      <div className='page-header'>
-        <h1 className='page-title'>Dashboard</h1>
-        <p className='page-desc'>
-          Overview of support center activity and staff statistics.
-        </p>
-      </div>
+      <h1 className='page-title'>Dashboard</h1>
+      <p className='page-desc'>
+        Overview of support center activity and staff statistics.
+      </p>
 
       <div className='dashboard-container'>
         <div className='stat-card'>

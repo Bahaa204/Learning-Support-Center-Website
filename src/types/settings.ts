@@ -1,13 +1,27 @@
-type Theme = "light" | "dark";
-type FontSize = "normal" | "large";
-export type PageSize = 5 | 10 | 25 | 50 | 100;
-export type ExportFormat = "csv" | "excel";
+export type SettingsTheme = "light" | "dark";
+export type SettingsFontSize = "normal" | "large";
+export type SettingsPageSize = 5 | 10 | 25 | 50 | 100;
+export type SettingsExportFormat = "csv" | "excel";
 
 export type AppSettings = {
-  theme: Theme;
-  fontSize: FontSize;
+  theme: SettingsTheme;
+  fontSize: SettingsFontSize;
   compactMode: boolean;
-  pageSize: PageSize;
-  exportFormat: ExportFormat;
+  pageSize: SettingsPageSize;
+  exportFormat: SettingsExportFormat;
   archiveRetention: number;
 };
+
+export type AccountInput = {
+  displayName: string;
+  profilePicture: File | null;
+};
+
+export type PasswordInput = {
+  newPassword: string;
+  confirmNewPassword: string;
+};
+
+export type StatesProps =
+  | { success: true; msg?: never }
+  | { success: false; msg: string };

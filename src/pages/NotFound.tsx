@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import Breadcrumbs from "@/components/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
@@ -10,7 +9,6 @@ export default function NotFound() {
   return (
     <div>
       <div className='page-header'>
-        <Breadcrumbs />
         <h1 className='page-title'>Page Not Found</h1>
         <p className='page-desc'>We couldn't find the page you requested.</p>
       </div>

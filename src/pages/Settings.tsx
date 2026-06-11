@@ -13,16 +13,35 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { FieldGroup } from "@/components/ui/field";
-import type { PageSize } from "@/types/settings";
-import { useState } from "react";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
+} from "@/components/ui/field";
+import type {
+  PasswordInput as PasswordInputType,
+  SettingsExportFormat,
+  SettingsFontSize,
+  SettingsPageSize,
+  SettingsTheme,
+  StatesProps,
+} from "@/types/settings";
+import { useState, type SubmitEvent } from "react";
 import { Navigate } from "react-router-dom";
 import PasswordInput from "@/components/PasswordInput";
-import Breadcrumbs from "@/components/Breadcrumbs";
 import ErrorCard from "@/components/error-card";
 import LoadingCard from "@/components/loading-card";
-import LoadingModal from "@/components/loading-modal";
 import { simplifyErrorMessage } from "@/helper/functions";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export default function Settings() {
   useDocumentTitle("Settings");
@@ -36,63 +55,68 @@ export default function Settings() {
     UpdatePassword,
     UpdateProfilePicture,
   } = useAuth();
+
   const { Settings, updateSetting } = useSettings();
 
-  const [oldPassword, setOldPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [isChangingPassword, setIsChangingPassword] = useState(false);
-  const [passwordMessage, setPasswordMessage] = useState("");
+  const InitailInput: PasswordInputType = {
+    newPassword: "",
+    confirmNewPassword: "",
+  };
+  const [InputPassword, setInputPassword] =
+    useState<PasswordInputType>(InitailInput);
+  const [IsChanging, setIsChanging] = useState(false);
+  const [PasswordError, setPasswordError] = useState("");
+  const [PasswordSuccess, setPasswordSuccess] = useState<boolean>();
 
-  async function handleChangePassword() {
-    if (!newPassword || !oldPassword || !confirmPassword) {
-      setPasswordMessage("All password fields are required.");
-      return;
-    }
+  function SetStates({ success, msg }: StatesProps) {
+    setIsChanging(msg ? false : !success);
+    setPasswordSuccess(success);
+    setPasswordError(!success ? msg : "");
 
-    if (newPassword !== confirmPassword) {
-      setPasswordMessage("New password and confirmation do not match.");
-      return;
-    }
-
-    if (newPassword === oldPassword) {
-      setPasswordMessage("New password must be different from old password.");
-      return;
-    }
-
-    setIsChangingPassword(true);
-    setPasswordMessage("");
-
-    try {
-      // Note: You may want to verify the old password on the backend
-      // For now, we'll just update to the new password
-      const updated = await UpdatePassword(newPassword);
-
-      if (updated) {
-        setPasswordMessage("Password changed successfully!");
-        setOldPassword("");
-        setNewPassword("");
-        setConfirmPassword("");
-        setTimeout(() => setPasswordMessage(""), 3000);
-      } else {
-        setPasswordMessage("Failed to change password. Please try again.");
-      }
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : "Unknown error";
-      setPasswordMessage(simplifyErrorMessage(errorMsg));
-    }
-
-    setIsChangingPassword(false);
+    setTimeout(() => {
+      setPasswordSuccess(false);
+      // setPasswordError("");
+    }, 3000);
   }
 
-  async function handleLogoutEverywhere() {
-    if (
-      window.confirm(
-        "Log out from all devices? This will sign you out everywhere.",
-      )
-    ) {
-      await SignOut();
-    }
+  function updateFields(fields: Partial<PasswordInputType>) {
+    setInputPassword((prev) => ({ ...prev, ...fields }));
+  }
+
+  function AriaValididateError() {
+    return (
+      PasswordError.includes("required") ||
+      PasswordError.includes("do not match")
+    );
+  }
+
+  async function handleSubmitPassword(event: SubmitEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (IsChanging) return;
+    setIsChanging(true);
+    setPasswordError("");
+
+    if (!InputPassword.newPassword || !InputPassword.confirmNewPassword)
+      return SetStates({
+        success: false,
+        msg: "All password fields are required.",
+      });
+
+    if (InputPassword.newPassword !== InputPassword.confirmNewPassword)
+      return SetStates({
+        success: false,
+        msg: "New password and confirmation do not match.",
+      });
+
+    const ok = await UpdatePassword(InputPassword.newPassword);
+
+    setIsChanging(false);
+
+    if (!ok)
+      return SetStates({ success: false, msg: "Failed to update password." });
+
+    SetStates({ success: true });
+    setInputPassword(InitailInput);
   }
 
   if (AuthLoading) {
@@ -109,10 +133,7 @@ export default function Settings() {
 
   return (
     <>
-      <div className='page-header'>
-        <Breadcrumbs />
-        <h1 className='page-title'>Settings</h1>
-      </div>
+      <h1 className='page-title'>Settings</h1>
 
       <div className='settings-container'>
         <AccountSection
@@ -121,220 +142,245 @@ export default function Settings() {
           updateProfilePicture={UpdateProfilePicture}
         />
 
-        <section className='settings-section'>
-          <FieldGroup>
-            <div>
-              <Label htmlFor='oldPassword'>Old Password</Label>
-              <PasswordInput
-                id='oldPassword'
-                value={oldPassword}
-                onChange={(e) => setOldPassword(e.target.value)}
-                placeholder='Enter your current password'
-              />
-            </div>
-            <div>
-              <Label htmlFor='newPassword'>New Password</Label>
-              <PasswordInput
-                id='newPassword'
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder='Enter your new password'
-              />
-            </div>
-            <div>
-              <Label htmlFor='confirmPassword'>Confirm New Password</Label>
-              <PasswordInput
-                id='confirmPassword'
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder='Confirm your new password'
-              />
-            </div>
-            <Button
-              variant='secondary'
-              onClick={handleChangePassword}
-              disabled={isChangingPassword}
-            >
-              {isChangingPassword ? "Updating..." : "Change Password"}
-            </Button>
-            {passwordMessage && (
-              <p
-                className={`text-sm ${
-                  passwordMessage.includes("Error") ||
-                  passwordMessage.includes("do not match") ||
-                  passwordMessage.includes("must be different") ||
-                  passwordMessage.includes("required")
-                    ? "text-destructive"
-                    : "text-(--success)"
-                }`}
-              >
-                {passwordMessage}
-              </p>
+        <Card className='settings-section'>
+          <form onSubmit={handleSubmitPassword}>
+            <FieldSet>
+              <FieldGroup>
+                <FieldLabel htmlFor='newPassword'>New Password</FieldLabel>
+                <PasswordInput
+                  id='newPassword'
+                  value={InputPassword.newPassword}
+                  onChange={(e) =>
+                    updateFields({ newPassword: e.target.value })
+                  }
+                  placeholder='Enter your new password'
+                  aria-invalid={AriaValididateError()}
+                />
+                <FieldDescription>
+                  The new password must be at least 8 characters long and
+                  different from your current password.
+                </FieldDescription>
+                {PasswordError && (
+                  <FieldError className='text-lg text-destructive bg-red-500/20 px-3 py-1 rounded-lg w-full text-center'>
+                    {PasswordError}
+                  </FieldError>
+                )}
+              </FieldGroup>
+              <FieldGroup>
+                <FieldLabel htmlFor='confirmPassword'>
+                  Confirm New Password
+                </FieldLabel>
+                <PasswordInput
+                  id='confirmPassword'
+                  value={InputPassword.confirmNewPassword}
+                  onChange={(e) =>
+                    updateFields({ confirmNewPassword: e.target.value })
+                  }
+                  placeholder='Confirm your new password'
+                  aria-invalid={AriaValididateError()}
+                />
+                <FieldDescription>
+                  Please re-enter your new password for confirmation.
+                </FieldDescription>
+                {PasswordError && (
+                  <FieldError className='text-lg text-destructive bg-red-500/20 px-3 py-1 rounded-lg w-full text-center'>
+                    {PasswordError}
+                  </FieldError>
+                )}
+              </FieldGroup>
+              <Button type='submit' disabled={IsChanging}>
+                {IsChanging ? "Updating..." : "Change Password"}
+              </Button>
+            </FieldSet>
+            {PasswordSuccess && (
+              <Card className='p-0! m-0! bg-transparent! ring-0! mt-4!'>
+                <CardHeader className='ring-0! bg-green-500/20 text-center text-(--success) p-3! m-0! rounded-lg!'>
+                  <CardTitle>Password Updated</CardTitle>
+                  <CardDescription>
+                    Your password has been updated successfully.
+                  </CardDescription>
+                </CardHeader>
+              </Card>
             )}
-          </FieldGroup>
+          </form>
+        </Card>
 
-          <div className='flex flex-col gap-4'>
-            <div>
-              <Label>Logout Everywhere</Label>
-              <p className='text-sm text-muted-foreground mb-2'>
-                Log out from all devices and browsers.
-              </p>
-            </div>
-            <Button variant='destructive' onClick={handleLogoutEverywhere}>
-              Sign Out All Sessions
-            </Button>
-          </div>
-        </section>
+        <Card className='settings-section'>
+          <CardHeader>
+            <CardTitle>Logout</CardTitle>
+            <CardDescription>
+              Log out from all devices and browsers.
+            </CardDescription>
+          </CardHeader>
+          <Button variant='destructive' onClick={async () => await SignOut()}>
+            Sign Out
+          </Button>
+        </Card>
 
-        <LoadingModal
-          open={isChangingPassword}
-          message='Updating settings...'
-        />
+        {/* Appearance Section */}
+        <Card className='settings-section'>
+          <CardHeader className='settings-section-title'>
+            <CardTitle className='font-extrabold text-[1.25rem]'>
+              Appearance
+            </CardTitle>
+            <CardDescription>
+              Customize the look and feel of the application to your preference.
+              Changes will be saved automatically.
+            </CardDescription>
+          </CardHeader>
 
-        {/* APPEARANCE SECTION */}
-        <section className='settings-section'>
-          <h2 className='settings-section-title'>Appearance</h2>
-
-          <FieldGroup>
-            <div>
-              <Label>Theme</Label>
-              <div className='flex gap-8'>
-                <label className='flex items-center gap-2 cursor-pointer'>
-                  <input
-                    type='radio'
-                    name='theme'
-                    checked={Settings.theme === "light"}
-                    onChange={() => updateSetting("theme", "light")}
-                  />
-                  Light Mode
-                </label>
-                <label className='flex items-center gap-2 cursor-pointer'>
-                  <input
-                    type='radio'
-                    name='theme'
-                    checked={Settings.theme === "dark"}
-                    onChange={() => updateSetting("theme", "dark")}
-                  />
-                  Dark Mode
-                </label>
-              </div>
-            </div>
-
-            <div>
-              <Label>Font Size</Label>
-              <div className='flex gap-8'>
-                <label className='flex items-center gap-2 cursor-pointer'>
-                  <input
-                    type='radio'
-                    name='fontSize'
-                    checked={Settings.fontSize === "normal"}
-                    onChange={() => updateSetting("fontSize", "normal")}
-                  />
-                  Normal
-                </label>
-                <label className='flex items-center gap-2 cursor-pointer'>
-                  <input
-                    type='radio'
-                    name='fontSize'
-                    checked={Settings.fontSize === "large"}
-                    onChange={() => updateSetting("fontSize", "large")}
-                  />
-                  Large
-                </label>
-              </div>
-            </div>
-
-            <div className='flex items-center gap-3'>
-              <Checkbox
-                id='compactMode'
-                checked={Settings.compactMode}
-                onCheckedChange={(checked) =>
-                  updateSetting("compactMode", checked as boolean)
-                }
-              />
-              <Label htmlFor='compactMode' className='m-0'>
-                Compact Mode - Reduce spacing in tables and forms
-              </Label>
-            </div>
-          </FieldGroup>
-        </section>
-
-        {/* DATA & RECORDS SECTION */}
-        <section className='settings-section'>
-          <h2 className='settings-section-title'>Data & Records</h2>
-
-          <FieldGroup>
-            <div>
-              <Label htmlFor='pageSize'>Default Page Size</Label>
-              <Select
-                value={String(Settings.pageSize)}
+          <FieldSet>
+            <FieldGroup>
+              <FieldLabel>Theme</FieldLabel>
+              <RadioGroup
+                value={Settings.theme}
                 onValueChange={(value) =>
-                  updateSetting("pageSize", Number(value) as PageSize)
+                  updateSetting("theme", value as SettingsTheme)
                 }
               >
-                <SelectTrigger id='pageSize'>
-                  <SelectValue placeholder='Select page size' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='5'>5 records per page</SelectItem>
-                  <SelectItem value='10'>10 records per page</SelectItem>
-                  <SelectItem value='25'>25 records per page</SelectItem>
-                  <SelectItem value='50'>50 records per page</SelectItem>
-                  <SelectItem value='100'>100 records per page</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className='text-sm text-muted-foreground'>
-                Number of records shown per page in tables.
-              </p>
-            </div>
+                <div className='flex items-center gap-3'>
+                  <RadioGroupItem value='light' id='light-theme' />
+                  <Label htmlFor='light-theme' className='cursor-pointer'>
+                    Light
+                  </Label>
+                </div>
+                <div className='flex items-center gap-3'>
+                  <RadioGroupItem value='dark' id='dark-theme' />
+                  <Label htmlFor='dark-theme' className='cursor-pointer'>
+                    Dark
+                  </Label>
+                </div>
+              </RadioGroup>
+            </FieldGroup>
 
-            <div>
-              <Label>Export Format</Label>
-              <div className='flex gap-8'>
-                <label className='flex items-center gap-2 cursor-pointer'>
-                  <input
-                    type='radio'
-                    name='exportFormat'
-                    checked={Settings.exportFormat === "csv"}
-                    onChange={() => updateSetting("exportFormat", "csv")}
-                  />
-                  CSV
-                </label>
-                <label className='flex items-center gap-2 cursor-pointer'>
-                  <input
-                    type='radio'
-                    name='exportFormat'
-                    checked={Settings.exportFormat === "excel"}
-                    onChange={() => updateSetting("exportFormat", "excel")}
-                  />
-                  Excel
-                </label>
-              </div>
-              <p className='text-sm text-muted-foreground'>
-                Default format for exporting records.
-              </p>
-            </div>
-
-            <div>
-              <Label htmlFor='archiveRetention'>Archive Retention</Label>
-              <Input
-                id='archiveRetention'
-                type='number'
-                min='30'
-                max='730'
-                step='30'
-                value={Settings.archiveRetention}
-                onChange={(e) =>
-                  updateSetting("archiveRetention", Number(e.target.value))
+            <FieldGroup>
+              <FieldLabel>Font Size</FieldLabel>
+              <RadioGroup
+                value={Settings.fontSize}
+                onValueChange={(value) =>
+                  updateSetting("fontSize", value as SettingsFontSize)
                 }
-              />
-              <p className='text-sm text-muted-foreground'>
-                Days to keep archived records before deletion (
-                {Settings.archiveRetention} days).
-              </p>
-            </div>
-          </FieldGroup>
-        </section>
+              >
+                <div className='flex items-center gap-3'>
+                  <RadioGroupItem value='normal' id='normal-font' />
+                  <Label htmlFor='normal-font' className='cursor-pointer'>
+                    Normal
+                  </Label>
+                </div>
+                <div className='flex items-center gap-3'>
+                  <RadioGroupItem value='large' id='large-font' />
+                  <Label htmlFor='large-font' className='cursor-pointer'>
+                    Large
+                  </Label>
+                </div>
+              </RadioGroup>
+            </FieldGroup>
+
+            <FieldGroup>
+              <Field orientation='horizontal'>
+                <Checkbox
+                  id='compactMode'
+                  name='compactMode'
+                  checked={Settings.compactMode}
+                  onCheckedChange={(checked) =>
+                    updateSetting("compactMode", checked as boolean)
+                  }
+                />
+                <FieldLabel htmlFor='compactMode'>
+                  Compact Mode - Reduce spacing in tables and forms
+                </FieldLabel>
+              </Field>
+            </FieldGroup>
+          </FieldSet>
+        </Card>
+
+        {/* Data and Records Section */}
+        <Card className='settings-section'>
+          <CardHeader className='settings-section-title'>
+            <CardTitle className='font-extrabold text-[1.25rem]'>
+              Data & Records
+            </CardTitle>
+            <CardDescription>
+              Configure how data is displayed, exported, and retained in the
+              application. Changes will be saved automatically.
+            </CardDescription>
+          </CardHeader>
+
+          <FieldSet>
+            <FieldGroup>
+              <Field>
+                <FieldLabel htmlFor='pageSize'>Default Page Size</FieldLabel>
+                <Select
+                  value={String(Settings.pageSize)}
+                  onValueChange={(value) =>
+                    updateSetting("pageSize", Number(value) as SettingsPageSize)
+                  }
+                >
+                  <SelectTrigger id='pageSize'>
+                    <SelectValue placeholder='Select page size' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='5'>5 records per page</SelectItem>
+                    <SelectItem value='10'>10 records per page</SelectItem>
+                    <SelectItem value='25'>25 records per page</SelectItem>
+                    <SelectItem value='50'>50 records per page</SelectItem>
+                    <SelectItem value='100'>100 records per page</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FieldDescription>
+                  Number of records shown per page in tables.
+                </FieldDescription>
+              </Field>
+
+              <Field>
+                <FieldLabel>Export Format</FieldLabel>
+                <RadioGroup
+                  value={Settings.exportFormat}
+                  onValueChange={(value) =>
+                    updateSetting("exportFormat", value as SettingsExportFormat)
+                  }
+                >
+                  <div className='flex items-center gap-3'>
+                    <RadioGroupItem value='csv' id='csv-export' />
+                    <Label htmlFor='csv-export' className='cursor-pointer'>
+                      CSV
+                    </Label>
+                  </div>
+                  <div className='flex items-center gap-3'>
+                    <RadioGroupItem value='excel' id='excel-export' />
+                    <Label htmlFor='excel-export' className='cursor-pointer'>
+                      Excel
+                    </Label>
+                  </div>
+                </RadioGroup>
+                <FieldDescription>
+                  Default format for exporting records.
+                </FieldDescription>
+              </Field>
+
+              <Field>
+                <FieldLabel htmlFor='archiveRetention'>
+                  Archive Retention
+                </FieldLabel>
+                <Input
+                  id='archiveRetention'
+                  type='number'
+                  min='30'
+                  max='730'
+                  step='30'
+                  value={Settings.archiveRetention}
+                  onChange={(e) =>
+                    updateSetting("archiveRetention", Number(e.target.value))
+                  }
+                />
+                <FieldDescription>
+                  Days to keep archived records before deletion (
+                  {Settings.archiveRetention} days).
+                </FieldDescription>
+              </Field>
+            </FieldGroup>
+          </FieldSet>
+        </Card>
       </div>
     </>
   );

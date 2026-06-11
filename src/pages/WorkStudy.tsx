@@ -26,7 +26,6 @@ import type { NewUser, User, UserInput } from "@/types/users";
 import { MoreHorizontalIcon } from "lucide-react";
 import { useState, type SubmitEvent } from "react";
 import { Navigate } from "react-router-dom";
-import Breadcrumbs from "@/components/Breadcrumbs";
 import ErrorCard from "@/components/error-card";
 import LoadingCard from "@/components/loading-card";
 import LoadingModal from "@/components/loading-modal";
@@ -225,7 +224,6 @@ export default function WorkStudy() {
   return (
     <>
       <div className='page-header'>
-        <Breadcrumbs />
         <div className='flex justify-between items-start'>
           <div>
             <h1 className='page-title'>Support Center Staff Management</h1>

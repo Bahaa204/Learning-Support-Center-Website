@@ -1,5 +1,4 @@
 import { useRouteError, isRouteErrorResponse } from "react-router-dom";
-import Breadcrumbs from "@/components/Breadcrumbs";
 import ErrorCard from "@/components/error-card";
 import { simplifyErrorMessage } from "@/helper/functions";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
@@ -15,7 +14,6 @@ export default function ErrorPage() {
   return (
     <div>
       <div className='page-header'>
-        <Breadcrumbs />
         <h1 className='page-title'>Something went wrong</h1>
         <p className='page-desc'>An unexpected error occurred.</p>
       </div>

@@ -12,7 +12,6 @@ import { exportData } from "@/lib/exportUtils";
 import type { NewStudent, StudentInput } from "@/types/students";
 import { useState, type SubmitEvent } from "react";
 import { Navigate } from "react-router-dom";
-import Breadcrumbs from "@/components/Breadcrumbs";
 import LoadingCard from "@/components/loading-card";
 import LoadingModal from "@/components/loading-modal";
 
@@ -153,7 +152,6 @@ export default function StudentRecords() {
   return (
     <>
       <div className='page-header'>
-        <Breadcrumbs />
         <div className='flex justify-between items-start'>
           <div>
             <h1 className='page-title'>Student Support Center Visits</h1>

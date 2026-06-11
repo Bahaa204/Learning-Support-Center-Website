@@ -90,7 +90,7 @@ export default function Header({ onToggleMenu, isMenuOpen }: HeaderProps) {
                     <span className='text-(--gold-light) text-[0.72rem] font-semibold text-center'>
                       {Session.user.user_metadata?.avatar_url ? (
                         <img
-                          src={Session.user.user_metadata?.avatar_url || ""}
+                          src={Session.user.user_metadata?.avatar_url}
                           alt='Profile'
                           className='w-full h-full rounded-full object-cover'
                         />
