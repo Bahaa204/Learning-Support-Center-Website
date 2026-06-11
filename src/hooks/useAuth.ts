@@ -18,7 +18,9 @@ export function useAuth() {
   const [Loading, setLoading] = useState<boolean>(true);
   const [Error, setError] = useState<string>("");
 
-  //Helper reset some states
+  const bucketName = "Profile Pictures";
+
+  //Helper reset some tates
   function resetSates() {
     setLoading(true);
     setError("");
@@ -211,12 +213,11 @@ export function useAuth() {
       return false;
     }
 
-    const bucketName = "Profile Pictures";
     const path = `${user.id}/profile_picture`;
 
     const { error: UploadError } = await supabaseClient.storage
       .from(bucketName)
-      .upload(path, file, { upsert: true,cacheControl: "0" });
+      .upload(path, file, { upsert: true, cacheControl: "0" });
 
     if (UploadError) {
       SetError(UploadError);
@@ -248,6 +249,32 @@ export function useAuth() {
     return true;
   }
 
+  async function DeleteProfilePicture(userId: User["id"]) {
+    resetSates();
+
+    const { error: DeleteError } = await supabaseClient.storage
+      .from(bucketName)
+      .remove([`${userId}/profile_picture`]);
+
+    if (DeleteError) {
+      SetError(DeleteError);
+      return false;
+    }
+
+    const { error: UpdateError } = await supabaseClient.auth.updateUser({
+      data: {
+        avatar_url: null,
+      },
+    });
+
+    if (UpdateError) {
+      SetError(UpdateError);
+      return false;
+    }
+
+    return true;
+  }
+
   return {
     Session,
     Error,
@@ -261,5 +288,6 @@ export function useAuth() {
     UpdateDisplayName,
     UpdatePassword,
     UpdateProfilePicture,
+    DeleteProfilePicture,
   };
 }

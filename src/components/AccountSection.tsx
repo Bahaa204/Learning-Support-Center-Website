@@ -1,5 +1,5 @@
-import { useState, type ChangeEvent, type SubmitEvent } from "react";
-import type { Session } from "@supabase/supabase-js";
+import { useState, type ChangeEvent } from "react";
+import type { Session, User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import {
   FieldDescription,
@@ -16,18 +16,20 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
+import { Trash2Icon } from "lucide-react";
 
 type AccountSectionProps = {
   session: Session;
   updateDisplayName: (displayName: string) => Promise<boolean>;
   updateProfilePicture: (file: File) => Promise<boolean>;
+  deleteProfilePicture: (userId: User["id"]) => Promise<boolean>;
 };
-
 
 export default function AccountSection({
   session,
   updateDisplayName,
   updateProfilePicture,
+  deleteProfilePicture,
 }: AccountSectionProps) {
   const InitialInput: AccountInput = {
     displayName: session.user.user_metadata?.display_name || "",
@@ -57,37 +59,19 @@ export default function AccountSection({
   function validateDisplayName() {
     return (
       AccountInput.displayName.trim().length >= 2 &&
-      AccountInput.displayName.trim().length <= 50 &&
-      AccountInput.displayName !== session.user.user_metadata?.display_name
+      AccountInput.displayName.trim().length <= 50
     );
   }
 
-  async function handleSubmitInfo(event: SubmitEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function handleEdit() {
     if (IsSaving) return;
     SetStates({ success: false, msg: "" });
 
     if (!validateDisplayName())
       return SetStates({
         success: false,
-        msg: "Display name must be between 2 and 50 characters and different from the current one.",
+        msg: "Display name must be between 2 and 50 characters.",
       });
-
-    const ok = await updateDisplayName(AccountInput.displayName);
-    if (!ok)
-      return SetStates({
-        success: false,
-        msg: "Failed to update display name.",
-      });
-
-    SetStates({ success: true });
-  }
-
-  async function handleProfileSubmit(event: SubmitEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    if (IsSaving) return;
-    SetStates({ success: false, msg: "" });
 
     if (!AccountInput.profilePicture) {
       setProfileError("Please select a profile picture to upload.");
@@ -95,13 +79,36 @@ export default function AccountSection({
       return;
     }
 
-    const ok = await updateProfilePicture(AccountInput.profilePicture);
+    const DisplayNameOK = await updateDisplayName(AccountInput.displayName);
+    if (!DisplayNameOK)
+      return SetStates({
+        success: false,
+        msg: "Failed to update display name.",
+      });
 
-    if (!ok) {
+    const ProfilePictureOK = await updateProfilePicture(
+      AccountInput.profilePicture,
+    );
+
+    if (!ProfilePictureOK) {
       setProfileError("Failed to update profile picture.");
       setIsSaving(false);
       return;
     }
+
+    SetStates({ success: true });
+  }
+
+  async function handleDeleteProfilePicture() {
+    if (IsSaving) return;
+    SetStates({ success: false, msg: "" });
+
+    const ok = await deleteProfilePicture(session.user.id);
+    if (!ok)
+      return SetStates({
+        success: false,
+        msg: "Failed to delete profile picture.",
+      });
 
     SetStates({ success: true });
   }
@@ -136,10 +143,7 @@ export default function AccountSection({
       </CardHeader>
 
       <CardContent className='flex gap-8 items-start mb-8'>
-        <form
-          className='flex flex-col gap-4 items-center'
-          onSubmit={handleProfileSubmit}
-        >
+        <div className='flex flex-col gap-4 items-center'>
           <div
             className={`w-25 h-25 rounded-full flex items-center justify-center overflow-hidden border-[3px] border-(--navy) ${
               AccountInput.profilePicture
@@ -166,17 +170,24 @@ export default function AccountSection({
             className='profile-picture-input'
             disabled={IsSaving}
           />
-
           <Button
-            type='submit'
+            type='button'
             disabled={IsSaving}
-            className='disabled:cursor-not-allowed w-full p-5 text-[18px]'
+            variant='destructive'
+            className='w-full text-[16px]'
+            onClick={handleDeleteProfilePicture}
           >
-            {IsSaving ? "Uploading..." : "Upload Profile Picture"}
+            {IsSaving ? (
+              "Deleting..."
+            ) : (
+              <>
+                <Trash2Icon /> Delete Profile Picture
+              </>
+            )}
           </Button>
-        </form>
+        </div>
 
-        <form onSubmit={handleSubmitInfo} className='flex-1'>
+        <Card className='flex-1 p-5! m-0! bg-transparent! ring-0!'>
           <FieldSet>
             <FieldGroup className='gap-5!'>
               <FieldLabel htmlFor='displayName' className='p-0! m-0!'>
@@ -208,18 +219,17 @@ export default function AccountSection({
               />
               <FieldDescription>Your login email address.</FieldDescription>
             </FieldGroup>
-            <FieldGroup>
-              <Button
-                type='submit'
-                disabled={IsSaving}
-                className='disabled:cursor-not-allowed w-full p-5 text-[18px]'
-              >
-                {IsSaving ? "Saving..." : "Save Edits"}
-              </Button>
-            </FieldGroup>
           </FieldSet>
-        </form>
+        </Card>
       </CardContent>
+      <Button
+        type='button'
+        onClick={handleEdit}
+        className='w-full p-5 text-[20px]'
+        disabled={IsSaving}
+      >
+        {IsSaving ? "Saving..." : "Submit Edits"}
+      </Button>
       {(ProfileError || ProfileSuccess) && (
         <Card className='p-0! m-0! bg-transparent! ring-0!'>
           {ProfileSuccess && (

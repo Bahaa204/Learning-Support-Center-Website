@@ -54,6 +54,7 @@ export default function Settings() {
     UpdateDisplayName,
     UpdatePassword,
     UpdateProfilePicture,
+    DeleteProfilePicture
   } = useAuth();
 
   const { Settings, updateSetting } = useSettings();
@@ -140,6 +141,7 @@ export default function Settings() {
           session={Session}
           updateDisplayName={UpdateDisplayName}
           updateProfilePicture={UpdateProfilePicture}
+          deleteProfilePicture={DeleteProfilePicture}
         />
 
         <Card className='settings-section'>
