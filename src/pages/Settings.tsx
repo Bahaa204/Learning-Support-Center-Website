@@ -206,10 +206,12 @@ export default function Settings() {
         </Card>
 
         <Card className='settings-section'>
-          <CardHeader>
-            <CardTitle>Logout</CardTitle>
+        <CardHeader className='settings-section-title border-b-0!'>
+            <CardTitle className='font-extrabold text-[1.25rem]'>
+              Log Out
+            </CardTitle>
             <CardDescription>
-              Log out from all devices and browsers.
+              Log out of your account on all devices.
             </CardDescription>
           </CardHeader>
           <Button variant='destructive' onClick={async () => await SignOut()}>
