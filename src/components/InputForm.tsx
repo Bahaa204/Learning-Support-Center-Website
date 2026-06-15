@@ -27,7 +27,6 @@ import { Button } from "./ui/button";
 import { useState, type SubmitEvent } from "react";
 import CoursesMenu from "./CoursesMenu";
 import { DateTimePicker } from "./DateTimePicker.tsx";
-import { simplifyErrorMessage } from "@/helper/functions.ts";
 import TimeSlots from "./TimeSlots.tsx";
 
 export default function InputForm({
@@ -67,7 +66,7 @@ export default function InputForm({
   }
 
   return (
-    <FieldSet className='form-card &>*:block!'>
+    <FieldSet className='form-card'>
       <FieldGroup className='form-card-header gold'>
         <FieldTitle className='section-title'>{title}</FieldTitle>
         <FieldDescription className='section-desc'>
@@ -79,7 +78,7 @@ export default function InputForm({
         <FieldGroup className='bg-red-500/15 rounded-lg p-5'>
           <Field>
             <FieldError className='px-5 font-bold text-lg'>
-              {simplifyErrorMessage(formError)}
+              {formError}
             </FieldError>
           </Field>
         </FieldGroup>

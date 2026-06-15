@@ -6,6 +6,8 @@ export type Student = StudentsTable["Row"];
 
 export type NewStudent = StudentsTable["Insert"];
 
+export type UpdatedStudent = StudentsTable["Update"];
+
 export type StudentInput = {
   studentName: Student["studentName"];
   department_id: Student["department_id"];

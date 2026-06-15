@@ -1,9 +1,12 @@
-import type { PostgrestError } from "@supabase/supabase-js";
+import type { AuthError, PostgrestError } from "@supabase/supabase-js";
 import type { Dispatch, SetStateAction, SubmitEvent } from "react";
 import type { Database } from "../../database.types";
 import type { UserMode } from "./users";
 import type { Department } from "./department";
 import type { Student, StudentMode } from "./students";
+import type { EdgeFunctionError } from "@/lib/functions.types";
+import { StorageError } from "@supabase/storage-js";
+import type { MutationOptions as Mutationoptions } from "@tanstack/react-query";
 
 export type UpdaterFunction<T> = Dispatch<SetStateAction<T>>;
 
@@ -52,3 +55,15 @@ type ItemAction = {
   link: string;
   icon: string;
 };
+
+export type CustomError =
+  | PostgrestError
+  | AuthError
+  | StorageError
+  | EdgeFunctionError;
+
+export type MutationOptions<TData, TVariables> = Mutationoptions<
+  TData,
+  PostgrestError,
+  TVariables
+>;

@@ -6,7 +6,7 @@ import { useEffect, useState, type SubmitEvent } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import ErrorCard from "@/components/error-card";
 import LoadingCard from "@/components/loading-card";
-import { simplifyErrorMessage } from "@/helper/functions";
+import { SetErrorMessage } from "@/helper/errorhelpers";
 
 export default function Login() {
   useDocumentTitle("Login");
@@ -86,7 +86,7 @@ export default function Login() {
             <p>Use your Learning Center account credentials to continue.</p>
           </div>
 
-          {AuthError && <ErrorCard error={simplifyErrorMessage(AuthError)} />}
+          {AuthError && <ErrorCard message={SetErrorMessage(AuthError)} />}
 
           <form onSubmit={handleSubmit} className='login-form'>
             <div className='login-field'>

@@ -1,37 +1,26 @@
-import type { EdgeFunctionError } from "@/lib/functions.types";
 import { invokeFunction } from "@/lib/invokeFunction";
 import { supabaseClient } from "@/supabase-client";
 import { StorageError } from "@supabase/storage-js";
 import type { Department } from "@/types/department";
-import {
-  AuthError,
-  PostgrestError,
-  type Session,
-  type User,
-} from "@supabase/supabase-js";
+import { AuthError, type Session, type User } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
-
-type Error = PostgrestError | AuthError | StorageError | EdgeFunctionError;
+import { useQueryClient } from "@tanstack/react-query";
+import type { CustomError } from "@/types/types";
 
 export function useAuth() {
   const [Session, setSession] = useState<Session | null>(null);
   const [Loading, setLoading] = useState<boolean>(true);
-  const [Error, setError] = useState<string>("");
+  const [Error, setError] = useState<CustomError | null>(null);
+
+  const queryClient = useQueryClient();
 
   const bucketName = "Profile Pictures";
+  const fileSizeLimit = 1 * 1024 * 1024; // 1MB
 
   //Helper reset some tates
   function resetSates() {
     setLoading(true);
-    setError("");
-  }
-
-  // Helper function to set the error
-  function SetError(error: Error) {
-    const msg = `An Error has occured\n Error message: ${error.message}`;
-    console.error(msg);
-    setError(msg);
-    setLoading(false);
+    setError(null);
   }
 
   useEffect(() => {
@@ -41,7 +30,7 @@ export function useAuth() {
       const { data, error: SessionError } =
         await supabaseClient.auth.getSession();
 
-      if (SessionError) return SetError(SessionError);
+      if (SessionError) return setError(SessionError);
 
       setSession(data.session);
       setLoading(false);
@@ -53,6 +42,7 @@ export function useAuth() {
       (_event, session) => {
         resetSates();
         setSession(session);
+        queryClient.invalidateQueries();
         setLoading(false);
       },
     );
@@ -73,7 +63,7 @@ export function useAuth() {
     );
 
     if (SignInError) {
-      SetError(SignInError);
+      setError(SignInError);
       return false;
     }
 
@@ -97,11 +87,13 @@ export function useAuth() {
     );
 
     if (SignUpError) {
-      SetError(SignUpError);
+      setError(SignUpError);
       return null;
     }
 
     setLoading(false);
+    queryClient.invalidateQueries({ queryKey: ["users"] });
+
     return data;
   }
 
@@ -111,22 +103,12 @@ export function useAuth() {
     const { error: SignOutError } = await supabaseClient.auth.signOut();
 
     if (SignOutError) {
-      SetError(SignOutError);
+      setError(SignOutError);
       return false;
     }
 
-    localStorage.removeItem("profilePicture");
-    // window.dispatchEvent(new Event("profilePictureUpdated"));
-    setLoading(false);
-    return true;
-  }
+    queryClient.clear();
 
-  async function RestoreSession(prevSession: Session) {
-    const { error } = await supabaseClient.auth.setSession(prevSession);
-    if (error) {
-      SetError(error);
-      return false;
-    }
     setLoading(false);
     return true;
   }
@@ -137,11 +119,13 @@ export function useAuth() {
     const { error } = await invokeFunction(supabaseClient, "deleteUser", {
       userId: id,
     });
+
     if (error) {
-      SetError(error);
+      setError(error);
       return false;
     }
     setLoading(false);
+    queryClient.invalidateQueries({ queryKey: ["users"] });
     return true;
   }
 
@@ -154,15 +138,11 @@ export function useAuth() {
       {},
     );
     setLoading(false);
+    queryClient.invalidateQueries({ queryKey: ["users"] });
 
     return DeletionSummary;
   }
 
-  /**
-   * Update the current user's display name.
-   * @param displayName - New display name
-   * @returns true if successful, false otherwise
-   */
   async function UpdateDisplayName(displayName: string) {
     resetSates();
 
@@ -173,7 +153,7 @@ export function useAuth() {
     });
 
     if (error) {
-      SetError(error);
+      setError(error);
       return false;
     }
 
@@ -181,11 +161,6 @@ export function useAuth() {
     return true;
   }
 
-  /**
-   * Update the current user's password directly (not via email).
-   * @param newPassword - The new password
-   * @returns true if successful, false otherwise
-   */
   async function UpdatePassword(newPassword: string) {
     resetSates();
 
@@ -194,7 +169,7 @@ export function useAuth() {
     });
 
     if (error) {
-      SetError(error);
+      setError(error);
       return false;
     }
 
@@ -209,7 +184,15 @@ export function useAuth() {
 
     if (!user) {
       const error = new AuthError("No Authenticated User", 401, "no_user");
-      SetError(error);
+      setError(error);
+      return false;
+    }
+
+    if (file.size > fileSizeLimit) {
+      const error = new StorageError(
+        `File size exceeds ${fileSizeLimit / (1024 * 1024)}MB limit`,
+      );
+      setError(error);
       return false;
     }
 
@@ -220,7 +203,7 @@ export function useAuth() {
       .upload(path, file, { upsert: true, cacheControl: "0" });
 
     if (UploadError) {
-      SetError(UploadError);
+      setError(UploadError);
       return false;
     }
 
@@ -230,7 +213,7 @@ export function useAuth() {
       const error = new StorageError(
         "Failed to retrieve public URL after upload",
       );
-      SetError(error);
+      setError(error);
       return false;
     }
 
@@ -241,7 +224,7 @@ export function useAuth() {
     });
 
     if (UpdateError) {
-      SetError(UpdateError);
+      setError(UpdateError);
       return false;
     }
 
@@ -257,7 +240,7 @@ export function useAuth() {
       .remove([`${userId}/profile_picture`]);
 
     if (DeleteError) {
-      SetError(DeleteError);
+      setError(DeleteError);
       return false;
     }
 
@@ -268,7 +251,7 @@ export function useAuth() {
     });
 
     if (UpdateError) {
-      SetError(UpdateError);
+      setError(UpdateError);
       return false;
     }
 
@@ -282,7 +265,6 @@ export function useAuth() {
     SignInWithPassword,
     SignUp,
     SignOut,
-    RestoreSession,
     DeleteUser,
     DeleteNonAdminUsers,
     UpdateDisplayName,

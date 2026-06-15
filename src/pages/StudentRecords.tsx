@@ -7,13 +7,15 @@ import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { useSettings } from "@/hooks/useSettings";
 import { useStudents } from "@/hooks/useStudents";
 import { useUsers } from "@/hooks/useUsers";
-import { useAsked_About } from "@/hooks/useAsked_About";
 import { exportData } from "@/lib/exportUtils";
 import type { NewStudent, StudentInput } from "@/types/students";
 import { useState, type SubmitEvent } from "react";
 import { Navigate } from "react-router-dom";
 import LoadingCard from "@/components/loading-card";
 import LoadingModal from "@/components/loading-modal";
+import ErrorCard from "@/components/error-card";
+import { SetErrorMessage } from "@/helper/errorhelpers";
+import useAskedAbout from "@/hooks/useAsked_About";
 
 export default function StudentRecords() {
   useDocumentTitle("Student Records");
@@ -37,43 +39,30 @@ export default function StudentRecords() {
   const {
     Students,
     Loading: StudentsLoading,
-    Error: StudentsError,
-    incrementStudentVisits,
-    isUpdating,
-    addStudent,
+    IncrementStudentVisits,
+    IsUpdating,
+    AddStudent,
     UpdateStudent,
     DeleteStudent,
   } = useStudents(Session?.user);
 
-  const { syncStudentCourses } = useAsked_About();
+  const { AskedAbout, syncStudentCourses } = useAskedAbout();
 
-  const {
-    Users,
-    Loading: UsersLoading,
-    Error: UsersError,
-  } = useUsers(Session?.user);
+  const { Users, Loading: UsersLoading } = useUsers(Session?.user);
 
-  const {
-    Departments,
-    Loading: DepartmentsLoading,
-    Error: DepartmentsError,
-  } = useDepartments();
+  const { Departments, Loading: DepartmentsLoading } = useDepartments();
 
   const loading =
     AuthLoading || StudentsLoading || DepartmentsLoading || UsersLoading;
-  const error =
-    AuthError || StudentsError || DepartmentsError || UsersError || LocalError;
 
-  if (error && !LocalError) {
-    return (
-      <div className='flex items-center justify-center h-[50vh]'>{error}</div>
-    );
+  if (AuthError) {
+    return <ErrorCard message={SetErrorMessage(AuthError)} />;
   }
 
   if (loading) {
     return (
       <LoadingCard
-        message={AuthLoading ? "Checking authentication" : "Loading students"}
+        message={AuthLoading ? "Checking authentication" : "Loading data"}
       />
     );
   }
@@ -82,9 +71,13 @@ export default function StudentRecords() {
     return <Navigate to='/login' replace />;
   }
 
+  if (!Students || !Users || !Departments || !AskedAbout) {
+    return <ErrorCard message='Failed to load required data.' />;
+  }
+
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (loading || !Session) return false;
+    if (loading || !Session || !Students) return false;
 
     if (checkDupes(Students, StudentInput)) {
       setLocalError("A student with this ID or email already exists.");
@@ -104,40 +97,41 @@ export default function StudentRecords() {
     // show a small modal while submitting
     setLocalError("");
     setIsSubmitting(true);
-    const createdStudent = await addStudent(newStudent);
-    setIsSubmitting(false);
 
-    if (createdStudent) {
-      if (StudentInput.askedCourses.length > 0) {
-        const coursesSaved = await syncStudentCourses(
-          createdStudent.id,
-          StudentInput.askedCourses,
-        );
+    await AddStudent(newStudent, {
+      onSuccess: async(newStudent) => {
+        console.log("created a new student");
 
-        if (!coursesSaved) {
-          setLocalError(
-            "Student added, but failed to save asked-about courses.",
+        if (StudentInput.askedCourses.length > 0) {
+          const coursesSaved = await syncStudentCourses(
+            newStudent.id,
+            StudentInput.askedCourses,
           );
+
+          if (!coursesSaved) {
+            setLocalError(
+              "Student added, but failed to save asked-about courses.",
+            );
+          }
         }
-      }
 
-      setStudentInput(InitialValue);
-      return true;
-    }
+        setIsSubmitting(false);
+        setStudentInput(InitialValue);
+      },
+    });
 
-    setLocalError("Failed to add student. Please try again.");
-    return false;
+    return true;
   }
 
   function handleExport() {
-    const exportData_formatted = Students.map((student) => ({
+    const exportData_formatted = Students!.map((student) => ({
       "Student ID": student.studentId,
       "Student Name": student.studentName,
       Email: student.email,
       Department:
-        Departments.find((d) => d.id === student.department_id)?.name || "—",
+        Departments!.find((d) => d.id === student.department_id)?.name || "—",
       "Added By":
-        Users.find((u) => u.id === student.added_by)?.display_name || "—",
+        Users!.find((u) => u.id === student.added_by)?.display_name || "—",
       "Added At": student.added_at,
       Visits: student.nb_visits,
     }));
@@ -176,7 +170,7 @@ export default function StudentRecords() {
         updateFields={UpdateFields}
         Departments={Departments}
         loading={loading}
-        formError={error}
+        formError={LocalError}
       />
 
       <LoadingModal
@@ -188,10 +182,12 @@ export default function StudentRecords() {
         Students={Students}
         Users={Users}
         Departments={Departments}
-        IncrementVisits={incrementStudentVisits}
+        IncrementVisits={IncrementStudentVisits}
         UpdateStudent={UpdateStudent}
         DeleteStudent={DeleteStudent}
-        isUpdating={isUpdating}
+        isUpdating={IsUpdating}
+        AskedAbout={AskedAbout}
+        syncStudentCourses={syncStudentCourses}
       />
     </>
   );

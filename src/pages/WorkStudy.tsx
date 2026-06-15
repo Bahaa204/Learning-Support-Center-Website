@@ -28,11 +28,9 @@ import { useState, type SubmitEvent } from "react";
 import { Navigate } from "react-router-dom";
 import ErrorCard from "@/components/error-card";
 import LoadingCard from "@/components/loading-card";
-import LoadingModal from "@/components/loading-modal";
-import { simplifyErrorMessage } from "@/helper/functions";
-import { useNavigate } from "react-router-dom";
 import { titleCase } from "title-case";
 import { TimeSlotsMenu } from "@/components/TimeSlotMenu";
+import { SetErrorMessage } from "@/helper/errorhelpers";
 
 export default function WorkStudy() {
   useDocumentTitle("Support Center Staff");
@@ -57,33 +55,22 @@ export default function WorkStudy() {
     DeleteUser,
   } = useAuth();
 
-  const {
-    Users,
-    Loading: UsersLoading,
-    Error: UsersError,
-    AddUser,
-  } = useUsers(Session?.user);
+  const { Users, Loading: UsersLoading, AddUser } = useUsers(Session?.user);
 
-  const {
-    Departments,
-    Loading: DepartmentsLoading,
-    Error: DepartmentsError,
-  } = useDepartments();
+  const { Departments, Loading: DepartmentsLoading } = useDepartments();
 
   const { Settings } = useSettings();
 
-  const { AddTimeSlots } = useTimeSlots();
+  const { AddBulkTimeSlots, Loading: TimeSlotsLoading } = useTimeSlots();
 
-  const loading = AuthLoading || UsersLoading || DepartmentsLoading;
-  const rawError = AuthError || UsersError || DepartmentsError || LocalError;
-  const error = rawError ? simplifyErrorMessage(rawError) : "";
+  const loading =
+    AuthLoading || UsersLoading || DepartmentsLoading || TimeSlotsLoading;
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate();
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (loading) return false;
+    if (loading || isSubmitting) return false;
 
     // Validate that a department has been selected
     if (isNaN(Input.department_id)) {
@@ -143,7 +130,7 @@ export default function WorkStudy() {
         end_time: s.end_time,
       }));
 
-      const slotsOk = await AddTimeSlots(slotInserts as any);
+      const slotsOk = await AddBulkTimeSlots(slotInserts);
 
       if (!slotsOk) {
         setIsSubmitting(false);
@@ -161,8 +148,8 @@ export default function WorkStudy() {
     setInput((prev) => ({ ...prev, ...fields }));
   }
 
-  if (error) {
-    return <ErrorCard error={error} />;
+  if (AuthError) {
+    return <ErrorCard message={SetErrorMessage(AuthError)} />;
   }
 
   if (loading) {
@@ -177,24 +164,13 @@ export default function WorkStudy() {
     return <Navigate to='/login' replace />;
   }
 
-  if (Session.user.user_metadata.role !== "admin") {
+  if (!Users || !Departments)
+    return <ErrorCard message='Failed to load required data.' />;
+
+  if (Session.user.user_metadata.role !== "admin")
     return (
-      <div className='flex items-center justify-center h-[60vh]'>
-        <div className='card p-6 text-center'>
-          <h2 className='text-lg font-semibold mb-2'>Access Denied</h2>
-          <p className='mb-4'>
-            You do not have permission to access this page.
-          </p>
-          <div className='flex gap-3 justify-center'>
-            <Button variant='outline' onClick={() => navigate(-1)}>
-              Go Back
-            </Button>
-            <Button onClick={() => navigate("/")}>Go Home</Button>
-          </div>
-        </div>
-      </div>
+      <ErrorCard message='You do not have permission to view this page.' />
     );
-  }
 
   async function handleDelete(id: User["id"]) {
     const ok = await DeleteUser(id);
@@ -205,12 +181,12 @@ export default function WorkStudy() {
   }
 
   function handleExport() {
-    const exportData_formatted = Users.map((user) => ({
+    const exportData_formatted = Users!.map((user) => ({
       Name: user.display_name,
       Email: user.email,
       Role: user.role,
       Department:
-        Departments.find((d) => d.id === user.department_id)?.name || "—",
+        Departments!.find((d) => d.id === user.department_id)?.name || "—",
       "Created At": formatDate(user.created_at),
     }));
 
@@ -245,12 +221,7 @@ export default function WorkStudy() {
         handleUserSubmit={handleSubmit}
         userInput={Input}
         Departments={Departments}
-        formError={error}
-      />
-
-      <LoadingModal
-        open={isSubmitting}
-        message={`Adding ${Input.displayname || "user"}...`}
+        formError={LocalError}
       />
 
       <div className='mt-8'>

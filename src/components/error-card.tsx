@@ -1,23 +1,20 @@
 import { AlertTriangle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
-import { simplifyErrorMessage } from "@/helper/functions";
 
 type ErrorCardProps = {
-  error?: string | null;
+  message: string;
   title?: string;
   actionLabel?: string;
   onAction?: () => void;
 };
 
 export default function ErrorCard({
-  error,
+  message,
   title = "Something went wrong",
   actionLabel,
   onAction,
 }: ErrorCardProps) {
-  const message = simplifyErrorMessage(error);
-
   return (
     <div className='flex items-center justify-center h-[50vh]'>
       <Card className='w-full max-w-xl border-destructive/20 bg-destructive/5 shadow-none ring-1 ring-destructive/10'>

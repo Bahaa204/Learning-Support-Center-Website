@@ -27,7 +27,7 @@ export default function CoursesDisplayList({
 
   const selectedCourses = selectedCourseCodes
     .map((courseCode) =>
-      Courses.find((course) => course["Course Code"] === courseCode),
+      Courses?.find((course) => course["Course Code"] === courseCode),
     )
     .filter(Boolean) as Course[];
 

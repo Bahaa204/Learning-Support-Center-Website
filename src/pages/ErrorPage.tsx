@@ -1,7 +1,7 @@
-import { useRouteError, isRouteErrorResponse } from "react-router-dom";
+import { isRouteErrorResponse, useRouteError } from "react-router-dom";
 import ErrorCard from "@/components/error-card";
-import { simplifyErrorMessage } from "@/helper/functions";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+import { SetErrorMessage } from "@/helper/errorhelpers";
 
 export default function ErrorPage() {
   useDocumentTitle("Error");
@@ -9,7 +9,7 @@ export default function ErrorPage() {
 
   const errorMessage = isRouteErrorResponse(error)
     ? `${error.status} ${error.statusText}`
-    : simplifyErrorMessage((error as any)?.message || "Unknown error");
+    : SetErrorMessage(error as any);
 
   return (
     <div>
@@ -19,7 +19,7 @@ export default function ErrorPage() {
       </div>
 
       <ErrorCard
-        error={errorMessage}
+        message={errorMessage}
         title='Route Error'
         actionLabel='Reload'
         onAction={() => window.location.reload()}

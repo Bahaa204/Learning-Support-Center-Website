@@ -1,96 +1,45 @@
 import { useEffect, useState } from "react";
-import { PostgrestError, type User } from "@supabase/supabase-js";
-import type { NewStudent, Student } from "@/types/students";
+import { PostgrestError, type User as AuthUser } from "@supabase/supabase-js";
+import type { NewStudent, Student, UpdatedStudent } from "@/types/students";
 import { supabaseClient } from "@/supabase-client";
-import type { Data } from "@/types/types";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  addStudent,
+  clearStudents,
+  deleteStudent,
+  fetchStudentsByDepartment,
+  incrementStudentVisits,
+  updateStudent,
+} from "@/services/StudentsService";
+import type { MutationOptions } from "@/types/types";
 
-export function useStudents(added_by?: User) {
-  const [Students, setStudents] = useState<Student[]>([]);
-  const [Loading, setLoading] = useState<boolean>(false);
-  const [Error, setError] = useState<string>("");
-  const [isUpdating, setIsUpdating] = useState<Student["studentId"] | null>(
+export function useStudents(user: AuthUser | undefined) {
+  const queryClient = useQueryClient();
+
+  const [IsUpdating, setIsUpdating] = useState<Student["studentId"] | null>(
     null,
   );
 
-  function ResetStates() {
-    setLoading(false);
-    setIsUpdating(null);
-    setError("");
-  }
-
-  function SetError(error: PostgrestError) {
-    const msg = `An Error Occurred: Error Code: ${error.code}\nError Message: ${error.message}`;
-    setError(msg);
-    setLoading(false);
-  }
+  const { data: Students, isLoading: Loading } = useQuery<
+    Student[],
+    PostgrestError
+  >({
+    queryKey: ["students", user?.user_metadata.department_id],
+    queryFn: () => fetchStudentsByDepartment(user),
+    enabled: !!user,
+  });
 
   useEffect(() => {
-    async function fetchData() {
-      if (!added_by) return;
-
-      setLoading(true);
-      setError("");
-
-      let query = supabaseClient
-        .from("Students")
-        .select("*")
-        .eq("department_id", added_by.user_metadata.department_id);
-
-      if (added_by.user_metadata.role !== "admin")
-        query = query.eq("added_by", added_by.id);
-
-      const { data, error: FetchError } = (await query) as Data<Student[]>;
-
-      if (FetchError) {
-        SetError(FetchError);
-        return;
-      }
-
-      setStudents(data || []);
-
-      setLoading(false);
-    }
-
-    fetchData();
-
     const channel = supabaseClient.channel("Students Channel");
 
     channel
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "Students" },
-        (payload) => {
-          const newStudent = payload.new as Student;
-
-          setStudents((prev) => [...prev, newStudent]);
-        },
-      )
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "Students" },
-        (payload) => {
-          const updatedStudent = payload.new as Student;
-
-          setStudents((prev) =>
-            prev.map((student) =>
-              student.studentId === updatedStudent.studentId
-                ? updatedStudent
-                : student,
-            ),
-          );
-        },
-      )
-      .on(
-        "postgres_changes",
-        { event: "DELETE", schema: "public", table: "Students" },
-        (payload) => {
-          const deletedStudent = payload.old as Student;
-
-          setStudents((prev) =>
-            prev.filter(
-              (student) => student.studentId !== deletedStudent.studentId,
-            ),
-          );
+        { event: "*", schema: "public", table: "Students" },
+        () => {
+          queryClient.invalidateQueries({
+            queryKey: ["students", user?.user_metadata.department_id],
+          });
         },
       )
       .subscribe((status) => {
@@ -100,118 +49,135 @@ export function useStudents(added_by?: User) {
     return () => {
       supabaseClient.removeChannel(channel);
     };
-  }, [added_by]);
+  }, [user]);
 
-  async function addStudent(student: NewStudent) {
-    ResetStates();
-
-    const { data, error: AddError } = await supabaseClient
-      .from("Students")
-      .insert(student)
-      .select("*")
-      .single();
-
-    if (AddError) {
-      SetError(AddError);
-      return null;
-    }
-
-    setLoading(false);
-    return data;
-  }
-
-  async function incrementStudentVisits(studentId: Student["studentId"]) {
-    setIsUpdating(studentId);
-    setError("");
-
-    const { error: IncrementError } = await supabaseClient.rpc(
-      "increment_student_visits",
-      {
-        student_id_input: studentId,
-      },
-    );
-
-    if (IncrementError) {
-      SetError(IncrementError);
-      setIsUpdating(null);
-      return false;
-    }
-    setIsUpdating(null);
-    return true;
-  }
-
-  async function ClearStudents() {
-    ResetStates();
-
-    if (!added_by || added_by.role !== "admin") {
-      const ClearError = new PostgrestError({
-        message: "Only admins can clear all students.",
-        details: "",
-        hint: "",
-        code: "403",
+  const AddMutation = useMutation<Student, PostgrestError, NewStudent>({
+    mutationFn: addStudent,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["students", user?.user_metadata.department_id],
       });
-      SetError(ClearError);
-      return false;
-    }
+    },
+  });
 
-    const { error: ClearError } = await supabaseClient
-      .from("Students")
-      .delete();
+  const IncrementMutation = useMutation<
+    Student,
+    PostgrestError,
+    Student["studentId"]
+  >({
+    mutationFn: incrementStudentVisits,
+    onMutate: (studentId) => setIsUpdating(studentId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["students", user?.user_metadata.department_id],
+      });
+      setIsUpdating(null);
+    },
+  });
 
-    if (ClearError) {
-      SetError(ClearError);
-      return false;
-    }
+  const UpdateMutation = useMutation<
+    Student,
+    PostgrestError,
+    { id: Student["studentId"]; updatedStudent: UpdatedStudent }
+  >({
+    mutationFn: updateStudent,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["students", user?.user_metadata.department_id],
+      });
+    },
+  });
 
-    setLoading(false);
+  const DeleteMutation = useMutation<
+    boolean,
+    PostgrestError,
+    Student["studentId"]
+  >({
+    mutationFn: deleteStudent,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["students", user?.user_metadata.department_id],
+      });
+    },
+  });
 
-    return true;
+  const ClearMutation = useMutation<
+    boolean,
+    PostgrestError,
+    AuthUser | undefined
+  >({
+    mutationFn: clearStudents,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["students", user?.user_metadata.department_id],
+      });
+    },
+  });
+
+  async function AddStudent(
+    student: NewStudent,
+    options?: MutationOptions<Student, NewStudent>,
+  ) {
+    const { mutateAsync, isSuccess, data } = AddMutation;
+
+    await mutateAsync(student, options);
+
+    return isSuccess ? data : null;
+  }
+
+  async function IncrementStudentVisits(
+    studentId: Student["studentId"],
+    options?: MutationOptions<Student, Student["studentId"]>,
+  ) {
+    const { mutateAsync, isSuccess, data } = IncrementMutation;
+
+    await mutateAsync(studentId, options);
+
+    return isSuccess ? data : null;
   }
 
   async function UpdateStudent(
     id: Student["studentId"],
-    updatedStudent: Partial<Student>,
+    updatedStudent: UpdatedStudent,
+    options?: MutationOptions<
+      Student,
+      { id: Student["studentId"]; updatedStudent: UpdatedStudent }
+    >,
   ) {
-    ResetStates();
+    const { mutateAsync, isSuccess, data } = UpdateMutation;
 
-    const { error: UpdateError } = await supabaseClient
-      .from("Students")
-      .update(updatedStudent)
-      .eq("studentId", id);
+    await mutateAsync({ id, updatedStudent }, options);
 
-    if (UpdateError) {
-      SetError(UpdateError);
-      return false;
-    }
-
-    setLoading(false);
-    return true;
+    return isSuccess ? data : null;
   }
 
-  async function DeleteStudent(id: Student["studentId"]) {
-    ResetStates();
+  async function DeleteStudent(
+    id: Student["studentId"],
+    options?: MutationOptions<boolean, Student["studentId"]>,
+  ) {
+    const { mutateAsync, isSuccess } = DeleteMutation;
 
-    const { error: DeleteError } = await supabaseClient
-      .from("Students")
-      .delete()
-      .eq("studentId", id);
+    await mutateAsync(id, options);
 
-    if (DeleteError) {
-      SetError(DeleteError);
-      return false;
-    }
+    return isSuccess;
+  }
 
-    setLoading(false);
-    return true;
+  async function ClearStudents(
+    options?: MutationOptions<boolean, AuthUser | undefined>,
+  ) {
+    const { mutateAsync, isSuccess } = ClearMutation;
+
+    await mutateAsync(user, options);
+
+    return isSuccess;
   }
 
   return {
     Students,
     Loading,
-    Error,
-    addStudent,
-    incrementStudentVisits,
-    isUpdating,
+    IsUpdating,
+    AddStudent,
+    IncrementStudentVisits,
     ClearStudents,
     UpdateStudent,
     DeleteStudent,

@@ -36,7 +36,7 @@ export default function CoursesMenu({
     () =>
       selectedCourseCodes
         .map((courseCode) =>
-          Courses.find((course) => course["Course Code"] === courseCode),
+          Courses?.find((course) => course["Course Code"] === courseCode),
         )
         .filter(Boolean) as Course[],
     [Courses, selectedCourseCodes],
@@ -117,7 +117,7 @@ export default function CoursesMenu({
               {CoursesLoading ? (
                 <CommandItem>Loading...</CommandItem>
               ) : (
-                Courses.map((course, index) => {
+                Courses?.map((course, index) => {
                   const courseCode = course["Course Code"];
                   const isSelected = selectedCourseCodes.includes(courseCode);
 

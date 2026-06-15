@@ -34,7 +34,6 @@ import { Navigate } from "react-router-dom";
 import PasswordInput from "@/components/PasswordInput";
 import ErrorCard from "@/components/error-card";
 import LoadingCard from "@/components/loading-card";
-import { simplifyErrorMessage } from "@/helper/functions";
 import {
   Card,
   CardDescription,
@@ -42,6 +41,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { SetErrorMessage } from "@/helper/errorhelpers";
 
 export default function Settings() {
   useDocumentTitle("Settings");
@@ -125,7 +125,7 @@ export default function Settings() {
   }
 
   if (AuthError) {
-    return <ErrorCard error={simplifyErrorMessage(AuthError)} />;
+    return <ErrorCard message={SetErrorMessage(AuthError)} />;
   }
 
   if (!Session) {

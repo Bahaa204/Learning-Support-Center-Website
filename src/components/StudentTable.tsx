@@ -1,9 +1,8 @@
 import type { Department } from "@/types/department";
-import type { Student, StudentInput } from "@/types/students";
-import type { ErrorNotice } from "@/types/types";
+import type { Student, StudentInput, UpdatedStudent } from "@/types/students";
+import type { ErrorNotice, MutationOptions } from "@/types/types";
 import type { User } from "@/types/users";
 import { useSettings } from "@/hooks/useSettings";
-import { useAsked_About } from "@/hooks/useAsked_About";
 import { MoreHorizontalIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import {
@@ -37,18 +36,34 @@ import { Button } from "./ui/button";
 import Modal from "./Modal";
 import CoursesMenu from "./CoursesMenu";
 import CoursesDisplayList from "./CoursesDisplayList";
+import type { AskedAbout } from "@/types/asked_about";
 
 export type TableProps = {
   Students: Student[];
   Users: User[];
   Departments: Department[];
-  IncrementVisits: (studentId: Student["studentId"]) => Promise<boolean>;
+  IncrementVisits: (
+    studentId: Student["studentId"],
+    options?: MutationOptions<Student, Student["studentId"]>,
+  ) => Promise<Student | null>;
   UpdateStudent: (
     id: Student["studentId"],
-    updatedStudent: Partial<Student>,
+    updatedStudent: UpdatedStudent,
+    options?: MutationOptions<
+      Student,
+      { id: Student["studentId"]; updatedStudent: UpdatedStudent }
+    >,
+  ) => Promise<Student | null>;
+  DeleteStudent: (
+    id: Student["studentId"],
+    options?: MutationOptions<boolean, Student["studentId"]>,
   ) => Promise<boolean>;
-  DeleteStudent: (id: Student["studentId"]) => Promise<boolean>;
-  isUpdating: number | null;
+  isUpdating: Student["studentId"] | null;
+  AskedAbout: AskedAbout[];
+  syncStudentCourses: (
+    studentId: AskedAbout["student_Id"],
+    courseCodes: AskedAbout["course_code"][],
+  ) => Promise<boolean>;
 };
 
 export default function StudentTable({
@@ -59,6 +74,8 @@ export default function StudentTable({
   isUpdating,
   Users,
   Departments,
+  AskedAbout,
+  syncStudentCourses,
 }: TableProps) {
   const InitialValue: StudentInput = {
     studentId: NaN,
@@ -75,7 +92,6 @@ export default function StudentTable({
   };
 
   const { Settings } = useSettings();
-  const { AskedAbout, syncStudentCourses } = useAsked_About();
 
   const [currentPage, setCurrentPage] = useState<number>(1);
 
@@ -120,7 +136,13 @@ export default function StudentTable({
   }
 
   async function handleDeleteStudent(id: Student["studentId"]) {
-    const ok = await DeleteStudent(id);
+    const ok = await DeleteStudent(id, {
+      onError: (_error, id) =>
+        setErrorNotice({
+          id: id,
+          message: "Failed to delete student. Please try again.",
+        }),
+    });
 
     if (!ok)
       return setErrorNotice({
@@ -130,45 +152,41 @@ export default function StudentTable({
   }
 
   async function handleEditStudent(student: Student) {
-    const updatedStudentPayload: Partial<Student> = {
+    const updatedStudentPayload: UpdatedStudent = {
       studentId: EditValues.studentId,
       studentName: EditValues.studentName,
       email: EditValues.email || null,
       department_id: EditValues.department_id,
     };
 
-    const ok = await UpdateStudent(student.studentId, updatedStudentPayload);
-
-    if (!ok)
-      return setErrorNotice({
-        id: student.studentId,
-        message: "Failed to update student. Please try again.",
-      });
-
-    const coursesUpdated = await syncStudentCourses(
-      student.id,
-      EditAskedCourses,
-    );
-
-    if (!coursesUpdated)
-      return setErrorNotice({
-        id: student.studentId,
-        message: "Student updated, but asked-about courses could not be saved.",
-      });
-
-    return cancelEditing();
+    await UpdateStudent(student.studentId, updatedStudentPayload, {
+      onSuccess: async (updatedStudent) => {
+        await syncStudentCourses(updatedStudent.id, EditAskedCourses);
+        cancelEditing();
+      },
+      onError: () => {
+        setErrorNotice({
+          id: student.studentId,
+          message: "Failed to update student. Please try again.",
+        });
+      },
+    });
   }
 
   async function handleIncrementVisits(id: Student["studentId"]) {
-    if (isUpdating) return;
+    if (isUpdating === id) return;
 
-    const ok = await IncrementVisits(id);
-
-    if (!ok)
-      return setErrorNotice({
-        id: id,
-        message: "Failed to update student visits. Please try again.",
-      });
+    await IncrementVisits(id, {
+      onError: (_error, id) => {
+        setErrorNotice({
+          id: id,
+          message: "Failed to update student visits. Please try again.",
+        });
+        setTimeout(() => {
+          setErrorNotice(EmptyError);
+        }, 2500);
+      },
+    });
   }
 
   function updateFields(fields: Partial<StudentInput>) {
@@ -441,8 +459,7 @@ export default function StudentTable({
           setOpen={setIsOpen}
           text={DeletedStudent?.studentName || "this student"}
           handleDelete={async () => {
-            if (DeletedStudent)
-              await handleDeleteStudent(DeletedStudent.studentId);
+            if (DeletedStudent) handleDeleteStudent(DeletedStudent.studentId);
           }}
         />
       )}

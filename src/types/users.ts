@@ -1,9 +1,5 @@
 import type { LocalTimeSlot } from "./time_slots";
-import type {
-  AsyncSubmitFunction,
-  Tables,
-  UpdateFieldsType,
-} from "./types";
+import type { AsyncSubmitFunction, Tables, UpdateFieldsType } from "./types";
 
 type UsersTable = Tables["Users"];
 

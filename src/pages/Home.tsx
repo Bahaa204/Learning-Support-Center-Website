@@ -2,35 +2,26 @@ import { Navigate } from "react-router-dom";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { useAuth } from "@/hooks/useAuth";
 import { useStudents } from "@/hooks/useStudents";
-import { useUsers } from "@/hooks/useUsers";
 import ErrorCard from "@/components/error-card";
 import LoadingCard from "@/components/loading-card";
-import { simplifyErrorMessage } from "@/helper/functions";
 import studentsIcon from "/Images/students-icon.svg";
 import visitsIcon from "/Images/visits-icon.svg";
-import staffIcon from "/Images/staff-icon.svg";
 import averageIcon from "/Images/average-icon.svg";
+import { SetErrorMessage } from "@/helper/errorhelpers";
 
 export default function Home() {
   useDocumentTitle("Home");
 
   const { Session, Loading: AuthLoading, Error: AuthError } = useAuth();
 
-  const {
-    Students,
-    Loading: StudentsLoading,
-    Error: StudentsError,
-  } = useStudents(Session?.user);
+  const { Students, Loading: StudentsLoading } = useStudents(Session?.user);
 
-  const {
-    Users,
-    Loading: UsersLoading,
-    Error: UsersError,
-  } = useUsers(Session?.user);
+  // const {
+  //   Users,
+  //   Loading: UsersLoading,
+  // } = useUsers(Session?.user);
 
-  const loading = AuthLoading || StudentsLoading || UsersLoading;
-  const rawError = AuthError || StudentsError || UsersError;
-  const error = rawError ? simplifyErrorMessage(rawError) : "";
+  const loading = AuthLoading || StudentsLoading;
 
   if (loading) {
     return (
@@ -44,8 +35,12 @@ export default function Home() {
     return <Navigate to='/login' replace />;
   }
 
-  if (error) {
-    return <ErrorCard error={error} />;
+  if (AuthError) {
+    return <ErrorCard message={SetErrorMessage(AuthError)} />;
+  }
+
+  if (!Students) {
+    return <ErrorCard message='No Students were found' />;
   }
 
   const totalStudents = Students.length;
@@ -55,7 +50,7 @@ export default function Home() {
       ? Students.reduce((sum, student) => sum + (student.nb_visits || 0), 0)
       : 0;
 
-  const totalWorkstudy = Users.length;
+  // const totalWorkstudy = Users.length;
 
   const averageVisits =
     totalStudents > 0 ? (totalVisits / totalStudents).toFixed(1) : "0";
@@ -91,7 +86,7 @@ export default function Home() {
           </div>
         </div>
 
-        {Session.user.user_metadata.role === "admin" && (
+        {/* {Session.user.user_metadata.role === "admin" && (
           <div className='stat-card'>
             <img src={staffIcon} alt='Staff' className='stat-icon' />
             <div className='stat-content'>
@@ -99,7 +94,7 @@ export default function Home() {
               <p className='stat-value'>{totalWorkstudy}</p>
             </div>
           </div>
-        )}
+        )} */}
 
         <div className='stat-card'>
           <img src={averageIcon} alt='Average' className='stat-icon' />

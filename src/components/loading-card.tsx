@@ -11,7 +11,7 @@ export default function LoadingCard({ message }: LoadingCardProps) {
       <CardHeader className='bg-none!'>
         <CardTitle className='flex justify-center items-center gap-5 w-full text-xl'>
           <Spinner className='size-7' />
-          {message || "Loading"}
+          {message || "Loading"}...
         </CardTitle>
       </CardHeader>
     </Card>

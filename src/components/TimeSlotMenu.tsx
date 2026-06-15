@@ -22,7 +22,7 @@ export function TimeSlotsMenu({ userId }: TimeSlotsMenuProps) {
 
   const { TimeSlots, Loading } = useTimeSlots();
 
-  const UserTimeSlots = TimeSlots.filter(
+  const UserTimeSlots = TimeSlots?.filter(
     (timeslot) => timeslot.userId === userId,
   );
 
@@ -47,7 +47,7 @@ export function TimeSlotsMenu({ userId }: TimeSlotsMenuProps) {
               {Loading ? (
                 <CommandItem>Loading...</CommandItem>
               ) : (
-                UserTimeSlots.map((slot, index) => (
+                UserTimeSlots?.map((slot, index) => (
                   <div key={slot.id}>
                     <CommandItem>
                       {slot.Weekday}: {slot.start_time} to {slot.end_time}

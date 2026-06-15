@@ -1,40 +1,20 @@
-import { supabaseClient } from "@/supabase-client";
+import { fetchCourses } from "@/services/CoursesServices";
 import type { Course } from "@/types/courses";
-import type { Data } from "@/types/types";
 import type { PostgrestError } from "@supabase/supabase-js";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 export function useCourses() {
-  const [Courses, setCourses] = useState<Course[]>([]);
-  const [Loading, setLoading] = useState<boolean>(false);
-  const [Error, setError] = useState<string>("");
+  const { data: Courses, isLoading: Loading } = useQuery<
+    Course[],
+    PostgrestError
+  >({
+    queryKey: ["courses"],
+    queryFn: fetchCourses,
+    staleTime:
+      Infinity /* Courses never change so there is no need for it to go stale */,
+    gcTime:
+      Infinity,
+  });
 
-  function resetStates() {
-    setLoading(true);
-    setError("");
-  }
-
-  function SetError(error: PostgrestError) {
-    const msg = `An Error has Occurred\nError Code: ${error.code}\n Error Message: ${error.message}`;
-    setError(msg);
-    console.error(error);
-  }
-
-  useEffect(() => {
-    async function fetchCourses() {
-      resetStates();
-
-      const { data, error: FetchError } = (await supabaseClient
-        .from("Courses")
-        .select("*")) as Data<Course[]>;
-      if (FetchError) return SetError(FetchError);
-
-      setCourses(data || []);
-      setLoading(false);
-    }
-
-    fetchCourses();
-  }, []);
-
-  return { Courses, Loading, Error };
+  return { Courses, Loading };
 }

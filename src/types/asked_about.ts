@@ -1,9 +1,9 @@
 import type { Tables } from "./types";
 
-type Asked_About_Table = Tables["Asked_About"]
+type AskedAboutTable = Tables["Asked_About"];
 
-export type Asked_About = Asked_About_Table["Row"]
+export type AskedAbout = AskedAboutTable["Row"];
 
-export type New_Asked_About = Asked_About_Table["Insert"]
+export type AskedAboutInsert = AskedAboutTable["Insert"];
 
-export type Update_Asked_About = Asked_About_Table["Update"]
+export type AskedAboutUpdate = AskedAboutTable["Update"];
