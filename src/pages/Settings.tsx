@@ -54,7 +54,7 @@ export default function Settings() {
     UpdateDisplayName,
     UpdatePassword,
     UpdateProfilePicture,
-    DeleteProfilePicture
+    DeleteProfilePicture,
   } = useAuth();
 
   const { Settings, updateSetting } = useSettings();
@@ -124,7 +124,11 @@ export default function Settings() {
     return <LoadingCard message='Checking authentication' />;
   }
 
+  console.log("Auth Error: ", AuthError);
+
   if (AuthError) {
+    console.log(AuthError);
+
     return <ErrorCard message={SetErrorMessage(AuthError)} />;
   }
 
@@ -208,7 +212,7 @@ export default function Settings() {
         </Card>
 
         <Card className='settings-section'>
-        <CardHeader className='settings-section-title border-b-0!'>
+          <CardHeader className='settings-section-title border-b-0!'>
             <CardTitle className='font-extrabold text-[1.25rem]'>
               Log Out
             </CardTitle>

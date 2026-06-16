@@ -4,8 +4,12 @@ import { StorageError } from "@supabase/storage-js";
 import type { Department } from "@/types/department";
 import { AuthError, type Session, type User } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { CustomError } from "@/types/types";
+import {
+  updateProfilePicture,
+  type updateProfilePictureParams,
+} from "@/services/ProfilePictureService";
 
 export function useAuth() {
   const [Session, setSession] = useState<Session | null>(null);
@@ -177,59 +181,25 @@ export function useAuth() {
     return true;
   }
 
+  const UpdateProfileMutation = useMutation<
+    boolean,
+    CustomError,
+    updateProfilePictureParams
+  >({
+    mutationFn: updateProfilePicture,
+  });
+
   async function UpdateProfilePicture(file: File) {
-    resetSates();
+    const { mutateAsync, isSuccess } = UpdateProfileMutation;
 
-    const user = Session?.user;
-
-    if (!user) {
-      const error = new AuthError("No Authenticated User", 401, "no_user");
-      setError(error);
-      return false;
-    }
-
-    if (file.size > fileSizeLimit) {
-      const error = new StorageError(
-        `File size exceeds ${fileSizeLimit / (1024 * 1024)}MB limit`,
-      );
-      setError(error);
-      return false;
-    }
-
-    const path = `${user.id}/profile_picture`;
-
-    const { error: UploadError } = await supabaseClient.storage
-      .from(bucketName)
-      .upload(path, file, { upsert: true, cacheControl: "0" });
-
-    if (UploadError) {
-      setError(UploadError);
-      return false;
-    }
-
-    const { data } = supabaseClient.storage.from(bucketName).getPublicUrl(path);
-
-    if (!data?.publicUrl) {
-      const error = new StorageError(
-        "Failed to retrieve public URL after upload",
-      );
-      setError(error);
-      return false;
-    }
-
-    const { error: UpdateError } = await supabaseClient.auth.updateUser({
-      data: {
-        avatar_url: data.publicUrl,
-      },
+    await mutateAsync({
+      user: Session?.user,
+      bucketName: bucketName,
+      file: file,
+      fileSizeLimit: fileSizeLimit,
     });
 
-    if (UpdateError) {
-      setError(UpdateError);
-      return false;
-    }
-
-    setLoading(false);
-    return true;
+    return isSuccess;
   }
 
   async function DeleteProfilePicture(userId: User["id"]) {

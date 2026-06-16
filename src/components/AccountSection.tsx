@@ -58,6 +58,7 @@ export default function AccountSection({
 
   function validateDisplayName() {
     return (
+      AccountInput.displayName !== session.user.user_metadata?.display_name &&
       AccountInput.displayName.trim().length >= 2 &&
       AccountInput.displayName.trim().length <= 50
     );
@@ -70,30 +71,27 @@ export default function AccountSection({
     if (!validateDisplayName())
       return SetStates({
         success: false,
-        msg: "Display name must be between 2 and 50 characters.",
+        msg: "Display name must be different and between 2 and 50 characters.",
       });
 
-    if (!AccountInput.profilePicture) {
-      setProfileError("Please select a profile picture to upload.");
-      setIsSaving(false);
-      return;
-    }
-
     const DisplayNameOK = await updateDisplayName(AccountInput.displayName);
+
     if (!DisplayNameOK)
       return SetStates({
         success: false,
         msg: "Failed to update display name.",
       });
 
-    const ProfilePictureOK = await updateProfilePicture(
-      AccountInput.profilePicture,
-    );
+    if (AccountInput.profilePicture) {
+      const ProfilePictureOK = await updateProfilePicture(
+        AccountInput.profilePicture,
+      );
 
-    if (!ProfilePictureOK) {
-      setProfileError("Failed to update profile picture.");
-      setIsSaving(false);
-      return;
+      if (!ProfilePictureOK) {
+        setProfileError("Failed to update profile picture.");
+        setIsSaving(false);
+        return;
+      }
     }
 
     SetStates({ success: true });
