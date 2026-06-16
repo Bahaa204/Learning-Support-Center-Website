@@ -28,9 +28,13 @@ import { useState, type SubmitEvent } from "react";
 import CoursesMenu from "./CoursesMenu";
 import { DateTimePicker } from "./DateTimePicker.tsx";
 import TimeSlots from "./TimeSlots.tsx";
+import {
+  validateStudentInput,
+  validateUserInput,
+} from "@/helper/validation.ts";
 
 export default function InputForm({
-  loading,
+  isSubmitting,
   mode,
   handleStudentSubmit,
   handleUserSubmit,
@@ -53,6 +57,8 @@ export default function InputForm({
   async function onSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
+    if (isSubmitting) return;
+
     setSuccessMessage("");
 
     const ok = isStudent
@@ -65,6 +71,12 @@ export default function InputForm({
     }
   }
 
+  function showFormError() {
+    if (!formError) return false;
+    else if (isStudent) return formError !== validateStudentInput(studentInput);
+    else return formError !== validateUserInput(userInput);
+  }
+
   return (
     <FieldSet className='form-card'>
       <FieldGroup className='form-card-header gold'>
@@ -74,8 +86,8 @@ export default function InputForm({
         </FieldDescription>
       </FieldGroup>
 
-      {formError && (
-        <FieldGroup className='bg-red-500/15 rounded-lg p-5'>
+      {showFormError() && (
+        <FieldGroup className='bg-red-500/15 p-5'>
           <Field>
             <FieldError className='px-5 font-bold text-lg'>
               {formError}
@@ -103,12 +115,13 @@ export default function InputForm({
                     onChange={(event) =>
                       updateFields({ studentName: event.target.value })
                     }
+                    aria-invalid={formError.includes("Student name")}
                   />
                   <FieldDescription>
                     Enter the full name of the student.
                   </FieldDescription>
-                  {!studentInput.studentName && (
-                    <FieldError>Student name is required.</FieldError>
+                  {formError.includes("Student name") && (
+                    <FieldError>{formError}</FieldError>
                   )}
                 </Field>
 
@@ -132,10 +145,11 @@ export default function InputForm({
                         studentId: Number(event.target.value),
                       })
                     }
+                    aria-invalid={formError.includes("Student ID")}
                   />
                   <FieldDescription>Enter the student ID</FieldDescription>
-                  {!studentInput.studentId && (
-                    <FieldError>Student ID is required.</FieldError>
+                  {formError.includes("Student ID") && (
+                    <FieldError>{formError}</FieldError>
                   )}
                 </Field>
 
@@ -150,12 +164,16 @@ export default function InputForm({
                     onChange={(event) =>
                       updateFields({ email: event.target.value })
                     }
+                    aria-invalid={formError.includes("email")}
                   />
                   <FieldDescription>
                     Enter the student's email address.
                     <br />
                     Optional
                   </FieldDescription>
+                  {formError.includes("email") && (
+                    <FieldError>{formError}</FieldError>
+                  )}
                 </Field>
 
                 <Field className='field'>
@@ -169,11 +187,19 @@ export default function InputForm({
                       updateFields({ department_id: parseInt(value) });
                     }}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger
+                      aria-invalid={formError
+                        .toLowerCase()
+                        .includes("department")}
+                    >
                       <SelectValue placeholder='Select a department' />
                     </SelectTrigger>
 
-                    <SelectContent>
+                    <SelectContent
+                      aria-invalid={formError
+                        .toLowerCase()
+                        .includes("department")}
+                    >
                       <SelectGroup>
                         <SelectLabel>Select a Department</SelectLabel>
                         {Departments.map((department, index) => (
@@ -192,8 +218,8 @@ export default function InputForm({
                   <FieldDescription>
                     Enter the student's department
                   </FieldDescription>
-                  {!studentInput.department_id && (
-                    <FieldError>Student department is required.</FieldError>
+                  {formError.toLowerCase().includes("department") && (
+                    <FieldError>{formError}</FieldError>
                   )}
                 </Field>
                 <Field className='field'>
@@ -213,6 +239,9 @@ export default function InputForm({
                     <br />
                     You can search by course name or code.
                   </FieldDescription>
+                  {formError.includes("courses") && (
+                    <FieldError>{formError}</FieldError>
+                  )}
                 </Field>
                 <Field className='field'>
                   <FieldLabel htmlFor='studentEmail'>
@@ -230,6 +259,9 @@ export default function InputForm({
                     <br />
                     Defaults to the current date and time.
                   </FieldDescription>
+                  {formError.includes("date") && (
+                    <FieldError>{formError}</FieldError>
+                  )}
                 </Field>
               </>
             )}
@@ -250,13 +282,14 @@ export default function InputForm({
                     onChange={(event) =>
                       updateFields({ displayname: event.target.value })
                     }
+                    aria-invalid={formError.includes("name")}
                   />
                   <FieldDescription>
-                    Enter the full name of the
+                    Enter the full name of the{" "}
                     {userInput.isSupervisor ? "supervisor" : "workstudy "}.
                   </FieldDescription>
-                  {!userInput.displayname && (
-                    <FieldError>Display name is required.</FieldError>
+                  {formError.includes("name") && (
+                    <FieldError>{formError}</FieldError>
                   )}
                 </Field>
 
@@ -274,12 +307,13 @@ export default function InputForm({
                     onChange={(event) =>
                       updateFields({ email: event.target.value })
                     }
+                    aria-invalid={formError.toLowerCase().includes("email")}
                   />
                   <FieldDescription>
                     Enter the email address for this account
                   </FieldDescription>
-                  {!userInput.email && (
-                    <FieldError>Email is required.</FieldError>
+                  {formError.toLowerCase().includes("email") && (
+                    <FieldError>{formError}</FieldError>
                   )}
                 </Field>
 
@@ -296,15 +330,14 @@ export default function InputForm({
                       updateFields({ password: event.target.value })
                     }
                     className='pr-10'
+                    aria-invalid={formError.toLowerCase().includes("password")}
                   />
                   <FieldDescription>
                     Enter a password for this account. Must be at least 6
                     characters.
                   </FieldDescription>
-                  {!userInput.password && (
-                    <FieldError>
-                      Password is required. Must be at least 6 characters.
-                    </FieldError>
+                  {formError.toLowerCase().includes("password") && (
+                    <FieldError>{formError}</FieldError>
                   )}
                 </Field>
 
@@ -344,11 +377,19 @@ export default function InputForm({
                       updateFields({ department_id: parseInt(value) });
                     }}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger
+                      aria-invalid={formError
+                        .toLowerCase()
+                        .includes("department")}
+                    >
                       <SelectValue placeholder='Select a department' />
                     </SelectTrigger>
 
-                    <SelectContent>
+                    <SelectContent
+                      aria-invalid={formError
+                        .toLowerCase()
+                        .includes("department")}
+                    >
                       <SelectGroup>
                         <SelectLabel>Select a Department</SelectLabel>
                         {Departments.map((department, index) => (
@@ -373,12 +414,8 @@ export default function InputForm({
                         : "workstudy"}
                     's department
                   </FieldDescription>
-                  {!userInput.department_id && (
-                    <FieldError>
-                      {userInput.isSupervisor
-                        ? "Supervisor department is required."
-                        : "WorkStudy department is required."}
-                    </FieldError>
+                  {formError.toLowerCase().includes("department") && (
+                    <FieldError>{formError}</FieldError>
                   )}
                 </Field>
                 <Field className='field'>
@@ -388,16 +425,14 @@ export default function InputForm({
                   <TimeSlots
                     userinput={userInput}
                     updateFields={updateFields}
-                    disabled={loading}
+                    disabled={isSubmitting}
                   />
                   <FieldDescription>
                     Choose the time slots of the workstudy.
                   </FieldDescription>
-                  {/* {!userInput.password && (
-                    <FieldError>
-                      Time
-                    </FieldError>
-                  )} */}
+                  {formError.toLowerCase().includes("time") && (
+                    <FieldError>{formError}</FieldError>
+                  )}
                 </Field>
               </>
             )}
@@ -409,9 +444,9 @@ export default function InputForm({
               <Button
                 type='submit'
                 className='btn btn-primary p-5!'
-                disabled={loading}
+                disabled={isSubmitting}
               >
-                {loading
+                {isSubmitting
                   ? "Loading..."
                   : `Add ${isStudent ? "Student" : userInput.isSupervisor ? "Supervisor" : "WorkStudy"}`}
               </Button>

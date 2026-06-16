@@ -28,7 +28,7 @@ export type Data<T> =
   | { data: null; error: PostgrestError };
 
 export type InputFormProps = {
-  loading: boolean;
+  isSubmitting: boolean;
   Departments: Department[];
   formError: string;
 } & (StudentMode | UserMode);

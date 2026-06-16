@@ -1,6 +1,6 @@
 import InputForm from "@/components/InputForm";
 import StudentTable from "@/components/StudentTable";
-import { checkDupes, formatDate } from "@/helper/functions";
+import { formatDate } from "@/helper/functions";
 import { useAuth } from "@/hooks/useAuth";
 import { useDepartments } from "@/hooks/useDepartments";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
@@ -12,10 +12,10 @@ import type { NewStudent, StudentInput } from "@/types/students";
 import { useState, type SubmitEvent } from "react";
 import { Navigate } from "react-router-dom";
 import LoadingCard from "@/components/loading-card";
-import LoadingModal from "@/components/loading-modal";
 import ErrorCard from "@/components/error-card";
 import { SetErrorMessage } from "@/helper/errorhelpers";
 import useAskedAbout from "@/hooks/useAsked_About";
+import { validateStudentInput } from "@/helper/validation";
 
 export default function StudentRecords() {
   useDocumentTitle("Student Records");
@@ -31,7 +31,7 @@ export default function StudentRecords() {
 
   const [StudentInput, setStudentInput] = useState<StudentInput>(InitialValue);
   const [LocalError, setLocalError] = useState<string>("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [IsSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const { Session, Loading: AuthLoading, Error: AuthError } = useAuth();
   const { Settings } = useSettings();
@@ -77,10 +77,14 @@ export default function StudentRecords() {
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (loading || !Session || !Students) return false;
+    if (loading || IsSubmitting) return false;
+    setIsSubmitting(true);
 
-    if (checkDupes(Students, StudentInput)) {
-      setLocalError("A student with this ID or email already exists.");
+    const validationmessage = validateStudentInput(StudentInput);
+
+    if (validationmessage) {
+      setLocalError(validationmessage);
+      setIsSubmitting(false);
       return false;
     }
 
@@ -90,18 +94,12 @@ export default function StudentRecords() {
       email: StudentInput.email,
       department_id: StudentInput.department_id,
       added_at: formatDate(StudentInput.visitDateTime),
-      added_by: Session.user.id,
+      added_by: Session!.user.id,
       nb_visits: 1,
     };
 
-    // show a small modal while submitting
-    setLocalError("");
-    setIsSubmitting(true);
-
     await AddStudent(newStudent, {
-      onSuccess: async(newStudent) => {
-        console.log("created a new student");
-
+      onSuccess: async (newStudent) => {
         if (StudentInput.askedCourses.length > 0) {
           const coursesSaved = await syncStudentCourses(
             newStudent.id,
@@ -112,9 +110,11 @@ export default function StudentRecords() {
             setLocalError(
               "Student added, but failed to save asked-about courses.",
             );
+            setIsSubmitting(false);
           }
         }
 
+        setLocalError("");
         setIsSubmitting(false);
         setStudentInput(InitialValue);
       },
@@ -169,13 +169,8 @@ export default function StudentRecords() {
         studentInput={StudentInput}
         updateFields={UpdateFields}
         Departments={Departments}
-        loading={loading}
+        isSubmitting={IsSubmitting}
         formError={LocalError}
-      />
-
-      <LoadingModal
-        open={isSubmitting}
-        message={`Adding ${StudentInput.studentName || "student"}...`}
       />
 
       <StudentTable

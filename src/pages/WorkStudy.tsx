@@ -31,6 +31,7 @@ import LoadingCard from "@/components/loading-card";
 import { titleCase } from "title-case";
 import { TimeSlotsMenu } from "@/components/TimeSlotMenu";
 import { SetErrorMessage } from "@/helper/errorhelpers";
+import { validateUserInput } from "@/helper/validation";
 
 export default function WorkStudy() {
   useDocumentTitle("Support Center Staff");
@@ -66,29 +67,20 @@ export default function WorkStudy() {
   const loading =
     AuthLoading || UsersLoading || DepartmentsLoading || TimeSlotsLoading;
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [IsSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (loading || isSubmitting) return false;
-
-    // Validate that a department has been selected
-    if (isNaN(Input.department_id)) {
-      setLocalError("Please select a department.");
-      return false;
-    }
-
-    // Validate that all required fields are filled
-    if (
-      !Input.displayname.trim() ||
-      !Input.email.trim() ||
-      !Input.password.trim()
-    ) {
-      setLocalError("Please fill in all required fields.");
-      return false;
-    }
-
+    if (loading || IsSubmitting) return false;
     setIsSubmitting(true);
+
+    const validationmessage = validateUserInput(Input);
+
+    if (validationmessage) {
+      setLocalError(validationmessage);
+      setIsSubmitting(false);
+      return false;
+    }
 
     const SignUpData = await SignUp(
       Input.email,
@@ -216,7 +208,7 @@ export default function WorkStudy() {
 
       <InputForm
         mode='user'
-        loading={loading}
+        isSubmitting={loading}
         updateFields={updateFields}
         handleUserSubmit={handleSubmit}
         userInput={Input}

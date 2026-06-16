@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { PostgrestError } from "@supabase/supabase-js";
 import type { NewUser, User } from "@/types/users";
 import { supabaseClient } from "@/supabase-client";
@@ -9,6 +9,7 @@ import type { MutationOptions } from "@/types/types";
 
 export function useUsers(user: AuthUser | undefined) {
   const queryClient = useQueryClient();
+  const [Loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const channel = supabaseClient.channel("Users Channel");
@@ -30,7 +31,7 @@ export function useUsers(user: AuthUser | undefined) {
     };
   }, [user]);
 
-  const { data: Users, isLoading: Loading } = useQuery<User[], PostgrestError>({
+  const { data: Users, isLoading } = useQuery<User[], PostgrestError>({
     queryKey: ["users"],
     queryFn: () => fetchUsers(user),
     enabled: !!user,
@@ -38,15 +39,19 @@ export function useUsers(user: AuthUser | undefined) {
 
   const AddMutation = useMutation<User, PostgrestError, NewUser>({
     mutationFn: addUser,
+    onMutate: () => setLoading(true),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
+      setLoading(false);
     },
   });
 
   const DeleteMutation = useMutation<boolean, PostgrestError, User["id"]>({
     mutationFn: removeUser,
+    onMutate: () => setLoading(true),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
+      setLoading(false);
     },
   });
 
@@ -74,7 +79,7 @@ export function useUsers(user: AuthUser | undefined) {
 
   return {
     Users,
-    Loading,
+    Loading: Loading || isLoading,
     AddUser,
     RemoveUser,
   };

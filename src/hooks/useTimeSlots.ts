@@ -6,9 +6,12 @@ import {
 import type { TimeSlot, TimeSlotInsert } from "@/types/time_slots";
 import type { PostgrestError } from "@supabase/supabase-js";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 
 export function useTimeSlots() {
   const queryClient = useQueryClient();
+
+  const [Loading, setLoading] = useState<boolean>(false);
 
   const { data: TimeSlots, isLoading } = useQuery<TimeSlot[], PostgrestError>({
     queryKey: ["time_slots"],
@@ -17,8 +20,10 @@ export function useTimeSlots() {
 
   const AddMutation = useMutation<TimeSlot, PostgrestError, TimeSlotInsert>({
     mutationFn: addTimeSlot,
+    onMutate: () => setLoading(true),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["time_slots"] });
+      setLoading(false);
     },
   });
 
@@ -28,8 +33,10 @@ export function useTimeSlots() {
     TimeSlotInsert[]
   >({
     mutationFn: addBulkTimeSlots,
+    onMutate: () => setLoading(true),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["time_slots"] });
+      setLoading(false);
     },
   });
 
@@ -51,7 +58,7 @@ export function useTimeSlots() {
 
   return {
     TimeSlots,
-    Loading: isLoading || AddMutation.isPending || AddBulkMutation.isPending,
+    Loading: Loading || isLoading,
     AddTimeSlot,
     AddBulkTimeSlots,
   };

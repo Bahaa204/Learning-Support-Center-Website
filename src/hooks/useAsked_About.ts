@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { supabaseClient } from "@/supabase-client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
@@ -18,6 +18,8 @@ import type { PostgrestError } from "@supabase/supabase-js";
 
 export default function useAskedAbout() {
   const queryClient = useQueryClient();
+
+  const [Loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const channel = supabaseClient.channel("Asked About Channel");
@@ -50,8 +52,10 @@ export default function useAskedAbout() {
   const AddMutation = useMutation<AskedAbout, PostgrestError, AskedAboutInsert>(
     {
       mutationFn: addAskedAbout,
+      onMutate: () => setLoading(true),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["AskedAbout"] });
+        setLoading(false);
       },
     },
   );
@@ -62,16 +66,20 @@ export default function useAskedAbout() {
     { id: AskedAbout["id"]; AskedAbout: AskedAboutUpdate }
   >({
     mutationFn: updateAskedAbout,
+    onMutate: () => setLoading(true),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["AskedAbout"] });
+      setLoading(false);
     },
   });
 
   const RemoveMutation = useMutation<boolean, PostgrestError, AskedAbout["id"]>(
     {
       mutationFn: removeAskedAbout,
+      onMutate: () => setLoading(true),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["AskedAbout"] });
+        setLoading(false);
       },
     },
   );
@@ -80,13 +88,21 @@ export default function useAskedAbout() {
     boolean,
     PostgrestError,
     AskedAbout["id"][]
-  >({ mutationFn: bulkRemoveAskedAbout });
+  >({
+    mutationFn: bulkRemoveAskedAbout,
+    onMutate: () => setLoading(true),
+    onSuccess: () => setLoading(false),
+  });
 
   const BulkAddMuation = useMutation<
     AskedAbout[],
     PostgrestError,
     AskedAboutInsert[]
-  >({ mutationFn: bulkAddAskedAbout });
+  >({
+    mutationFn: bulkAddAskedAbout,
+    onMutate: () => setLoading(true),
+    onSuccess: () => setLoading(false),
+  });
 
   async function AddAskedAbout(AskedAbout: AskedAboutInsert) {
     const { mutateAsync, isSuccess, data } = AddMutation;
@@ -140,10 +156,6 @@ export default function useAskedAbout() {
     studentId: AskedAbout["student_Id"],
     courseCodes: AskedAbout["course_code"][],
   ) {
-    console.log("called Sync Student Courses with: ", {
-      studentId,
-      courseCodes,
-    });
 
     const uniqueCourseCodes = Array.from(new Set(courseCodes));
     const existingRecords = AskedAbout?.filter(
@@ -184,13 +196,7 @@ export default function useAskedAbout() {
 
   return {
     AskedAbout,
-    Loading:
-      isLoading ||
-      AddMutation.isPending ||
-      UpdateMutation.isPending ||
-      RemoveMutation.isPending ||
-      BulkRemoveMutation.isPending ||
-      BulkAddMuation.isPending,
+    Loading: Loading || isLoading,
     AddAskedAbout,
     UpdateAskedAbout,
     RemoveAskedAbout,

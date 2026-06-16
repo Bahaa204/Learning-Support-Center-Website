@@ -19,11 +19,9 @@ export function useStudents(user: AuthUser | undefined) {
   const [IsUpdating, setIsUpdating] = useState<Student["studentId"] | null>(
     null,
   );
+  const [Loading, setLoading] = useState<boolean>(false);
 
-  const { data: Students, isLoading: Loading } = useQuery<
-    Student[],
-    PostgrestError
-  >({
+  const { data: Students, isLoading } = useQuery<Student[], PostgrestError>({
     queryKey: ["students", user?.user_metadata.department_id],
     queryFn: () => fetchStudentsByDepartment(user),
     enabled: !!user,
@@ -53,10 +51,12 @@ export function useStudents(user: AuthUser | undefined) {
 
   const AddMutation = useMutation<Student, PostgrestError, NewStudent>({
     mutationFn: addStudent,
+    onMutate: () => setLoading(true),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["students", user?.user_metadata.department_id],
       });
+      setLoading(false);
     },
   });
 
@@ -81,10 +81,12 @@ export function useStudents(user: AuthUser | undefined) {
     { id: Student["studentId"]; updatedStudent: UpdatedStudent }
   >({
     mutationFn: updateStudent,
+    onMutate: () => setLoading(true),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["students", user?.user_metadata.department_id],
       });
+      setLoading(false);
     },
   });
 
@@ -94,10 +96,12 @@ export function useStudents(user: AuthUser | undefined) {
     Student["studentId"]
   >({
     mutationFn: deleteStudent,
+    onMutate: () => setLoading(true),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["students", user?.user_metadata.department_id],
       });
+      setLoading(false);
     },
   });
 
@@ -107,10 +111,12 @@ export function useStudents(user: AuthUser | undefined) {
     AuthUser | undefined
   >({
     mutationFn: clearStudents,
+    onMutate: () => setLoading(true),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["students", user?.user_metadata.department_id],
       });
+      setLoading(false);
     },
   });
 
@@ -174,7 +180,7 @@ export function useStudents(user: AuthUser | undefined) {
 
   return {
     Students,
-    Loading,
+    Loading: Loading || isLoading,
     IsUpdating,
     AddStudent,
     IncrementStudentVisits,
