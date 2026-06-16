@@ -87,7 +87,7 @@ export async function clearStudents(user: AuthUser | undefined) {
       "403",
     );
 
-  const { error } = await supabaseClient.from("Students").delete();
+  const { error } = await supabaseClient.from("Students").delete().gt("studentId", 0);
 
   if (error) throw error;
 
