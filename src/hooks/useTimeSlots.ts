@@ -4,6 +4,7 @@ import {
   fetchTimeSlots,
 } from "@/services/TimesSotsService";
 import type { TimeSlot, TimeSlotInsert } from "@/types/time_slots";
+import type { MutationOptions } from "@/types/types";
 import type { PostgrestError } from "@supabase/supabase-js";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -48,10 +49,13 @@ export function useTimeSlots() {
     return isSuccess ? data : null;
   }
 
-  async function AddBulkTimeSlots(timeslots: TimeSlotInsert[]) {
+  async function AddBulkTimeSlots(
+    timeslots: TimeSlotInsert[],
+    options?: MutationOptions<TimeSlot[], TimeSlotInsert[]>,
+  ) {
     const { mutateAsync, isSuccess, data } = AddBulkMutation;
 
-    await mutateAsync(timeslots);
+    await mutateAsync(timeslots, options);
 
     return isSuccess ? data : null;
   }

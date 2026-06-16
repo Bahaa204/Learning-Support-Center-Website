@@ -123,12 +123,12 @@ export default function WorkStudy() {
           end_time: s.end_time,
         }));
 
-        const slotsOk = await AddBulkTimeSlots(slotInserts);
-
-        if (!slotsOk) {
-          setIsSubmitting(false);
-          setLocalError("Failed to insert time slots.");
-        }
+        await AddBulkTimeSlots(slotInserts, {
+          onError: () => {
+            setIsSubmitting(false);
+            setLocalError("Failed to insert time slots.");
+          },
+        });
 
         setIsSubmitting(false);
         setInput(InitialValue);
