@@ -110,33 +110,31 @@ export default function WorkStudy() {
       department_id: Input.department_id,
     };
 
-    const Insert_confirmed = await AddUser(newUser);
-    if (!Insert_confirmed) {
-      setIsSubmitting(false);
-      setLocalError("Failed to insert user.");
-      return false;
-    }
-
-    // Insert time slots for the created user (if any)
-    if (Input.time_slots && Input.time_slots.length > 0) {
-      const slotInserts = Input.time_slots.map((s) => ({
-        userId: UserId,
-        Weekday: s.Weekday,
-        start_time: s.start_time,
-        end_time: s.end_time,
-      }));
-
-      const slotsOk = await AddBulkTimeSlots(slotInserts);
-
-      if (!slotsOk) {
+    await AddUser(newUser, {
+      onError: () => {
         setIsSubmitting(false);
-        setLocalError("Failed to insert time slots.");
-        return false;
-      }
-    }
+        setLocalError("Failed to create account. Please try again.");
+      },
+      onSuccess: async () => {
+        const slotInserts = Input.time_slots.map((s) => ({
+          userId: UserId,
+          Weekday: s.Weekday,
+          start_time: s.start_time,
+          end_time: s.end_time,
+        }));
 
-    setIsSubmitting(false);
-    setInput(InitialValue);
+        const slotsOk = await AddBulkTimeSlots(slotInserts);
+
+        if (!slotsOk) {
+          setIsSubmitting(false);
+          setLocalError("Failed to insert time slots.");
+        }
+
+        setIsSubmitting(false);
+        setInput(InitialValue);
+      },
+    });
+
     return true;
   }
 
