@@ -124,13 +124,7 @@ export default function Settings() {
     return <LoadingCard message='Checking authentication' />;
   }
 
-  console.log("Auth Error: ", AuthError);
-
-  if (AuthError) {
-    console.log(AuthError);
-
-    return <ErrorCard message={SetErrorMessage(AuthError)} />;
-  }
+  if (AuthError) return <ErrorCard message={SetErrorMessage(AuthError)} />;
 
   if (!Session) {
     return <Navigate to='/login' />;

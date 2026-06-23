@@ -1,8 +1,7 @@
 import { invokeFunction } from "@/lib/invokeFunction";
 import { supabaseClient } from "@/supabase-client";
-import { StorageError } from "@supabase/storage-js";
 import type { Department } from "@/types/department";
-import { AuthError, type Session, type User } from "@supabase/supabase-js";
+import { type Session, type User } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { CustomError } from "@/types/types";
@@ -187,6 +186,8 @@ export function useAuth() {
     updateProfilePictureParams
   >({
     mutationFn: updateProfilePicture,
+    onMutate: () => setLoading(true),
+    onSettled: () => setLoading(false),
   });
 
   async function UpdateProfilePicture(file: File) {

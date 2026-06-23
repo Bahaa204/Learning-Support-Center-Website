@@ -15,11 +15,9 @@ export async function updateProfilePicture({
   fileSizeLimit,
   file,
 }: updateProfilePictureParams) {
-  console.log("called the function");
 
   if (!user) throw new AuthError("No Authenticated User", 401, "no_user");
 
-  console.log("passed user auth");
 
   if (file.size > fileSizeLimit)
     throw new StorageError(
@@ -28,7 +26,6 @@ export async function updateProfilePicture({
 
   const path = `${user.id}/profile_picture`;
 
-  console.log("Uploading to path:", path, "and file size:", file.size);
 
   const { error: UploadError } = await supabaseClient.storage
     .from(bucketName)
