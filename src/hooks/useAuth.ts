@@ -229,6 +229,30 @@ export function useAuth() {
     return true;
   }
 
+  async function SendEmail(
+    to: string,
+    from: string,
+    subject: string,
+    message: string,
+    replyTo?: string
+  ) {
+    resetSates();
+    const { error } = await invokeFunction(supabaseClient, "sendEmail", {
+      to,
+      from,
+      subject,
+      message,
+      replyTo,
+    });
+
+    if (error) {
+      setError(error);
+      return false;
+    }
+    setLoading(false);
+    return true;
+  }
+
   return {
     Session,
     Error,
@@ -242,5 +266,6 @@ export function useAuth() {
     UpdatePassword,
     UpdateProfilePicture,
     DeleteProfilePicture,
+    SendEmail
   };
 }

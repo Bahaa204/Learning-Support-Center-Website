@@ -23,6 +23,14 @@ export interface DeleteUserRequest {
 
 export type DeleteAllNonAdminUsersRequest = Record<string, never>;
 
+export interface SendEmailRequest {
+  to: string;
+  from: string;
+  subject: string;
+  message: string;
+  replyTo?: string; // ← NEW: optional
+}
+
 // ── Response types ────────────────────────────────────────────────────────
 
 export interface CreateUserResponse {
@@ -44,6 +52,11 @@ export interface DeleteAllNonAdminUsersResponse {
   }[];
 }
 
+export interface SendEmailResponse {
+  data: { id: string } | null;
+  error: EdgeFunctionError | null;
+}
+
 // ── Function map ──────────────────────────────────────────────────────────
 
 export interface EdgeFunctionMap {
@@ -58,5 +71,9 @@ export interface EdgeFunctionMap {
   deleteAllNonAdminUsers: {
     body: DeleteAllNonAdminUsersRequest;
     response: DeleteAllNonAdminUsersResponse;
+  };
+  sendEmail: {
+    body: SendEmailRequest;
+    response: SendEmailResponse;
   };
 }
