@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { HomeIcon, SettingsIcon, SquarePenIcon } from "lucide-react";
+import { Bug, HomeIcon, SettingsIcon, SquarePenIcon } from "lucide-react";
+import { ChatBubbleBottomCenterTextIcon } from "@heroicons/react/24/outline";
 
 type SideBarProps = {
   onNavigate: () => void;
@@ -64,6 +65,25 @@ export default function SideBar({ onNavigate, isOpen }: SideBarProps) {
       >
         <SettingsIcon />
         Settings
+      </Link>
+
+      <hr className='sidebar-divider' />
+      <div className='sidebar-section-label'>Feedback</div>
+
+      <Link
+        to='/feedback'
+        className={`sidebar-link ${location.pathname === "/feedback" ? "active" : ""}`}
+        onClick={onNavigate}
+      >
+        <ChatBubbleBottomCenterTextIcon /> Submit Feedback
+      </Link>
+      
+      <Link
+        to='/report'
+        className={`sidebar-link ${location.pathname === "/report" ? "active" : ""}`}
+        onClick={onNavigate}
+      >
+        <Bug /> Report an Issue
       </Link>
     </aside>
   );
