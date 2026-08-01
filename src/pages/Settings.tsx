@@ -76,7 +76,7 @@ export default function Settings() {
 
     setTimeout(() => {
       setPasswordSuccess(false);
-      // setPasswordError("");
+      setPasswordError("");
     }, 3000);
   }
 

@@ -91,11 +91,11 @@ export default function AccountSection({
         AccountInput.profilePicture,
       );
 
-      if (!ProfilePictureOK) {
-        setProfileError("Failed to update profile picture.");
-        setIsSaving(false);
-        return;
-      }
+      if (!ProfilePictureOK)
+        return SetStates({
+          success: false,
+          msg: "Failed to update profile picture.",
+        });
     }
 
     SetStates({ success: true });
@@ -121,7 +121,7 @@ export default function AccountSection({
       updateFeilds({ profilePicture: event.target.files[0] });
   }
 
-  const email = session?.user.email;
+  const email = session.user.email;
 
   const DisplayName: string =
     session?.user.user_metadata?.display_name?.trim() ||

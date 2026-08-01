@@ -16,6 +16,8 @@ import ErrorCard from "@/components/error-card";
 import { SetErrorMessage } from "@/helper/errorhelpers";
 import useAskedAbout from "@/hooks/useAsked_About";
 import { validateStudentInput } from "@/helper/validation";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 export default function StudentRecords() {
   useDocumentTitle("Student Records");
@@ -32,6 +34,7 @@ export default function StudentRecords() {
   const [StudentInput, setStudentInput] = useState<StudentInput>(InitialValue);
   const [LocalError, setLocalError] = useState<string>("");
   const [IsSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [Filter, setFilter] = useState<boolean>(false);
 
   const { Session, Loading: AuthLoading, Error: AuthError } = useAuth();
   const { Settings } = useSettings();
@@ -173,17 +176,43 @@ export default function StudentRecords() {
         formError={LocalError}
       />
 
-      <StudentTable
-        Students={Students}
-        Users={Users}
-        Departments={Departments}
-        IncrementVisits={IncrementStudentVisits}
-        UpdateStudent={UpdateStudent}
-        DeleteStudent={DeleteStudent}
-        isUpdating={IsUpdating}
-        AskedAbout={AskedAbout}
-        syncStudentCourses={syncStudentCourses}
-      />
+      <div className='p-5 flex flex-col gap-4'>
+        <h2 className='text-xl text-(--navy) mb-4 font-serif font-semibold flex '>
+          Student Records
+          <div className='flex gap-2 mt-2 ml-auto font-(georgia)'>
+            <Checkbox
+              id='filter-by-department'
+              name='filter-by-department'
+              className='cursor-pointer rounded-[5px]! size-6! bg-(--light-gray) border-2! border-(--gray) checked:bg-primary checked:border-primary focus:ring-0'
+              checked={Filter}
+              onCheckedChange={(checked) => setFilter(Boolean(checked))}
+            />
+            <Label htmlFor='filter-by-department' className='cursor-pointer'>
+              Filter by department
+            </Label>
+          </div>
+        </h2>
+
+        <StudentTable
+          Students={
+            Filter
+              ? Students.filter(
+                  (student) =>
+                    student.department_id ===
+                    Session?.user.user_metadata.department_id,
+                )
+              : Students
+          }
+          Users={Users}
+          Departments={Departments}
+          IncrementVisits={IncrementStudentVisits}
+          UpdateStudent={UpdateStudent}
+          DeleteStudent={DeleteStudent}
+          isUpdating={IsUpdating}
+          AskedAbout={AskedAbout}
+          syncStudentCourses={syncStudentCourses}
+        />
+      </div>
     </>
   );
 }

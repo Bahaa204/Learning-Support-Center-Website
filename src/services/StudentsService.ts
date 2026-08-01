@@ -11,7 +11,7 @@ export async function fetchStudentsByDepartment(user: AuthUser | undefined) {
   let query = supabaseClient
     .from("Students")
     .select("*")
-    .eq("department_id", user.user_metadata.department_id);
+    // .eq("department_id", user.user_metadata.department_id);
 
   if (user.user_metadata.role !== "admin")
     query = query.eq("added_by", user.id);
