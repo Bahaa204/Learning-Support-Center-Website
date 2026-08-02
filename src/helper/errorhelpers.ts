@@ -28,12 +28,6 @@ function simplifyError(error: CustomError) {
   if (lowerMessage.includes("network") || lowerMessage.includes("fetch"))
     simplifiedError.message = "Network error. Please try again.";
 
-  if (
-    lowerMessage.includes("file size") ||
-    lowerMessage.includes("file too large")
-  )
-    simplifiedError.message = "File size exceeds the limit.";
-
   if (lowerMessage.includes("quota") || lowerMessage.includes("storage limit"))
     simplifiedError.message = "Storage Capacity Exceeded.";
 
