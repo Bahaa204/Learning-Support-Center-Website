@@ -1,14 +1,16 @@
 import { invokeFunction } from "@/lib/invokeFunction";
 import { supabaseClient } from "@/supabase-client";
 import type { Department } from "@/types/department";
-import { type Session, type User } from "@supabase/supabase-js";
+import { AuthError, type Session, type User } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import type { CustomError } from "@/types/types";
 import {
-  updateProfilePicture,
-  type updateProfilePictureParams,
+  getUserPath,
+  updateUserAvatarData,
+  uploadProfilePicture,
 } from "@/services/ProfilePictureService";
+import { validateFileSize } from "@/helper/validation";
 
 export function useAuth() {
   const [Session, setSession] = useState<Session | null>(null);
@@ -18,12 +20,16 @@ export function useAuth() {
   const queryClient = useQueryClient();
 
   const bucketName = "Profile Pictures";
-  const fileSizeLimit = 1 * 1024 * 1024; // 1MB
 
   //Helper reset some tates
   function resetSates() {
     setLoading(true);
     setError(null);
+  }
+
+  function SetError(error: CustomError) {
+    setLoading(false);
+    setError(error);
   }
 
   useEffect(() => {
@@ -53,7 +59,7 @@ export function useAuth() {
     return () => {
       authListener.subscription.unsubscribe();
     };
-  }, [Error]);
+  }, []);
 
   async function SignInWithPassword(email: string, password: string) {
     resetSates();
@@ -180,27 +186,42 @@ export function useAuth() {
     return true;
   }
 
-  const UpdateProfileMutation = useMutation<
-    boolean,
-    CustomError,
-    updateProfilePictureParams
-  >({
-    mutationFn: updateProfilePicture,
-    onMutate: () => setLoading(true),
-    onSettled: () => setLoading(false),
-  });
-
   async function UpdateProfilePicture(file: File) {
-    const { mutateAsync, isSuccess } = UpdateProfileMutation;
+    resetSates();
 
-    await mutateAsync({
-      user: Session?.user,
-      bucketName: bucketName,
-      file: file,
-      fileSizeLimit: fileSizeLimit,
-    });
+    if (!Session?.user) {
+      const error = new AuthError("No Authenticated User", 401, "no_user");
+      SetError(error);
+      return false;
+    }
 
-    return isSuccess;
+    if (!validateFileSize(file)) {
+      const error = new AuthError(
+        "File size exceeds size limit",
+        400,
+        "invalid_file_size",
+      );
+      SetError(error);
+      return false;
+    }
+
+    const path = getUserPath(Session.user);
+
+    const UploadError = await uploadProfilePicture(bucketName, path, file);
+
+    if (UploadError) {
+      SetError(UploadError);
+      return false;
+    }
+
+    const UpdateError = await updateUserAvatarData(bucketName, path);
+
+    if (UpdateError) {
+      SetError(UpdateError);
+      return false;
+    }
+
+    return true;
   }
 
   async function DeleteProfilePicture(userId: User["id"]) {
@@ -234,7 +255,7 @@ export function useAuth() {
     from: string,
     subject: string,
     message: string,
-    replyTo?: string
+    replyTo?: string,
   ) {
     resetSates();
     const { error } = await invokeFunction(supabaseClient, "sendEmail", {
@@ -266,6 +287,6 @@ export function useAuth() {
     UpdatePassword,
     UpdateProfilePicture,
     DeleteProfilePicture,
-    SendEmail
+    SendEmail,
   };
 }

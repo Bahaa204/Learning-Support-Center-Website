@@ -34,13 +34,7 @@ export function validateStudentInput(input: StudentInput) {
 }
 
 export function validateUserInput(input: UserInput) {
-  const {
-    displayname,
-    email,
-    department_id,
-    password,
-    time_slots,
-  } = input;
+  const { displayname, email, department_id, password, time_slots } = input;
 
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -51,7 +45,8 @@ export function validateUserInput(input: UserInput) {
 
   if (!emailRegex.test(email)) return "Invalid email format";
 
-  if (!password || password.length < 6) return "Password must be at least 6 characters long";
+  if (!password || password.length < 6)
+    return "Password must be at least 6 characters long";
 
   if (!department_id) return "Department is required";
 
@@ -61,4 +56,12 @@ export function validateUserInput(input: UserInput) {
   if (time_slots.length === 0) return "At least one time slot must be selected";
 
   return null; // No validation errors
+}
+
+export function validateDisplayName(displayname: string) {
+  return displayname.trim().length >= 2 && displayname.trim().length <= 50;
+}
+
+export function validateFileSize(file: File) {
+  return file.size <= 1 * 1024 * 1024; // 1MB;
 }

@@ -12,8 +12,8 @@ type ErrorCardProps = {
 export default function ErrorCard({
   message,
   title = "Something went wrong",
-  actionLabel,
-  onAction,
+  actionLabel = "Reload Page",
+  onAction = () => window.location.reload(),
 }: ErrorCardProps) {
   return (
     <div className='flex items-center justify-center h-[50vh]'>

@@ -1,42 +1,28 @@
 import { supabaseClient } from "@/supabase-client";
 import { StorageError } from "@supabase/storage-js";
-import { AuthError, type User as AuthUser } from "@supabase/supabase-js";
+import { type User } from "@supabase/supabase-js";
 
-export type updateProfilePictureParams = {
-  user: AuthUser | undefined;
-  fileSizeLimit: number;
-  bucketName: string;
-  file: File;
-};
+export function getUserPath(user: User) {
+  return `${user.id}/profile_picture`;
+}
 
-export async function updateProfilePicture({
-  user,
-  bucketName,
-  fileSizeLimit,
-  file,
-}: updateProfilePictureParams) {
-
-  if (!user) throw new AuthError("No Authenticated User", 401, "no_user");
-
-
-  if (file.size > fileSizeLimit)
-    throw new StorageError(
-      `File size exceeds ${fileSizeLimit / (1024 * 1024)}MB limit`,
-    );
-
-  const path = `${user.id}/profile_picture`;
-
-
+export async function uploadProfilePicture(
+  bucketname: string,
+  path: string,
+  file: File,
+) {
   const { error: UploadError } = await supabaseClient.storage
-    .from(bucketName)
+    .from(bucketname)
     .upload(path, file, { upsert: true, cacheControl: "0" });
 
-  if (UploadError) throw UploadError;
+  if (UploadError) return UploadError;
+}
 
-  const { data } = supabaseClient.storage.from(bucketName).getPublicUrl(path);
+export async function updateUserAvatarData(bucketname: string, path: string) {
+  const { data } = supabaseClient.storage.from(bucketname).getPublicUrl(path);
 
   if (!data?.publicUrl)
-    throw new StorageError("Failed to retrieve public URL after upload");
+    return new StorageError("Failed to retrieve public URL after upload");
 
   const { error: UpdateError } = await supabaseClient.auth.updateUser({
     data: {
@@ -44,7 +30,5 @@ export async function updateProfilePicture({
     },
   });
 
-  if (UpdateError) throw UpdateError;
-
-  return true;
+  if (UpdateError) return UpdateError;
 }

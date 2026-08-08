@@ -8,7 +8,7 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import type { AccountInput, StatesProps } from "@/types/settings";
+import type { AccountInput } from "@/types/settings";
 import {
   Card,
   CardContent,
@@ -17,6 +17,7 @@ import {
   CardTitle,
 } from "./ui/card";
 import { Trash2Icon } from "lucide-react";
+import { validateDisplayName } from "@/helper/validation";
 
 type AccountSectionProps = {
   session: Session;
@@ -38,81 +39,46 @@ export default function AccountSection({
 
   const [AccountInput, setAccountInput] = useState<AccountInput>(InitialInput);
   const [IsSaving, setIsSaving] = useState(false);
-  const [ProfileError, setProfileError] = useState("");
-  const [ProfileSuccess, setProfileSuccess] = useState<boolean>(false);
+  const [ProfileError, setProfileError] = useState<string>("");
 
   function updateFeilds(fields: Partial<AccountInput>) {
     setAccountInput((prev) => ({ ...prev, ...fields }));
   }
 
-  function SetStates({ success, msg }: StatesProps) {
-    setIsSaving(msg ? false : !success);
-    setProfileSuccess(success);
-    setProfileError(!success ? msg : "");
-
-    setTimeout(() => {
-      setProfileSuccess(false);
-      setProfileError("");
-    }, 3000);
-  }
-
-  function validateDisplayName() {
-    return (
-      AccountInput.displayName.trim().length >= 2 &&
-      AccountInput.displayName.trim().length <= 50
-    );
-  }
-
   async function handleEdit() {
     if (IsSaving) return;
-    SetStates({ success: false, msg: "" });
+    setIsSaving(true);
 
-    if (
-      AccountInput.displayName.trim() !==
-      session.user.user_metadata.display_name.trim()
-    ) {
-      if (!validateDisplayName())
-        return SetStates({
-          success: false,
-          msg: "Display name must be different and between 2 and 50 characters.",
-        });
+    if (!validateDisplayName(AccountInput.displayName))
+      return setProfileError(
+        "Display name must be between 2 and 50 characters.",
+      );
 
-      const DisplayNameOK = await updateDisplayName(AccountInput.displayName);
+    const DisplayNameOK = await updateDisplayName(AccountInput.displayName);
 
-      if (!DisplayNameOK)
-        return SetStates({
-          success: false,
-          msg: "Failed to update display name.",
-        });
-    }
+    if (!DisplayNameOK)
+      return setProfileError("Failed to update display name.");
 
     if (AccountInput.profilePicture) {
       const ProfilePictureOK = await updateProfilePicture(
         AccountInput.profilePicture,
       );
-
-      if (!ProfilePictureOK)
-        return SetStates({
-          success: false,
-          msg: "Failed to update profile picture.",
-        });
+      if (!ProfilePictureOK) {
+        return setProfileError("Failed to update profile picture.");
+      }
     }
 
-    SetStates({ success: true });
+    setIsSaving(false);
   }
 
   async function handleDeleteProfilePicture() {
     if (IsSaving) return;
-    SetStates({ success: false, msg: "" });
+    setIsSaving(true);
 
     const ok = await deleteProfilePicture(session.user.id);
-    if (!ok)
-      return SetStates({
-        success: false,
-        msg: "Failed to delete profile picture.",
-      });
+    if (!ok) return setProfileError("Failed to delete profile picture.");
 
-    SetStates({ success: true });
+    setProfileError("");
   }
 
   function handleProfilePictureChange(event: ChangeEvent<HTMLInputElement>) {
@@ -232,22 +198,13 @@ export default function AccountSection({
       >
         {IsSaving ? "Saving..." : "Submit Edits"}
       </Button>
-      {(ProfileError || ProfileSuccess) && (
+      {ProfileError && (
         <Card className='p-0! m-0! bg-transparent! ring-0!'>
-          {ProfileSuccess && (
-            <CardHeader className='p-0! m-0! bg-transparent! ring-0!'>
-              <CardTitle className='text-lg text-(--success) bg-green-500/20 px-3 py-1 rounded-lg w-full text-center'>
-                Profile updated successfully!
-              </CardTitle>
-            </CardHeader>
-          )}
-          {ProfileError && (
-            <CardHeader className='p-0! m-0! bg-transparent! ring-0!'>
-              <CardTitle className='text-lg text-destructive bg-red-500/20 px-3 py-1 rounded-lg w-full text-center'>
-                {ProfileError}
-              </CardTitle>
-            </CardHeader>
-          )}
+          <CardHeader className='p-0! m-0! bg-transparent! ring-0!'>
+            <CardTitle className='text-lg text-destructive bg-red-500/20 px-3 py-1 rounded-lg w-full text-center'>
+              {ProfileError}
+            </CardTitle>
+          </CardHeader>
         </Card>
       )}
     </Card>

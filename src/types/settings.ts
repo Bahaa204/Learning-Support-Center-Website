@@ -21,7 +21,3 @@ export type PasswordInput = {
   newPassword: string;
   confirmNewPassword: string;
 };
-
-export type StatesProps =
-  | { success: true; msg?: never }
-  | { success: false; msg: string };
