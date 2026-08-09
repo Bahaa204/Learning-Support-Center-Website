@@ -10,7 +10,6 @@ import {
   updateUserAvatarData,
   uploadProfilePicture,
 } from "@/services/ProfilePictureService";
-import { validateFileSize } from "@/helper/validation";
 
 export function useAuth() {
   const [Session, setSession] = useState<Session | null>(null);
@@ -191,16 +190,6 @@ export function useAuth() {
 
     if (!Session?.user) {
       const error = new AuthError("No Authenticated User", 401, "no_user");
-      SetError(error);
-      return false;
-    }
-
-    if (!validateFileSize(file)) {
-      const error = new AuthError(
-        "File size exceeds size limit",
-        400,
-        "invalid_file_size",
-      );
       SetError(error);
       return false;
     }

@@ -59,7 +59,7 @@ export function validateUserInput(input: UserInput) {
 }
 
 export function validateDisplayName(displayname: string) {
-  return displayname.trim().length >= 2 && displayname.trim().length <= 50;
+  return displayname.trim().length >= 3 && displayname.trim().length <= 50;
 }
 
 export function validateFileSize(file: File) {

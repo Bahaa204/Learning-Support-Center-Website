@@ -17,7 +17,7 @@ import {
   CardTitle,
 } from "./ui/card";
 import { Trash2Icon } from "lucide-react";
-import { validateDisplayName } from "@/helper/validation";
+import { validateDisplayName, validateFileSize } from "@/helper/validation";
 
 type AccountSectionProps = {
   session: Session;
@@ -45,30 +45,39 @@ export default function AccountSection({
     setAccountInput((prev) => ({ ...prev, ...fields }));
   }
 
+  function SetStates(saving: boolean, error: string) {
+    setIsSaving(saving);
+    setProfileError(error);
+
+    setTimeout(() => {
+      setProfileError("");
+    }, 3 * 1000 /* 3 seconds */);
+  }
+
   async function handleEdit() {
     if (IsSaving) return;
-    setIsSaving(true);
+    SetStates(true, "");
 
     if (!validateDisplayName(AccountInput.displayName))
-      return setProfileError(
-        "Display name must be between 2 and 50 characters.",
+      return SetStates(
+        false,
+        "Display name must be between 3 and 50 characters.",
       );
 
-    const DisplayNameOK = await updateDisplayName(AccountInput.displayName);
-
-    if (!DisplayNameOK)
-      return setProfileError("Failed to update display name.");
-
-    if (AccountInput.profilePicture) {
-      const ProfilePictureOK = await updateProfilePicture(
-        AccountInput.profilePicture,
+    if (
+      !AccountInput.profilePicture ||
+      !validateFileSize(AccountInput.profilePicture)
+    )
+      return SetStates(
+        false,
+        "Invalid profile picture or it exceeds the file size limit.",
       );
-      if (!ProfilePictureOK) {
-        return setProfileError("Failed to update profile picture.");
-      }
-    }
 
-    setIsSaving(false);
+    await updateDisplayName(AccountInput.displayName);
+
+    await updateProfilePicture(AccountInput.profilePicture);
+
+    SetStates(true, "");
   }
 
   async function handleDeleteProfilePicture() {
