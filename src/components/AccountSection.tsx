@@ -122,11 +122,7 @@ export default function AccountSection({
       <CardContent className='flex gap-8 items-start mb-8'>
         <div className='flex flex-col gap-4 items-center'>
           <div
-            className={`w-25 h-25 rounded-full flex items-center justify-center overflow-hidden border-[3px] border-(--navy) ${
-              AccountInput.profilePicture
-                ? "bg-transparent"
-                : "bg-(--navy-light)"
-            }`}
+            className={`w-25 h-25 rounded-full flex items-center justify-center overflow-hidden border-[3px] border-(--navy) bg-(--navy-light)`}
           >
             {session.user.user_metadata?.avatar_url ? (
               <img
