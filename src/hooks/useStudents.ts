@@ -5,7 +5,6 @@ import { supabaseClient } from "@/supabase-client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   addStudent,
-  clearStudents,
   deleteStudent,
   fetchStudentsByDepartment,
   incrementStudentVisits,
@@ -105,21 +104,6 @@ export function useStudents(user: AuthUser | undefined) {
     },
   });
 
-  const ClearMutation = useMutation<
-    boolean,
-    PostgrestError,
-    AuthUser | undefined
-  >({
-    mutationFn: clearStudents,
-    onMutate: () => setLoading(true),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["students", user?.user_metadata.department_id],
-      });
-      setLoading(false);
-    },
-  });
-
   async function AddStudent(
     student: NewStudent,
     options?: MutationOptions<Student, NewStudent>,
@@ -168,23 +152,12 @@ export function useStudents(user: AuthUser | undefined) {
     return isSuccess;
   }
 
-  async function ClearStudents(
-    options?: MutationOptions<boolean, AuthUser | undefined>,
-  ) {
-    const { mutateAsync, isSuccess } = ClearMutation;
-
-    await mutateAsync(user, options);
-
-    return isSuccess;
-  }
-
   return {
     Students,
     Loading: Loading || isLoading,
     IsUpdating,
     AddStudent,
     IncrementStudentVisits,
-    ClearStudents,
     UpdateStudent,
     DeleteStudent,
   };

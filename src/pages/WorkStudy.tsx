@@ -32,7 +32,6 @@ import { titleCase } from "title-case";
 import { TimeSlotsMenu } from "@/components/TimeSlotMenu";
 import { SetErrorMessage } from "@/helper/errorhelpers";
 import { validateUserInput } from "@/helper/validation";
-import { useStudents } from "@/hooks/useStudents";
 
 export default function WorkStudy() {
   useDocumentTitle("Support Center Staff");
@@ -55,12 +54,9 @@ export default function WorkStudy() {
     Error: AuthError,
     SignUp,
     DeleteUser,
-    DeleteNonAdminUsers,
   } = useAuth();
 
   const { Users, Loading: UsersLoading, AddUser } = useUsers(Session?.user);
-
-  const { ClearStudents } = useStudents(Session?.user);
 
   const { Departments, Loading: DepartmentsLoading } = useDepartments();
 
@@ -191,33 +187,6 @@ export default function WorkStudy() {
     );
   }
 
-  async function handleDeleteAll() {
-    const confirm = window.confirm(
-      "Are you sure you want to delete all workstudy accounts? This action cannot be undone.",
-    );
-
-    if (!confirm) return;
-
-    const deletionSummary = await DeleteNonAdminUsers();
-    return alert(
-      `Deletion complete. ${deletionSummary.deletedUsersCount} accounts deleted. ${deletionSummary.failedDeletes.length > 0 ? `Failed to delete ${deletionSummary.failedDeletes.length} accounts: ${deletionSummary.failedDeletes.join(", ")}` : "All accounts deleted successfully."}`,
-    );
-  }
-
-  async function HandleClearStudents() {
-    const confirm = window.confirm(
-      "Are you sure you want to clear all student records? This action cannot be undone.",
-    );
-
-    if (!confirm) return;
-
-    const ok = await ClearStudents();
-
-    if (!ok) return alert("Failed to clear student records. Please try again.");
-
-    return alert("All student records cleared successfully.");
-  }
-
   return (
     <>
       <div className='page-header'>
@@ -248,10 +217,6 @@ export default function WorkStudy() {
       <div className='p-5 flex flex-col gap-4'>
         <h2 className='text-xl text-(--navy) mb-4 font-serif font-semibold flex '>
           Active WorkStudy Accounts
-          <div className='flex gap-2 mt-2 ml-auto font-(--font-sans)'>
-            <Button onClick={handleDeleteAll}>Delete All WorkStudy</Button>
-            <Button onClick={HandleClearStudents}>Clear Student Records</Button>
-          </div>
         </h2>
 
         <Table>

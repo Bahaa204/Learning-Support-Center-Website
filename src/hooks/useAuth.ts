@@ -137,20 +137,6 @@ export function useAuth() {
     return true;
   }
 
-  async function DeleteNonAdminUsers() {
-    resetSates();
-
-    const DeletionSummary = await invokeFunction(
-      supabaseClient,
-      "deleteAllNonAdminUsers",
-      {},
-    );
-    setLoading(false);
-    queryClient.invalidateQueries({ queryKey: ["users"] });
-
-    return DeletionSummary;
-  }
-
   async function UpdateDisplayName(displayName: string) {
     resetSates();
 
@@ -271,7 +257,6 @@ export function useAuth() {
     SignUp,
     SignOut,
     DeleteUser,
-    DeleteNonAdminUsers,
     UpdateDisplayName,
     UpdatePassword,
     UpdateProfilePicture,

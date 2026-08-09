@@ -8,10 +8,8 @@ export async function fetchStudentsByDepartment(user: AuthUser | undefined) {
   if (!user)
     throw BuildCustomPostgrestError("User is not authenticated", "401");
 
-  let query = supabaseClient
-    .from("Students")
-    .select("*")
-    // .eq("department_id", user.user_metadata.department_id);
+  let query = supabaseClient.from("Students").select("*");
+  // .eq("department_id", user.user_metadata.department_id);
 
   if (user.user_metadata.role !== "admin")
     query = query.eq("added_by", user.id);
@@ -71,23 +69,6 @@ export async function deleteStudent(id: Student["studentId"]) {
     .from("Students")
     .delete()
     .eq("studentId", id);
-
-  if (error) throw error;
-
-  return true;
-}
-
-export async function clearStudents(user: AuthUser | undefined) {
-  if (!user)
-    throw BuildCustomPostgrestError("User is not authenticated", "401");
-
-  if (user.user_metadata.role !== "admin")
-    throw BuildCustomPostgrestError(
-      "Only admins can clear all students.",
-      "403",
-    );
-
-  const { error } = await supabaseClient.from("Students").delete().gt("studentId", 0);
 
   if (error) throw error;
 
