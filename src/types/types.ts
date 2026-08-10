@@ -74,4 +74,6 @@ export type FilterInput = {
   department_id: number | null;
   date: string;
   asked_about: string[];
+  role: boolean;
+  time_slots: string[];
 };

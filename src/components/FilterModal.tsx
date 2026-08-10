@@ -16,7 +16,14 @@ import {
 } from "./ui/card";
 import { Button } from "./ui/button";
 import type { SetURLSearchParams } from "react-router-dom";
-import { Field, FieldDescription, FieldGroup, FieldSet } from "./ui/field";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
+} from "./ui/field";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { useState } from "react";
@@ -31,6 +38,7 @@ import {
   SelectValue,
 } from "./ui/select";
 import { DateTimePicker } from "./DateTimePicker";
+import { Checkbox } from "./ui/checkbox";
 
 type FilterModalProps = {
   IsOpen: boolean;
@@ -57,6 +65,8 @@ export function FilterModal({
     department_id: Number(SearchParams.get("department_id")) || null,
     date: SearchParams.get("date") || "",
     asked_about: SearchParams.get("asked_about")?.split(",") || [],
+    role: Boolean(SearchParams.get("role")),
+    time_slots: SearchParams.get("time_slots")?.split(",") || [],
   };
 
   const [FilterInput, setFilterInput] = useState<FilterInput>(initial_value);
@@ -74,6 +84,8 @@ export function FilterModal({
       filters.department_id = String(FilterInput.department_id);
     // if (FilterInput.date) filters.date = FilterInput.date;
     // if (FilterInput.asked_about.length > 0) filters.asked_about = FilterInput.asked_about.join(",");
+    if (FilterInput.role) filters.role = "admin";
+    // if (FilterInput.time_slots.length > 0) filters.time_slots = FilterInput.time_slots.join(",");
 
     setSearchParams(filters);
 
@@ -143,7 +155,7 @@ export function FilterModal({
                         </FieldDescription>
                       </Field>
                       <Field>
-                        <Label htmlFor='department'>Department:</Label>
+                        <Label htmlFor='filterDepartment'>Department:</Label>
                         <Select
                           value={
                             FilterInput.department_id
@@ -156,7 +168,7 @@ export function FilterModal({
                             })
                           }
                         >
-                          <SelectTrigger>
+                          <SelectTrigger id='filterDepartment'>
                             <SelectValue placeholder='Select a department' />
                           </SelectTrigger>
                           <SelectContent className='z-301'>
@@ -183,28 +195,28 @@ export function FilterModal({
                         </FieldDescription>
                       </Field>
                     </FieldGroup>
+                    <FieldGroup>
+                      <Field>
+                        <Label htmlFor='date'>Date:</Label>
+                        <DateTimePicker
+                          value={FilterInput.date}
+                          onChange={(visitDateTime: string) =>
+                            setFilterInput({
+                              ...FilterInput,
+                              date: visitDateTime,
+                            })
+                          }
+                        />
+                        <FieldDescription>
+                          Shows the student records that includes the date you
+                          entered.
+                        </FieldDescription>
+                      </Field>
+                    </FieldGroup>
                   </FieldSet>
                   {/*// TODO: Implement date and asked_about filter */}
                   {isStudent && (
                     <FieldSet className='col-[2/2] row-[1/1]'>
-                      <FieldGroup>
-                        <Field>
-                          <Label htmlFor='date'>Date:</Label>
-                          <DateTimePicker
-                            value={FilterInput.date}
-                            onChange={(visitDateTime: string) =>
-                              setFilterInput({
-                                ...FilterInput,
-                                date: visitDateTime,
-                              })
-                            }
-                          />
-                          <FieldDescription>
-                            Shows the student records that includes the date you
-                            entered.
-                          </FieldDescription>
-                        </Field>
-                      </FieldGroup>
                       <FieldGroup>
                         <Field>
                           <Label htmlFor='asked_about'>Asked About:</Label>
@@ -216,6 +228,48 @@ export function FilterModal({
                           <FieldDescription>
                             Shows the student records that includes the courses
                             you entered.
+                          </FieldDescription>
+                        </Field>
+                      </FieldGroup>
+                    </FieldSet>
+                  )}
+                  {!isStudent && (
+                    <FieldSet className='col-[2/2] row-[1/1]'>
+                      <FieldGroup>
+                        <Field orientation='horizontal'>
+                          <Checkbox
+                            id='filterRole'
+                            name='filterRole'
+                            className='cursor-pointer rounded-[5px]! size-6!'
+                            checked={FilterInput.role}
+                            onCheckedChange={(checked) =>
+                              updateFields({ role: Boolean(checked) })
+                            }
+                          />
+                          <FieldContent>
+                            <FieldLabel
+                              htmlFor='filterRole'
+                              className='cursor-pointer'
+                            >
+                              Is Supervisor
+                            </FieldLabel>
+                            <FieldDescription>
+                              Shows only admin users.
+                            </FieldDescription>
+                          </FieldContent>
+                        </Field>
+                      </FieldGroup>
+                      <FieldGroup>
+                        <Field>
+                          <Label htmlFor='time_slots'>Time Slots:</Label>
+                          <Input
+                            id='time_slots'
+                            placeholder="e.g., '09:00-10:00, 14:00-15:00'"
+                            type='text'
+                          />
+                          <FieldDescription>
+                            Shows the student records that include the time
+                            slots you entered.
                           </FieldDescription>
                         </Field>
                       </FieldGroup>

@@ -372,7 +372,7 @@ export default function InputForm({
 
                 <Field className='field'>
                   <FieldLabel htmlFor='studentDepartment'>
-                    Student Department <span className='required'>*</span>
+                    User Department <span className='required'>*</span>
                   </FieldLabel>
 
                   <Select

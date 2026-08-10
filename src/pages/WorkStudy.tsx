@@ -23,15 +23,16 @@ import { useUsers } from "@/hooks/useUsers";
 import { useTimeSlots } from "@/hooks/useTimeSlots";
 import { exportData } from "@/lib/exportUtils";
 import type { NewUser, User, UserInput } from "@/types/users";
-import { MoreHorizontalIcon } from "lucide-react";
+import { FilterIcon, MoreHorizontalIcon } from "lucide-react";
 import { useState, type SubmitEvent } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import ErrorCard from "@/components/error-card";
 import LoadingCard from "@/components/loading-card";
 import { titleCase } from "title-case";
 import { TimeSlotsMenu } from "@/components/TimeSlotMenu";
 import { SetErrorMessage } from "@/helper/errorhelpers";
 import { validateUserInput } from "@/helper/validation";
+import { FilterModal } from "@/components/FilterModal";
 
 export default function WorkStudy() {
   useDocumentTitle("Support Center Staff");
@@ -47,7 +48,10 @@ export default function WorkStudy() {
 
   const [Input, setInput] = useState<UserInput>(InitialValue);
   const [LocalError, setLocalError] = useState<string>("");
-  const [IsSubmitting, setIsSubmitting] = useState(false);
+  const [IsSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [IsOpen, setIsOpen] = useState<boolean>(false);
+
+  const [SearchParams, setSearchParams] = useSearchParams();
 
   const navigate = useNavigate();
 
@@ -183,6 +187,26 @@ export default function WorkStudy() {
 
   if (!data) return <ErrorCard message='Failed to load required data.' />;
 
+  const IsFilterActive = SearchParams.toString() !== "";
+
+  const filteredUsers = IsFilterActive
+    ? Users.filter((user) => {
+        const nameFilter = SearchParams.get("name");
+        const emailFilter = SearchParams.get("email");
+        const roleFilter = SearchParams.get("role");
+        const departmentFilter = SearchParams.get("department_id");
+        // const timeSlotsFilter = SearchParams.get("time_slots");
+
+        return (
+          (!nameFilter || user.display_name.includes(nameFilter)) &&
+          (!emailFilter || user.email?.includes(emailFilter)) &&
+          (!roleFilter || user.role === roleFilter) &&
+          (!departmentFilter ||
+            user.department_id === parseInt(departmentFilter))
+        );
+      })
+    : Users;
+
   async function handleDelete(id: User["id"]) {
     const ok = await DeleteUser(id);
 
@@ -192,7 +216,7 @@ export default function WorkStudy() {
   }
 
   function handleExport() {
-    const exportData_formatted = Users!.map((user) => ({
+    const exportData_formatted = filteredUsers.map((user) => ({
       Name: user.display_name,
       Email: user.email,
       Role: user.role,
@@ -238,6 +262,11 @@ export default function WorkStudy() {
       <div className='p-5 flex flex-col gap-4'>
         <h2 className='text-xl text-(--navy) mb-4 font-serif font-semibold flex '>
           Active WorkStudy Accounts
+          <div className='flex gap-2 mt-2 ml-auto font-[georgia]'>
+            <Button className='text-lg' onClick={() => setIsOpen(true)}>
+              <FilterIcon className='size-5!' /> Filter Records
+            </Button>
+          </div>
         </h2>
 
         <Table>
@@ -255,8 +284,8 @@ export default function WorkStudy() {
           </TableHeader>
 
           <TableBody>
-            {Users.length > 0 ? (
-              Users.map((user, index) => {
+            {filteredUsers.length > 0 ? (
+              filteredUsers.map((user, index) => {
                 return (
                   <TableRow key={user.id}>
                     <TableHead className='text-center'>{index + 1}</TableHead>
@@ -312,14 +341,24 @@ export default function WorkStudy() {
               })
             ) : (
               <TableRow>
-                <TableCell colSpan={7} className='text-center text-muted'>
-                  No workstudy accounts found
+                <TableCell colSpan={10} className='text-center text-[17px]'>
+                  No student records found. Check your filters or add new
+                  student records to see them here.
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
+
+      <FilterModal
+        mode='user'
+        IsOpen={IsOpen}
+        setIsOpen={setIsOpen}
+        Departments={Departments}
+        SearchParams={SearchParams}
+        setSearchParams={setSearchParams}
+      />
     </>
   );
 }

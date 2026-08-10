@@ -171,7 +171,7 @@ export default function StudentRecords() {
   }
 
   function handleExport() {
-    const exportData_formatted = Students!.map((student) => ({
+    const exportData_formatted = filteredStudents.map((student) => ({
       "Student ID": student.studentId,
       "Student Name": student.studentName,
       Email: student.email,
