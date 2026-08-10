@@ -14,7 +14,11 @@ export default function Home() {
 
   const { Session, Loading: AuthLoading, Error: AuthError } = useAuth();
 
-  const { Students, Loading: StudentsLoading } = useStudents(Session?.user);
+  const {
+    Students,
+    Loading: StudentsLoading,
+    Error: StudentsError,
+  } = useStudents(Session?.user);
 
   // const {
   //   Users,
@@ -22,6 +26,7 @@ export default function Home() {
   // } = useUsers(Session?.user);
 
   const loading = AuthLoading || StudentsLoading;
+  const error = AuthError || StudentsError;
 
   if (loading) {
     return (
@@ -35,8 +40,8 @@ export default function Home() {
     return <Navigate to='/login' replace />;
   }
 
-  if (AuthError) {
-    return <ErrorCard message={SetErrorMessage(AuthError)} />;
+  if (error) {
+    return <ErrorCard message={SetErrorMessage(error)} />;
   }
 
   if (!Students) {

@@ -10,6 +10,7 @@ import type { MutationOptions } from "@/types/types";
 export function useUsers(user: AuthUser | undefined) {
   const queryClient = useQueryClient();
   const [Loading, setLoading] = useState<boolean>(false);
+  const [Error, setError] = useState<PostgrestError | null>(null);
 
   useEffect(() => {
     const channel = supabaseClient.channel("Users Channel");
@@ -31,7 +32,11 @@ export function useUsers(user: AuthUser | undefined) {
     };
   }, [user]);
 
-  const { data: Users, isLoading } = useQuery<User[], PostgrestError>({
+  const {
+    data: Users,
+    isLoading,
+    error: QueryError,
+  } = useQuery<User[], PostgrestError>({
     queryKey: ["users"],
     queryFn: () => fetchUsers(user),
     enabled: !!user,
@@ -42,6 +47,9 @@ export function useUsers(user: AuthUser | undefined) {
     onMutate: () => setLoading(true),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+    onSettled: (_data, error) => {
+      if (error) setError(error);
       setLoading(false);
     },
   });
@@ -51,6 +59,9 @@ export function useUsers(user: AuthUser | undefined) {
     onMutate: () => setLoading(true),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+    onSettled: (_data, error) => {
+      if (error) setError(error);
       setLoading(false);
     },
   });
@@ -80,6 +91,7 @@ export function useUsers(user: AuthUser | undefined) {
   return {
     Users,
     Loading: Loading || isLoading,
+    Error: QueryError || Error,
     AddUser,
     RemoveUser,
   };

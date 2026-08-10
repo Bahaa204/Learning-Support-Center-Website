@@ -20,8 +20,8 @@ export function useAuth() {
 
   const bucketName = "Profile Pictures";
 
-  //Helper reset some tates
-  function resetSates() {
+  //Helper reset some states
+  function resetStates() {
     setLoading(true);
     setError(null);
   }
@@ -33,7 +33,7 @@ export function useAuth() {
 
   useEffect(() => {
     async function getSession() {
-      resetSates();
+      resetStates();
 
       const { data, error: SessionError } =
         await supabaseClient.auth.getSession();
@@ -48,7 +48,7 @@ export function useAuth() {
 
     const { data: authListener } = supabaseClient.auth.onAuthStateChange(
       (_event, session) => {
-        resetSates();
+        resetStates();
         setSession(session);
         queryClient.invalidateQueries();
         setLoading(false);
@@ -61,7 +61,7 @@ export function useAuth() {
   }, []);
 
   async function SignInWithPassword(email: string, password: string) {
-    resetSates();
+    resetStates();
 
     const { error: SignInError } = await supabaseClient.auth.signInWithPassword(
       {
@@ -86,7 +86,7 @@ export function useAuth() {
     isSupervisor: boolean,
     department_id: Department["id"],
   ) {
-    resetSates();
+    resetStates();
 
     const { data, error: SignUpError } = await invokeFunction(
       supabaseClient,
@@ -106,7 +106,7 @@ export function useAuth() {
   }
 
   async function SignOut() {
-    resetSates();
+    resetStates();
 
     const { error: SignOutError } = await supabaseClient.auth.signOut();
 
@@ -122,7 +122,7 @@ export function useAuth() {
   }
 
   async function DeleteUser(id: User["id"]) {
-    resetSates();
+    resetStates();
 
     const { error } = await invokeFunction(supabaseClient, "deleteUser", {
       userId: id,
@@ -138,7 +138,7 @@ export function useAuth() {
   }
 
   async function UpdateDisplayName(displayName: string) {
-    resetSates();
+    resetStates();
 
     const { error } = await supabaseClient.auth.updateUser({
       data: {
@@ -156,7 +156,7 @@ export function useAuth() {
   }
 
   async function UpdatePassword(newPassword: string) {
-    resetSates();
+    resetStates();
 
     const { error } = await supabaseClient.auth.updateUser({
       password: newPassword,
@@ -172,7 +172,7 @@ export function useAuth() {
   }
 
   async function UpdateProfilePicture(file: File) {
-    resetSates();
+    resetStates();
 
     if (!Session?.user) {
       const error = new AuthError("No Authenticated User", 401, "no_user");
@@ -200,7 +200,7 @@ export function useAuth() {
   }
 
   async function DeleteProfilePicture(userId: User["id"]) {
-    resetSates();
+    resetStates();
 
     const { error: DeleteError } = await supabaseClient.storage
       .from(bucketName)
@@ -232,7 +232,7 @@ export function useAuth() {
     message: string,
     replyTo?: string,
   ) {
-    resetSates();
+    resetStates();
     const { error } = await invokeFunction(supabaseClient, "sendEmail", {
       to,
       from,

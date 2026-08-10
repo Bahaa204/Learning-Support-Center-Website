@@ -25,7 +25,7 @@ import { exportData } from "@/lib/exportUtils";
 import type { NewUser, User, UserInput } from "@/types/users";
 import { MoreHorizontalIcon } from "lucide-react";
 import { useState, type SubmitEvent } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import ErrorCard from "@/components/error-card";
 import LoadingCard from "@/components/loading-card";
 import { titleCase } from "title-case";
@@ -47,6 +47,9 @@ export default function WorkStudy() {
 
   const [Input, setInput] = useState<UserInput>(InitialValue);
   const [LocalError, setLocalError] = useState<string>("");
+  const [IsSubmitting, setIsSubmitting] = useState(false);
+
+  const navigate = useNavigate();
 
   const {
     Session,
@@ -56,18 +59,31 @@ export default function WorkStudy() {
     DeleteUser,
   } = useAuth();
 
-  const { Users, Loading: UsersLoading, AddUser } = useUsers(Session?.user);
+  const {
+    Users,
+    Loading: UsersLoading,
+    AddUser,
+    Error: UsersError,
+  } = useUsers(Session?.user);
 
-  const { Departments, Loading: DepartmentsLoading } = useDepartments();
+  const {
+    Departments,
+    Loading: DepartmentsLoading,
+    Error: DepartmentsError,
+  } = useDepartments();
 
   const { Settings } = useSettings();
 
-  const { AddBulkTimeSlots, Loading: TimeSlotsLoading } = useTimeSlots();
+  const {
+    AddBulkTimeSlots,
+    Loading: TimeSlotsLoading,
+    Error: TimeSlotsError,
+  } = useTimeSlots();
 
   const loading =
     AuthLoading || UsersLoading || DepartmentsLoading || TimeSlotsLoading;
 
-  const [IsSubmitting, setIsSubmitting] = useState(false);
+  const error = AuthError || UsersError || DepartmentsError || TimeSlotsError;
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -138,8 +154,8 @@ export default function WorkStudy() {
     setInput((prev) => ({ ...prev, ...fields }));
   }
 
-  if (AuthError) {
-    return <ErrorCard message={SetErrorMessage(AuthError)} />;
+  if (error) {
+    return <ErrorCard message={SetErrorMessage(error)} />;
   }
 
   if (loading) {
@@ -154,13 +170,18 @@ export default function WorkStudy() {
     return <Navigate to='/login' replace />;
   }
 
-  if (!Users || !Departments)
-    return <ErrorCard message='Failed to load required data.' />;
-
   if (Session.user.user_metadata.role !== "admin")
     return (
-      <ErrorCard message='You do not have permission to view this page.' />
+      <ErrorCard
+        message='You do not have permission to view this page.'
+        actionLabel='Go to Home'
+        onAction={() => navigate("/")}
+      />
     );
+
+  const data = Users && Departments;
+
+  if (!data) return <ErrorCard message='Failed to load required data.' />;
 
   async function handleDelete(id: User["id"]) {
     const ok = await DeleteUser(id);

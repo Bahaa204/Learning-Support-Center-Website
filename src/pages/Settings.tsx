@@ -27,7 +27,6 @@ import type {
   SettingsFontSize,
   SettingsPageSize,
   SettingsTheme,
-  StatesProps,
 } from "@/types/settings";
 import { useState, type SubmitEvent } from "react";
 import { Navigate } from "react-router-dom";
@@ -67,17 +66,14 @@ export default function Settings() {
     useState<PasswordInputType>(InitailInput);
   const [IsChanging, setIsChanging] = useState(false);
   const [PasswordError, setPasswordError] = useState("");
-  const [PasswordSuccess, setPasswordSuccess] = useState<boolean>();
 
-  function SetStates({ success, msg }: StatesProps) {
-    setIsChanging(msg ? false : !success);
-    setPasswordSuccess(success);
-    setPasswordError(!success ? msg : "");
+  function SetStates(saving: boolean, error: string) {
+    setIsChanging(saving);
+    setPasswordError(error);
 
     setTimeout(() => {
-      setPasswordSuccess(false);
       setPasswordError("");
-    }, 3000);
+    }, 3 * 1000 /* 3 seconds */);
   }
 
   function updateFields(fields: Partial<PasswordInputType>) {
@@ -94,29 +90,17 @@ export default function Settings() {
   async function handleSubmitPassword(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     if (IsChanging) return;
-    setIsChanging(true);
-    setPasswordError("");
+    SetStates(true, "");
 
     if (!InputPassword.newPassword || !InputPassword.confirmNewPassword)
-      return SetStates({
-        success: false,
-        msg: "All password fields are required.",
-      });
+      return SetStates(false, "Both password fields are required.");
 
     if (InputPassword.newPassword !== InputPassword.confirmNewPassword)
-      return SetStates({
-        success: false,
-        msg: "New password and confirmation do not match.",
-      });
+      return SetStates(false, "New password and confirmation do not match.");
 
-    const ok = await UpdatePassword(InputPassword.newPassword);
+    await UpdatePassword(InputPassword.newPassword);
 
-    setIsChanging(false);
-
-    if (!ok)
-      return SetStates({ success: false, msg: "Failed to update password." });
-
-    SetStates({ success: true });
+    SetStates(false, "");
     setInputPassword(InitailInput);
   }
 
@@ -192,16 +176,6 @@ export default function Settings() {
                 {IsChanging ? "Updating..." : "Change Password"}
               </Button>
             </FieldSet>
-            {PasswordSuccess && (
-              <Card className='p-0! m-0! bg-transparent! ring-0! mt-4!'>
-                <CardHeader className='ring-0! bg-green-500/20 text-center text-(--success) p-3! m-0! rounded-lg!'>
-                  <CardTitle>Password Updated</CardTitle>
-                  <CardDescription>
-                    Your password has been updated successfully.
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            )}
           </form>
         </Card>
 

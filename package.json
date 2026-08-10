@@ -8,8 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "preupdate": "npx npm-check-updates -u",
-    "update": "npm install"
+    "update": "npx npm-check-updates -u && npm install"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.2.8",

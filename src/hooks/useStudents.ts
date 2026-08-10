@@ -19,8 +19,13 @@ export function useStudents(user: AuthUser | undefined) {
     null,
   );
   const [Loading, setLoading] = useState<boolean>(false);
+  const [Error, setError] = useState<PostgrestError | null>(null);
 
-  const { data: Students, isLoading } = useQuery<Student[], PostgrestError>({
+  const {
+    data: Students,
+    isLoading,
+    error: QueryError,
+  } = useQuery<Student[], PostgrestError>({
     queryKey: ["students", user?.user_metadata.department_id],
     queryFn: () => fetchStudentsByDepartment(user),
     enabled: !!user,
@@ -55,6 +60,9 @@ export function useStudents(user: AuthUser | undefined) {
       queryClient.invalidateQueries({
         queryKey: ["students", user?.user_metadata.department_id],
       });
+    },
+    onSettled: (_data, error) => {
+      if (error) setError(error);
       setLoading(false);
     },
   });
@@ -70,6 +78,9 @@ export function useStudents(user: AuthUser | undefined) {
       queryClient.invalidateQueries({
         queryKey: ["students", user?.user_metadata.department_id],
       });
+    },
+    onSettled: (_data, error) => {
+      if (error) setError(error);
       setIsUpdating(null);
     },
   });
@@ -85,6 +96,9 @@ export function useStudents(user: AuthUser | undefined) {
       queryClient.invalidateQueries({
         queryKey: ["students", user?.user_metadata.department_id],
       });
+    },
+    onSettled: (_data, error) => {
+      if (error) setError(error);
       setLoading(false);
     },
   });
@@ -100,6 +114,9 @@ export function useStudents(user: AuthUser | undefined) {
       queryClient.invalidateQueries({
         queryKey: ["students", user?.user_metadata.department_id],
       });
+    },
+    onSettled: (_data, error) => {
+      if (error) setError(error);
       setLoading(false);
     },
   });
@@ -155,6 +172,7 @@ export function useStudents(user: AuthUser | undefined) {
   return {
     Students,
     Loading: Loading || isLoading,
+    Error: QueryError || Error,
     IsUpdating,
     AddStudent,
     IncrementStudentVisits,

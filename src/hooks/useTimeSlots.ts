@@ -13,8 +13,13 @@ export function useTimeSlots() {
   const queryClient = useQueryClient();
 
   const [Loading, setLoading] = useState<boolean>(false);
+  const [Error, setError] = useState<PostgrestError | null>(null);
 
-  const { data: TimeSlots, isLoading } = useQuery<TimeSlot[], PostgrestError>({
+  const {
+    data: TimeSlots,
+    isLoading,
+    error: QueryError,
+  } = useQuery<TimeSlot[], PostgrestError>({
     queryKey: ["time_slots"],
     queryFn: fetchTimeSlots,
   });
@@ -24,6 +29,9 @@ export function useTimeSlots() {
     onMutate: () => setLoading(true),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["time_slots"] });
+    },
+    onSettled: (_data, error) => {
+      if (error) setError(error);
       setLoading(false);
     },
   });
@@ -37,6 +45,9 @@ export function useTimeSlots() {
     onMutate: () => setLoading(true),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["time_slots"] });
+    },
+    onSettled: (_data, error) => {
+      if (error) setError(error);
       setLoading(false);
     },
   });
@@ -63,6 +74,7 @@ export function useTimeSlots() {
   return {
     TimeSlots,
     Loading: Loading || isLoading,
+    Error: QueryError || Error,
     AddTimeSlot,
     AddBulkTimeSlots,
   };

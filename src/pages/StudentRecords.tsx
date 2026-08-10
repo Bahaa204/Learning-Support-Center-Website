@@ -42,6 +42,7 @@ export default function StudentRecords() {
   const {
     Students,
     Loading: StudentsLoading,
+    Error: StudentsError,
     IncrementStudentVisits,
     IsUpdating,
     AddStudent,
@@ -49,18 +50,33 @@ export default function StudentRecords() {
     DeleteStudent,
   } = useStudents(Session?.user);
 
-  const { AskedAbout, syncStudentCourses } = useAskedAbout();
+  const {
+    AskedAbout,
+    syncStudentCourses,
+    Error: AskedAboutError,
+  } = useAskedAbout();
 
-  const { Users, Loading: UsersLoading } = useUsers(Session?.user);
+  const {
+    Users,
+    Loading: UsersLoading,
+    Error: UsersError,
+  } = useUsers(Session?.user);
 
-  const { Departments, Loading: DepartmentsLoading } = useDepartments();
+  const {
+    Departments,
+    Loading: DepartmentsLoading,
+    Error: DepartmentsError,
+  } = useDepartments();
 
   const loading =
     AuthLoading || StudentsLoading || DepartmentsLoading || UsersLoading;
 
-  if (AuthError) {
-    return <ErrorCard message={SetErrorMessage(AuthError)} />;
-  }
+  const error =
+    AuthError ||
+    StudentsError ||
+    DepartmentsError ||
+    UsersError ||
+    AskedAboutError;
 
   if (loading) {
     return (
@@ -74,7 +90,13 @@ export default function StudentRecords() {
     return <Navigate to='/login' replace />;
   }
 
-  if (!Students || !Users || !Departments || !AskedAbout) {
+  if (error) {
+    return <ErrorCard message={SetErrorMessage(error)} />;
+  }
+
+  const data = Students && Users && Departments && AskedAbout;
+
+  if (!data) {
     return <ErrorCard message='Failed to load required data.' />;
   }
 

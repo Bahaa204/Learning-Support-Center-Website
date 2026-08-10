@@ -20,6 +20,7 @@ export default function useAskedAbout() {
   const queryClient = useQueryClient();
 
   const [Loading, setLoading] = useState<boolean>(false);
+  const [Error, setError] = useState<PostgrestError | null>(null);
 
   useEffect(() => {
     const channel = supabaseClient.channel("Asked About Channel");
@@ -41,10 +42,11 @@ export default function useAskedAbout() {
     };
   }, []);
 
-  const { data: AskedAbout, isLoading } = useQuery<
-    AskedAbout[],
-    PostgrestError
-  >({
+  const {
+    data: AskedAbout,
+    isLoading,
+    error: QueryError,
+  } = useQuery<AskedAbout[], PostgrestError>({
     queryKey: ["AskedAbout"],
     queryFn: fetchAskedAbout,
   });
@@ -55,6 +57,9 @@ export default function useAskedAbout() {
       onMutate: () => setLoading(true),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["AskedAbout"] });
+      },
+      onSettled: (_data, error) => {
+        if (error) setError(error);
         setLoading(false);
       },
     },
@@ -69,6 +74,9 @@ export default function useAskedAbout() {
     onMutate: () => setLoading(true),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["AskedAbout"] });
+    },
+    onSettled: (_data, error) => {
+      if (error) setError(error);
       setLoading(false);
     },
   });
@@ -79,6 +87,9 @@ export default function useAskedAbout() {
       onMutate: () => setLoading(true),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["AskedAbout"] });
+      },
+      onSettled: (_data, error) => {
+        if (error) setError(error);
         setLoading(false);
       },
     },
@@ -91,7 +102,10 @@ export default function useAskedAbout() {
   >({
     mutationFn: bulkRemoveAskedAbout,
     onMutate: () => setLoading(true),
-    onSuccess: () => setLoading(false),
+    onSettled: (_data, error) => {
+      if (error) setError(error);
+      setLoading(false);
+    },
   });
 
   const BulkAddMuation = useMutation<
@@ -101,7 +115,10 @@ export default function useAskedAbout() {
   >({
     mutationFn: bulkAddAskedAbout,
     onMutate: () => setLoading(true),
-    onSuccess: () => setLoading(false),
+    onSettled: (_data, error) => {
+      if (error) setError(error);
+      setLoading(false);
+    },
   });
 
   async function AddAskedAbout(AskedAbout: AskedAboutInsert) {
@@ -156,7 +173,6 @@ export default function useAskedAbout() {
     studentId: AskedAbout["student_Id"],
     courseCodes: AskedAbout["course_code"][],
   ) {
-
     const uniqueCourseCodes = Array.from(new Set(courseCodes));
     const existingRecords = AskedAbout?.filter(
       (record) => record.student_Id === studentId,
@@ -197,6 +213,7 @@ export default function useAskedAbout() {
   return {
     AskedAbout,
     Loading: Loading || isLoading,
+    Error: QueryError || Error,
     AddAskedAbout,
     UpdateAskedAbout,
     RemoveAskedAbout,
