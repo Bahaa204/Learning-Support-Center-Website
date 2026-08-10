@@ -10,14 +10,15 @@ import { useUsers } from "@/hooks/useUsers";
 import { exportData } from "@/lib/exportUtils";
 import type { NewStudent, StudentInput } from "@/types/students";
 import { useState, type SubmitEvent } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useSearchParams } from "react-router-dom";
 import LoadingCard from "@/components/loading-card";
 import ErrorCard from "@/components/error-card";
 import { SetErrorMessage } from "@/helper/errorhelpers";
 import useAskedAbout from "@/hooks/useAsked_About";
 import { validateStudentInput } from "@/helper/validation";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { FilterIcon } from "lucide-react";
+import { FilterModal } from "@/components/FilterModal";
 
 export default function StudentRecords() {
   useDocumentTitle("Student Records");
@@ -34,7 +35,12 @@ export default function StudentRecords() {
   const [StudentInput, setStudentInput] = useState<StudentInput>(InitialValue);
   const [LocalError, setLocalError] = useState<string>("");
   const [IsSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [Filter, setFilter] = useState<boolean>(false);
+  const [IsOpen, setIsOpen] = useState<boolean>(false);
+
+  const [SearchParams, setSearchParams] = useSearchParams();
+
+  // console.log("Search Params: ", SearchParams.toString());
+
 
   const { Session, Loading: AuthLoading, Error: AuthError } = useAuth();
   const { Settings } = useSettings();
@@ -99,6 +105,22 @@ export default function StudentRecords() {
   if (!data) {
     return <ErrorCard message='Failed to load required data.' />;
   }
+
+  const IsFilterActive = SearchParams.toString() !== "";
+
+  const filteredStudents = IsFilterActive
+    ? Students.filter((student) => {
+        const nameFilter = SearchParams.get("name");
+        const emailFilter = SearchParams.get("email");
+        const departmentFilter = SearchParams.get("department_id");
+
+        return (
+          (!nameFilter || student.studentName.includes(nameFilter)) &&
+          (!emailFilter || student.email?.includes(emailFilter)) &&
+          (!departmentFilter || student.department_id === parseInt(departmentFilter))
+        );
+      })
+    : Students;
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -201,30 +223,15 @@ export default function StudentRecords() {
       <div className='p-5 flex flex-col gap-4'>
         <h2 className='text-xl text-(--navy) mb-4 font-serif font-semibold flex '>
           Student Records
-          <div className='flex gap-2 mt-2 ml-auto font-(georgia)'>
-            <Checkbox
-              id='filter-by-department'
-              name='filter-by-department'
-              className='cursor-pointer rounded-[5px]! size-6! bg-(--light-gray) border-2! border-(--gray) checked:bg-primary checked:border-primary focus:ring-0'
-              checked={Filter}
-              onCheckedChange={(checked) => setFilter(Boolean(checked))}
-            />
-            <Label htmlFor='filter-by-department' className='cursor-pointer'>
-              Filter by department
-            </Label>
+          <div className='flex gap-2 mt-2 ml-auto font-[georgia]'>
+            <Button className='text-lg' onClick={() => setIsOpen(true)}>
+              <FilterIcon className='size-5!' /> Filter Records
+            </Button>
           </div>
         </h2>
 
         <StudentTable
-          Students={
-            Filter
-              ? Students.filter(
-                  (student) =>
-                    student.department_id ===
-                    Session?.user.user_metadata.department_id,
-                )
-              : Students
-          }
+          Students={filteredStudents}
           Users={Users}
           Departments={Departments}
           IncrementVisits={IncrementStudentVisits}
@@ -235,6 +242,15 @@ export default function StudentRecords() {
           syncStudentCourses={syncStudentCourses}
         />
       </div>
+
+      <FilterModal
+        IsOpen={IsOpen}
+        setIsOpen={setIsOpen}
+        SearchParams={SearchParams}
+        setSearchParams={setSearchParams}
+        Departments={Departments}
+        mode='student'
+      />
     </>
   );
 }

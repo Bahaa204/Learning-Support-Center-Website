@@ -426,8 +426,9 @@ export default function StudentTable({
             })
           ) : (
             <TableRow>
-              <TableCell colSpan={10} className='text-center text-muted'>
-                No student records found
+              <TableCell colSpan={10} className='text-center text-[17px]'>
+                No student records found. Check your filters or add new student
+                records to see them here.
               </TableCell>
             </TableRow>
           )}

@@ -1,6 +1,3 @@
-"use client";
-
-import * as React from "react";
 import { ChevronDownIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -12,6 +9,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useState } from "react";
 
 type DateTimePickerProps = {
   value: string;
@@ -53,7 +51,7 @@ function updateTimePart(currentValue: string, nextTime: string) {
 }
 
 export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
   const selectedDate = getSafeDate(value);
 
   return (
@@ -74,7 +72,7 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
               <ChevronDownIcon className='shrink-0' />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className='w-auto overflow-hidden p-0' align='start'>
+          <PopoverContent className='w-auto overflow-hidden p-0 relative z-500' align='start'>
             <Calendar
               mode='single'
               selected={selectedDate}

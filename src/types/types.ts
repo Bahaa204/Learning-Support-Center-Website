@@ -67,3 +67,11 @@ export type MutationOptions<TData, TVariables> = Mutationoptions<
   PostgrestError,
   TVariables
 >;
+
+export type FilterInput = {
+  name: string;
+  email: string;
+  department_id: number | null;
+  date: string;
+  asked_about: string[];
+};

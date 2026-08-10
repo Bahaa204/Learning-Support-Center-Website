@@ -182,7 +182,11 @@ export default function InputForm({
                   </FieldLabel>
 
                   <Select
-                    value={String(studentInput.department_id)}
+                    value={
+                      studentInput.department_id
+                        ? String(studentInput.department_id)
+                        : undefined
+                    }
                     onValueChange={(value) => {
                       updateFields({ department_id: parseInt(value) });
                     }}
@@ -372,7 +376,11 @@ export default function InputForm({
                   </FieldLabel>
 
                   <Select
-                    value={String(userInput.department_id)}
+                    value={
+                      userInput.department_id
+                        ? String(userInput.department_id)
+                        : undefined
+                    }
                     onValueChange={(value) => {
                       updateFields({ department_id: parseInt(value) });
                     }}
