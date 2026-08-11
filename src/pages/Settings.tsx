@@ -172,7 +172,11 @@ export default function Settings() {
                   </FieldError>
                 )}
               </FieldGroup>
-              <Button type='submit' disabled={IsChanging}>
+              <Button
+                type='submit'
+                disabled={IsChanging}
+                className='btn-primary'
+              >
                 {IsChanging ? "Updating..." : "Change Password"}
               </Button>
             </FieldSet>
@@ -188,7 +192,11 @@ export default function Settings() {
               Log out of your account on all devices.
             </CardDescription>
           </CardHeader>
-          <Button variant='destructive' onClick={async () => await SignOut()}>
+          <Button
+            variant='destructive'
+            onClick={async () => await SignOut()}
+            className='btn-destructive'
+          >
             Sign Out
           </Button>
         </Card>
@@ -215,13 +223,21 @@ export default function Settings() {
                 }
               >
                 <div className='flex items-center gap-3'>
-                  <RadioGroupItem value='light' id='light-theme' />
+                  <RadioGroupItem
+                    value='light'
+                    id='light-theme'
+                    className={`${Settings.theme === "light" ? "btn-primary" : ""}`}
+                  />
                   <Label htmlFor='light-theme' className='cursor-pointer'>
                     Light
                   </Label>
                 </div>
                 <div className='flex items-center gap-3'>
-                  <RadioGroupItem value='dark' id='dark-theme' />
+                  <RadioGroupItem
+                    value='dark'
+                    id='dark-theme'
+                    className={`${Settings.theme === "dark" ? "btn-primary" : ""}`}
+                  />
                   <Label htmlFor='dark-theme' className='cursor-pointer'>
                     Dark
                   </Label>
@@ -238,13 +254,21 @@ export default function Settings() {
                 }
               >
                 <div className='flex items-center gap-3'>
-                  <RadioGroupItem value='normal' id='normal-font' />
+                  <RadioGroupItem
+                    value='normal'
+                    id='normal-font'
+                    className={`${Settings.fontSize === "normal" ? "btn-primary" : ""}`}
+                  />
                   <Label htmlFor='normal-font' className='cursor-pointer'>
                     Normal
                   </Label>
                 </div>
                 <div className='flex items-center gap-3'>
-                  <RadioGroupItem value='large' id='large-font' />
+                  <RadioGroupItem
+                    value='large'
+                    id='large-font'
+                    className={`${Settings.fontSize === "large" ? "btn-primary" : ""}`}
+                  />
                   <Label htmlFor='large-font' className='cursor-pointer'>
                     Large
                   </Label>
@@ -261,9 +285,11 @@ export default function Settings() {
                   onCheckedChange={(checked) =>
                     updateSetting("compactMode", checked as boolean)
                   }
+                  className={`${Settings.compactMode ? "btn-primary" : ""}`}
                 />
                 <FieldLabel htmlFor='compactMode'>
-                  Compact Mode - Reduce spacing in tables and forms
+                  Compact Mode - Reduce spacing in betweem elements and tables
+                  for a denser layout.
                 </FieldLabel>
               </Field>
             </FieldGroup>
@@ -317,13 +343,21 @@ export default function Settings() {
                   }
                 >
                   <div className='flex items-center gap-3'>
-                    <RadioGroupItem value='csv' id='csv-export' />
+                    <RadioGroupItem
+                      value='csv'
+                      id='csv-export'
+                      className={`${Settings.exportFormat === "csv" ? "btn-primary" : ""}`}
+                    />
                     <Label htmlFor='csv-export' className='cursor-pointer'>
                       CSV
                     </Label>
                   </div>
                   <div className='flex items-center gap-3'>
-                    <RadioGroupItem value='excel' id='excel-export' />
+                    <RadioGroupItem
+                      value='excel'
+                      id='excel-export'
+                      className={`${Settings.exportFormat === "excel" ? "btn-primary" : ""}`}
+                    />
                     <Label htmlFor='excel-export' className='cursor-pointer'>
                       Excel
                     </Label>

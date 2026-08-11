@@ -440,6 +440,7 @@ export default function StudentTable({
         <Button
           onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
           disabled={currentPage === 1}
+          className="btn-primary"
         >
           Previous
         </Button>
@@ -449,6 +450,7 @@ export default function StudentTable({
         <Button
           onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
           disabled={currentPage === totalPages}
+          className="btn-primary"
         >
           Next
         </Button>

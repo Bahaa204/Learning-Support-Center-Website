@@ -98,7 +98,7 @@ export default function Feedback() {
             </Field>
           </FieldGroup>
           <FieldGroup>
-            <Button type='submit'>Send Feedback</Button>
+            <Button type='submit' className='btn-primary'>Send Feedback</Button>
           </FieldGroup>
         </FieldSet>
       </form>

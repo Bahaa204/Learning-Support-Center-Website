@@ -198,7 +198,7 @@ export default function AccountSection({
       <Button
         type='button'
         onClick={handleEdit}
-        className='w-full p-5 text-[20px]'
+        className='w-full p-5 text-[20px] btn-primary'
         disabled={IsSaving}
       >
         {IsSaving ? "Saving..." : "Submit Edits"}

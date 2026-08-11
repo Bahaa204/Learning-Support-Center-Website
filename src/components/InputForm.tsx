@@ -350,7 +350,7 @@ export default function InputForm({
                     <Checkbox
                       id='isSupervisor'
                       name='isSupervisor'
-                      className='cursor-pointer rounded-[5px]! size-6!'
+                      className={`cursor-pointer rounded-[5px]! size-6! ${userInput.isSupervisor ? "btn-primary" : ""}`}
                       checked={userInput.isSupervisor}
                       onCheckedChange={(checked) =>
                         updateFields({ isSupervisor: Boolean(checked) })

@@ -79,8 +79,7 @@ export default function Report() {
                 required
               />
               <FieldDescription>
-                Please provide a brief and descriptive subject for your
-                report.
+                Please provide a brief and descriptive subject for your report.
               </FieldDescription>
             </Field>
             <Field>
@@ -98,7 +97,9 @@ export default function Report() {
             </Field>
           </FieldGroup>
           <FieldGroup>
-            <Button type='submit'>Send Report</Button>
+            <Button type='submit' className='btn-primary'>
+              Send Report
+            </Button>
           </FieldGroup>
         </FieldSet>
       </form>
