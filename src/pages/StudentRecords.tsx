@@ -41,7 +41,6 @@ export default function StudentRecords() {
 
   // console.log("Search Params: ", SearchParams.toString());
 
-
   const { Session, Loading: AuthLoading, Error: AuthError } = useAuth();
   const { Settings } = useSettings();
 
@@ -113,11 +112,36 @@ export default function StudentRecords() {
         const nameFilter = SearchParams.get("name");
         const emailFilter = SearchParams.get("email");
         const departmentFilter = SearchParams.get("department_id");
+        const dateFilter = SearchParams.get("date");
+        const askedAboutFilter = SearchParams.get("asked_about");
+        const selectedAskedAboutCourses = askedAboutFilter
+          ? askedAboutFilter.split(",")
+          : [];
+        const studentAskedAboutCourses = AskedAbout.filter(
+          (course) => course.student_Id === student.id,
+        ).map((course) => course.course_code);
+
+        const selectedDate = dateFilter ? new Date(dateFilter) : null;
+        const studentDate = student.added_at
+          ? new Date(student.added_at)
+          : null;
+        const isDateMatch =
+          !selectedDate ||
+          !studentDate ||
+          (studentDate.getFullYear() === selectedDate.getFullYear() &&
+            studentDate.getMonth() === selectedDate.getMonth() &&
+            studentDate.getDate() === selectedDate.getDate());
 
         return (
           (!nameFilter || student.studentName.includes(nameFilter)) &&
           (!emailFilter || student.email?.includes(emailFilter)) &&
-          (!departmentFilter || student.department_id === parseInt(departmentFilter))
+          (!departmentFilter ||
+            student.department_id === parseInt(departmentFilter)) &&
+          isDateMatch &&
+          (selectedAskedAboutCourses.length === 0 ||
+            studentAskedAboutCourses.some((course) =>
+              selectedAskedAboutCourses.includes(course),
+            ))
         );
       })
     : Students;

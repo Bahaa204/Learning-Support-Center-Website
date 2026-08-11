@@ -95,8 +95,7 @@ export default function CoursesMenu({
           <>
             {visibleCourses.map((course) => (
               <span key={course["Course Code"]} className='text-sm'>
-                {course["Course Code"]}
-                {course["Course Title"] ? `: ${course["Course Title"]}` : ""}
+                {course["Course Code"]}: {course["Course Title"]}
               </span>
             ))}
             {hiddenCount > 0 && (
@@ -108,7 +107,7 @@ export default function CoursesMenu({
         )}
       </div>
 
-      <CommandDialog open={open} onOpenChange={setOpen}>
+      <CommandDialog open={open} onOpenChange={setOpen} className="z-305">
         <Command>
           <CommandInput placeholder='Search for a course by its name or code...' />
           <CommandList>

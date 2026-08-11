@@ -39,6 +39,7 @@ import {
 } from "./ui/select";
 import { DateTimePicker } from "./DateTimePicker";
 import { Checkbox } from "./ui/checkbox";
+import CoursesMenu from "./CoursesMenu";
 
 type FilterModalProps = {
   IsOpen: boolean;
@@ -64,9 +65,11 @@ export function FilterModal({
     email: SearchParams.get("email") || "",
     department_id: Number(SearchParams.get("department_id")) || null,
     date: SearchParams.get("date") || "",
-    asked_about: SearchParams.get("asked_about")?.split(",") || [],
+    asked_about:
+      SearchParams.get("asked_about")?.split(",").filter(Boolean) || [],
     role: Boolean(SearchParams.get("role")),
-    time_slots: SearchParams.get("time_slots")?.split(",") || [],
+    time_slots:
+      SearchParams.get("time_slots")?.split(",").filter(Boolean) || [],
   };
 
   const [FilterInput, setFilterInput] = useState<FilterInput>(initial_value);
@@ -82,8 +85,9 @@ export function FilterModal({
     if (FilterInput.email) filters.email = FilterInput.email;
     if (FilterInput.department_id !== null)
       filters.department_id = String(FilterInput.department_id);
-    // if (FilterInput.date) filters.date = FilterInput.date;
-    // if (FilterInput.asked_about.length > 0) filters.asked_about = FilterInput.asked_about.join(",");
+    if (FilterInput.date) filters.date = FilterInput.date;
+    if (FilterInput.asked_about.length > 0)
+      filters.asked_about = FilterInput.asked_about.join(",");
     if (FilterInput.role) filters.role = "admin";
     // if (FilterInput.time_slots.length > 0) filters.time_slots = FilterInput.time_slots.join(",");
 
@@ -104,7 +108,7 @@ export function FilterModal({
           <DialogBackdrop className='fixed inset-0 bg-black/15' />
           <DialogPanel
             transition
-            className='w-full max-w-3xl rounded-xl bg-white p-6 backdrop-blur-2xl duration-300 ease-out data-closed:transform-[scale(95%)] data-closed:opacity-0'
+            className='w-full max-w-3xl  rounded-xl bg-white p-6 backdrop-blur-2xl duration-300 ease-out data-closed:transform-[scale(95%)] data-closed:opacity-0'
           >
             <Card className='ring-0!'>
               <CardHeader>
@@ -195,35 +199,49 @@ export function FilterModal({
                         </FieldDescription>
                       </Field>
                     </FieldGroup>
+                  </FieldSet>
+                  <FieldSet className='col-[2/2] row-[1/1]'>
                     <FieldGroup>
                       <Field>
                         <Label htmlFor='date'>Date:</Label>
-                        <DateTimePicker
-                          value={FilterInput.date}
-                          onChange={(visitDateTime: string) =>
-                            setFilterInput({
-                              ...FilterInput,
-                              date: visitDateTime,
-                            })
-                          }
-                        />
+                        <div className='flex items-start gap-2'>
+                          <div className='flex-1'>
+                            <DateTimePicker
+                              value={FilterInput.date}
+                              onChange={(visitDateTime: string) =>
+                                setFilterInput({
+                                  ...FilterInput,
+                                  date: visitDateTime,
+                                })
+                              }
+                            />
+                          </div>
+                          <Button
+                            type='button'
+                            variant='outline'
+                            onClick={() => updateFields({ date: "" })}
+                            className='mt-8 h-10'
+                            disabled={!FilterInput.date}
+                          >
+                            Clear
+                          </Button>
+                        </div>
                         <FieldDescription>
                           Shows the student records that includes the date you
                           entered.
                         </FieldDescription>
                       </Field>
                     </FieldGroup>
-                  </FieldSet>
-                  {/*// TODO: Implement date and asked_about filter */}
-                  {isStudent && (
-                    <FieldSet className='col-[2/2] row-[1/1]'>
+                    {isStudent && (
                       <FieldGroup>
                         <Field>
                           <Label htmlFor='asked_about'>Asked About:</Label>
-                          <Input
-                            id='asked_about'
-                            placeholder="e.x 'Math, Science, English'"
-                            type='text'
+                          <CoursesMenu
+                            selectedCourseCodes={FilterInput.asked_about}
+                            onSelectionChange={(askedCourses) =>
+                              updateFields({ asked_about: askedCourses })
+                            }
+                            buttonLabel='Open Courses Menu'
                           />
                           <FieldDescription>
                             Shows the student records that includes the courses
@@ -231,50 +249,36 @@ export function FilterModal({
                           </FieldDescription>
                         </Field>
                       </FieldGroup>
-                    </FieldSet>
-                  )}
-                  {!isStudent && (
-                    <FieldSet className='col-[2/2] row-[1/1]'>
-                      <FieldGroup>
-                        <Field orientation='horizontal'>
-                          <Checkbox
-                            id='filterRole'
-                            name='filterRole'
-                            className='cursor-pointer rounded-[5px]! size-6!'
-                            checked={FilterInput.role}
-                            onCheckedChange={(checked) =>
-                              updateFields({ role: Boolean(checked) })
-                            }
-                          />
-                          <FieldContent>
-                            <FieldLabel
-                              htmlFor='filterRole'
-                              className='cursor-pointer'
-                            >
-                              Is Supervisor
-                            </FieldLabel>
-                            <FieldDescription>
-                              Shows only admin users.
-                            </FieldDescription>
-                          </FieldContent>
-                        </Field>
-                      </FieldGroup>
-                      <FieldGroup>
-                        <Field>
-                          <Label htmlFor='time_slots'>Time Slots:</Label>
-                          <Input
-                            id='time_slots'
-                            placeholder="e.g., '09:00-10:00, 14:00-15:00'"
-                            type='text'
-                          />
-                          <FieldDescription>
-                            Shows the student records that include the time
-                            slots you entered.
-                          </FieldDescription>
-                        </Field>
-                      </FieldGroup>
-                    </FieldSet>
-                  )}
+                    )}
+                    {!isStudent && (
+                      <>
+                        <FieldGroup>
+                          <Field orientation='horizontal'>
+                            <Checkbox
+                              id='filterRole'
+                              name='filterRole'
+                              className='cursor-pointer rounded-[5px]! size-6!'
+                              checked={FilterInput.role}
+                              onCheckedChange={(checked) =>
+                                updateFields({ role: Boolean(checked) })
+                              }
+                            />
+                            <FieldContent>
+                              <FieldLabel
+                                htmlFor='filterRole'
+                                className='cursor-pointer'
+                              >
+                                Is Supervisor
+                              </FieldLabel>
+                              <FieldDescription>
+                                Shows only admin users.
+                              </FieldDescription>
+                            </FieldContent>
+                          </Field>
+                        </FieldGroup>
+                      </>
+                    )}
+                  </FieldSet>
                 </div>
               </CardContent>
               <CardFooter className='bg-transparent'>

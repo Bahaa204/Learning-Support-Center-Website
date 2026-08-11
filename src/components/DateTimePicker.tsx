@@ -17,12 +17,16 @@ type DateTimePickerProps = {
 };
 
 function getSafeDate(value: string) {
+  if (!value) return null;
+
   const parsedDate = new Date(value);
 
-  return Number.isNaN(parsedDate.getTime()) ? new Date() : parsedDate;
+  return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
 }
 
-function toTimeInputValue(date: Date) {
+function toTimeInputValue(date: Date | null) {
+  if (!date) return "";
+
   const hours = String(date.getHours()).padStart(2, "0");
   const minutes = String(date.getMinutes()).padStart(2, "0");
 
@@ -30,7 +34,7 @@ function toTimeInputValue(date: Date) {
 }
 
 function updateDatePart(currentValue: string, nextDate: Date) {
-  const updatedDate = getSafeDate(currentValue);
+  const updatedDate = getSafeDate(currentValue) ?? new Date();
 
   updatedDate.setFullYear(
     nextDate.getFullYear(),
@@ -42,7 +46,7 @@ function updateDatePart(currentValue: string, nextDate: Date) {
 }
 
 function updateTimePart(currentValue: string, nextTime: string) {
-  const updatedDate = getSafeDate(currentValue);
+  const updatedDate = getSafeDate(currentValue) ?? new Date();
   const [hours = "0", minutes = "0"] = nextTime.split(":");
 
   updatedDate.setHours(Number(hours), Number(minutes), 0, 0);
@@ -67,17 +71,22 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
               className='h-auto w-full justify-between gap-3 whitespace-normal px-3 py-2 font-normal text-left'
             >
               <span className='text-sm leading-5'>
-                {selectedDate.toISOString().split("T")[0]}
+                {selectedDate
+                  ? selectedDate.toISOString().split("T")[0]
+                  : "No date selected"}
               </span>
               <ChevronDownIcon className='shrink-0' />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className='w-auto overflow-hidden p-0 relative z-500' align='start'>
+          <PopoverContent
+            className='w-auto overflow-hidden p-0 relative z-500'
+            align='start'
+          >
             <Calendar
               mode='single'
-              selected={selectedDate}
+              selected={selectedDate ?? undefined}
               captionLayout='dropdown'
-              defaultMonth={selectedDate}
+              defaultMonth={selectedDate ?? new Date()}
               onSelect={(date) => {
                 if (!date) {
                   return;

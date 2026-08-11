@@ -195,14 +195,25 @@ export default function WorkStudy() {
         const emailFilter = SearchParams.get("email");
         const roleFilter = SearchParams.get("role");
         const departmentFilter = SearchParams.get("department_id");
+        const dateFilter = SearchParams.get("date");
         // const timeSlotsFilter = SearchParams.get("time_slots");
+
+        const selectedDate = dateFilter ? new Date(dateFilter) : null;
+        const createdDate = user.created_at ? new Date(user.created_at) : null;
+        const isDateMatch =
+          !selectedDate ||
+          !createdDate ||
+          (createdDate.getFullYear() === selectedDate.getFullYear() &&
+            createdDate.getMonth() === selectedDate.getMonth() &&
+            createdDate.getDate() === selectedDate.getDate());
 
         return (
           (!nameFilter || user.display_name.includes(nameFilter)) &&
           (!emailFilter || user.email?.includes(emailFilter)) &&
           (!roleFilter || user.role === roleFilter) &&
           (!departmentFilter ||
-            user.department_id === parseInt(departmentFilter))
+            user.department_id === parseInt(departmentFilter)) &&
+          isDateMatch
         );
       })
     : Users;
