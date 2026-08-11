@@ -248,7 +248,10 @@ export default function StudentRecords() {
         <h2 className='text-xl text-(--navy) mb-4 font-serif font-semibold flex '>
           Student Records
           <div className='flex gap-2 mt-2 ml-auto font-[georgia]'>
-            <Button className='text-lg' onClick={() => setIsOpen(true)}>
+            <Button
+              className='text-lg btn-primary'
+              onClick={() => setIsOpen(true)}
+            >
               <FilterIcon className='size-5!' /> Filter Records
             </Button>
           </div>
