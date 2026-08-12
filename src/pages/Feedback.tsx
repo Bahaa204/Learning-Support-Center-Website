@@ -10,11 +10,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import type { FeedbackInput } from "@/types/Feedback";
 import { useState, type SubmitEvent } from "react";
 import { Navigate } from "react-router-dom";
 
 export default function Feedback() {
+  useDocumentTitle("Feedback")
+
   const { Session, Loading: AuthLoading, SendEmail } = useAuth();
 
   const InitialValue: FeedbackInput = {
