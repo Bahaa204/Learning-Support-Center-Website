@@ -2,8 +2,8 @@ import { useState, type ChangeEvent } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import {
+  Field,
   FieldDescription,
-  FieldGroup,
   FieldLabel,
   FieldSet,
 } from "@/components/ui/field";
@@ -119,11 +119,9 @@ export default function AccountSection({
         </CardDescription>
       </CardHeader>
 
-      <CardContent className='flex gap-8 items-start mb-8'>
-        <div className='flex flex-col gap-4 items-center'>
-          <div
-            className={`w-25 h-25 rounded-full flex items-center justify-center overflow-hidden border-[3px] border-(--navy) bg-(--navy-light)`}
-          >
+      <CardContent className='flex flex-wrap gap-8 items-start'>
+        <div className='flex flex-col gap-8 items-center'>
+          <div className='w-25 h-25 rounded-full flex items-center justify-center overflow-hidden border-[3px] border-(--navy) bg-(--navy-light)'>
             {session.user.user_metadata?.avatar_url ? (
               <img
                 src={session.user.user_metadata?.avatar_url}
@@ -160,40 +158,38 @@ export default function AccountSection({
           </Button>
         </div>
 
-        <Card className='flex-1 p-5! m-0! bg-transparent! ring-0!'>
-          <FieldSet>
-            <FieldGroup className='gap-5!'>
-              <FieldLabel htmlFor='displayName' className='p-0! m-0!'>
-                Display Name
-              </FieldLabel>
-              <Input
-                id='displayName'
-                type='text'
-                value={AccountInput.displayName}
-                onChange={(event) =>
-                  updateFeilds({ displayName: event.target.value })
-                }
-                placeholder='Your display name'
-                disabled={IsSaving}
-                className='disabled:cursor-not-allowed'
-              />
-              <FieldDescription>
-                the name that will be shown to other users.
-              </FieldDescription>
-            </FieldGroup>
-            <FieldGroup>
-              <FieldLabel htmlFor='email'>Email</FieldLabel>
-              <Input
-                id='email'
-                type='email'
-                value={session.user.email || ""}
-                disabled
-                className='disabled:cursor-not-allowed!'
-              />
-              <FieldDescription>Your login email address.</FieldDescription>
-            </FieldGroup>
-          </FieldSet>
-        </Card>
+        <FieldSet>
+          <Field className='gap-5!'>
+            <FieldLabel htmlFor='displayName' className='p-0! m-0!'>
+              Display Name
+            </FieldLabel>
+            <Input
+              id='displayName'
+              type='text'
+              value={AccountInput.displayName}
+              onChange={(event) =>
+                updateFeilds({ displayName: event.target.value })
+              }
+              placeholder='Your display name'
+              disabled={IsSaving}
+              className='disabled:cursor-not-allowed'
+            />
+            <FieldDescription>
+              the name that will be shown to other users.
+            </FieldDescription>
+          </Field>
+          <Field>
+            <FieldLabel htmlFor='email'>Email</FieldLabel>
+            <Input
+              id='email'
+              type='email'
+              value={session.user.email || ""}
+              disabled
+              className='disabled:cursor-not-allowed!'
+            />
+            <FieldDescription>Your login email address.</FieldDescription>
+          </Field>
+        </FieldSet>
       </CardContent>
       <Button
         type='button'
@@ -204,13 +200,9 @@ export default function AccountSection({
         {IsSaving ? "Saving..." : "Submit Edits"}
       </Button>
       {ProfileError && (
-        <Card className='p-0! m-0! bg-transparent! ring-0!'>
-          <CardHeader className='p-0! m-0! bg-transparent! ring-0!'>
-            <CardTitle className='text-lg text-destructive bg-red-500/20 px-3 py-1 rounded-lg w-full text-center'>
-              {ProfileError}
-            </CardTitle>
-          </CardHeader>
-        </Card>
+        <div className='text-lg text-destructive bg-red-500/20 px-3 py-1 rounded-lg w-full text-center'>
+          {ProfileError}
+        </div>
       )}
     </Card>
   );
