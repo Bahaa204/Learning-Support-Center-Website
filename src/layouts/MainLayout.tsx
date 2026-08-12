@@ -1,33 +1,32 @@
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
+import LoadingCard from "@/components/loading-card";
 import SideBar from "@/components/SideBar";
 import { useAuth } from "@/hooks/useAuth";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { Outlet } from "react-router-dom";
 
 export default function MainLayout() {
   const { Session, Loading } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  function toggleMenu() {
-    setIsMenuOpen((currentValue) => !currentValue);
-  }
-
-  function closeMenu() {
-    setIsMenuOpen(false);
-  }
-
   return (
     <div className='app-shell'>
-      <Header onToggleMenu={toggleMenu} isMenuOpen={isMenuOpen} />
+      <Header
+        onToggleMenu={() => setIsMenuOpen((currentValue) => !currentValue)}
+        isMenuOpen={isMenuOpen}
+      />
       <div className='layout'>
         {!Loading && Session && (
           <>
-            <SideBar onNavigate={closeMenu} isOpen={isMenuOpen} />
+            <SideBar
+              onNavigate={() => setIsMenuOpen(false)}
+              isOpen={isMenuOpen}
+            />
             {isMenuOpen && (
               <button
                 className='sidebar-overlay'
-                onClick={closeMenu}
+                onClick={() => setIsMenuOpen(false)}
                 aria-label='Close menu'
                 type='button'
               />
@@ -35,12 +34,14 @@ export default function MainLayout() {
           </>
         )}
 
-        <main className='main'>
-          <Outlet />
-        </main>
+        <Suspense fallback={<LoadingCard message='Loading page' />}>
+          <main className='main'>
+            <Outlet />
+          </main>
+        </Suspense>
       </div>
 
-      <Footer/>
+      <Footer />
     </div>
   );
 }
