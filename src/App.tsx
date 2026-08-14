@@ -1,17 +1,14 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { lazy, Suspense } from "react";
-import LoadingCard from "./components/loading-card.tsx";
-
-const MainLayout = lazy(() => import("./layouts/MainLayout.tsx"));
-const Home = lazy(() => import("./pages/Home.tsx"));
-const Login = lazy(() => import("./pages/Login.tsx"));
-const WorkStudy = lazy(() => import("./pages/WorkStudy.tsx"));
-const Settings = lazy(() => import("./pages/Settings.tsx"));
-const StudentRecords = lazy(() => import("./pages/StudentRecords.tsx"));
-const NotFound = lazy(() => import("./pages/NotFound.tsx"));
-const ErrorPage = lazy(() => import("./pages/ErrorPage.tsx"));
-const Feedback = lazy(() => import("./pages/Feedback.tsx"));
-const Report = lazy(() => import("./pages/Report.tsx"));
+import MainLayout from "./layouts/MainLayout.tsx";
+import Login from "./pages/Login.tsx";
+import WorkStudy from "./pages/WorkStudy.tsx";
+import StudentRecords from "./pages/StudentRecords.tsx";
+import Home from "./pages/Home.tsx";
+import Settings from "./pages/Settings.tsx";
+import NotFound from "./pages/NotFound.tsx";
+import ErrorPage from "./pages/ErrorPage.tsx";
+import Feedback from "./pages/Feedback.tsx";
+import Report from "./pages/Report.tsx";
 
 const router = createBrowserRouter([
   {
@@ -33,9 +30,5 @@ const router = createBrowserRouter([
 ]);
 
 export default function App() {
-  return (
-    <Suspense fallback={<LoadingCard message='Loading layout' />}>
-      <RouterProvider router={router} />
-    </Suspense>
-  );
+  return <RouterProvider router={router} />;
 }
