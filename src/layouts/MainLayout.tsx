@@ -14,11 +14,13 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { useAuth } from "@/hooks/useAuth";
+import { ArrowBigLeft, ArrowBigRight, RefreshCcw } from "lucide-react";
 import { useState } from "react";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 export default function MainLayout() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { Session, Loading, SignOut } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -48,24 +50,38 @@ export default function MainLayout() {
           </>
         )}
         <ContextMenu>
-          <ContextMenuTrigger asChild disabled={location.pathname === "/login"}>
+          <ContextMenuTrigger
+            asChild
+            disabled={location.pathname === "/login" || Loading}
+          >
             <main className='main'>
               <Outlet />
             </main>
           </ContextMenuTrigger>
           <ContextMenuContent>
             <ContextMenuGroup>
-              <ContextMenuItem>
-                Display Name:{" "}
-                {Session?.user.user_metadata?.display_name || "N/A"}
+              <ContextMenuItem
+                className='cursor-pointer'
+                onClick={() => navigate(-1)}
+              >
+                <ArrowBigLeft /> Back
               </ContextMenuItem>
-              <ContextMenuItem>Email: {Session?.user.email}</ContextMenuItem>
+              <ContextMenuItem
+                className='cursor-pointer'
+                onClick={() => navigate(+1)}
+              >
+                <ArrowBigRight /> Forward
+              </ContextMenuItem>
+              <ContextMenuItem
+                className='cursor-pointer'
+                onClick={() => window.location.reload()}
+              >
+                <RefreshCcw /> Refresh
+              </ContextMenuItem>
             </ContextMenuGroup>
             <ContextMenuSeparator />
             <ContextMenuSub>
-              <ContextMenuSubTrigger className='font-bold cursor-pointer'>
-                Settings
-              </ContextMenuSubTrigger>
+              <ContextMenuSubTrigger>Settings</ContextMenuSubTrigger>
               <ContextMenuSubContent>
                 <ContextMenuItem>
                   <Link to='/settings'>Account</Link>
@@ -84,6 +100,7 @@ export default function MainLayout() {
                 </ContextMenuItem>
               </ContextMenuSubContent>
             </ContextMenuSub>
+            <ContextMenuSeparator />
             <ContextMenuItem variant='destructive'>
               <Button
                 variant='destructive'
