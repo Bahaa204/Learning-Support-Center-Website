@@ -127,7 +127,7 @@ export default function Settings() {
         />
 
         <Card className='settings-section'>
-          <form onSubmit={handleSubmitPassword}>
+          <form onSubmit={handleSubmitPassword} id='password-form'>
             <FieldSet>
               <FieldGroup>
                 <FieldLabel htmlFor='newPassword'>New Password</FieldLabel>
@@ -202,7 +202,7 @@ export default function Settings() {
         </Card>
 
         {/* Appearance Section */}
-        <Card className='settings-section'>
+        <Card className='settings-section' id='appearance'>
           <CardHeader className='settings-section-title'>
             <CardTitle className='font-extrabold text-[1.25rem]'>
               Appearance
@@ -297,7 +297,7 @@ export default function Settings() {
         </Card>
 
         {/* Data and Records Section */}
-        <Card className='settings-section'>
+        <Card className='settings-section' id='data-records'>
           <CardHeader className='settings-section-title'>
             <CardTitle className='font-extrabold text-[1.25rem]'>
               Data & Records

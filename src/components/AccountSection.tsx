@@ -111,7 +111,7 @@ export default function AccountSection({
       .slice(0, 2) || "";
 
   return (
-    <Card className='settings-section'>
+    <Card className='settings-section' id="account">
       <CardHeader className='settings-section-title'>
         <CardTitle className='font-extrabold text-[1.25rem]'>Account</CardTitle>
         <CardDescription>
