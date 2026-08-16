@@ -3,7 +3,7 @@ import type { Student, StudentInput, UpdatedStudent } from "@/types/students";
 import type { ErrorNotice, MutationOptions } from "@/types/types";
 import type { User } from "@/types/users";
 import { useSettings } from "@/hooks/useSettings";
-import { MoreHorizontalIcon } from "lucide-react";
+import { LightbulbIcon, MoreHorizontalIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import {
   Table,
@@ -37,6 +37,13 @@ import Modal from "./Modal";
 import CoursesMenu from "./CoursesMenu";
 import CoursesDisplayList from "./CoursesDisplayList";
 import type { AskedAbout } from "@/types/asked_about";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from "./ui/context-menu";
 
 export type TableProps = {
   Students: Student[];
@@ -136,19 +143,13 @@ export default function StudentTable({
   }
 
   async function handleDeleteStudent(id: Student["studentId"]) {
-    const ok = await DeleteStudent(id, {
+    await DeleteStudent(id, {
       onError: (_error, id) =>
         setErrorNotice({
           id: id,
           message: "Failed to delete student. Please try again.",
         }),
     });
-
-    if (!ok)
-      return setErrorNotice({
-        id: id,
-        message: "Failed to delete student. Please try again.",
-      });
   }
 
   async function handleEditStudent(student: Student) {
@@ -199,6 +200,91 @@ export default function StudentTable({
   const paginatedStudents = Students.slice(startIndex, endIndex);
   const totalPages = Math.ceil(Students.length / Settings.pageSize);
 
+  function RowActions({
+    student,
+    isEditing,
+    menu_item,
+  }: {
+    student: Student;
+    isEditing: boolean;
+    menu_item: "context" | "dropdown";
+  }) {
+    const MenuItemElement =
+      menu_item === "context" ? ContextMenuItem : DropdownMenuItem;
+
+    const Separator =
+      menu_item === "context" ? ContextMenuSeparator : DropdownMenuSeparator;
+
+    return (
+      <>
+        {!isEditing && (
+          <>
+            <MenuItemElement>
+              <Button
+                className='cursor-pointer'
+                onClick={() => startEditing(student)}
+              >
+                Edit
+              </Button>
+            </MenuItemElement>
+            <Separator />
+          </>
+        )}
+        {isEditing && (
+          <>
+            <MenuItemElement>
+              <Button
+                className='cursor-pointer'
+                onClick={() => {
+                  console.log("Clicked");
+                  handleEditStudent(student);
+                }}
+              >
+                Submit Edits
+              </Button>
+            </MenuItemElement>
+            <Separator />
+          </>
+        )}
+        {isEditing && (
+          <MenuItemElement variant='destructive'>
+            <Button
+              variant='destructive'
+              className='cursor-pointer'
+              onClick={cancelEditing}
+            >
+              Cancel Edits
+            </Button>
+          </MenuItemElement>
+        )}
+        {!isEditing && (
+          <MenuItemElement>
+            <Button
+              className='cursor-pointer'
+              onClick={() => handleIncrementVisits(student.studentId)}
+            >
+              Increment Visits
+            </Button>
+          </MenuItemElement>
+        )}
+        {!isEditing && (
+          <MenuItemElement variant='destructive'>
+            <Button
+              variant='destructive'
+              className='cursor-pointer'
+              onClick={() => {
+                setIsOpen(true);
+                setDeletedStudent(student);
+              }}
+            >
+              Delete
+            </Button>
+          </MenuItemElement>
+        )}
+      </>
+    );
+  }
+
   return (
     <>
       <Table>
@@ -234,194 +320,148 @@ export default function StudentTable({
                 );
 
               return (
-                <TableRow key={student.id}>
-                  <TableHead className='text-center'>{index + 1}</TableHead>
-                  <TableCell className='text-center'>
-                    {isEditing ? (
-                      <Input
-                        type='number'
-                        placeholder='Student ID'
-                        value={EditValues.studentId}
-                        onChange={(event) =>
-                          updateFields({
-                            studentId: parseInt(event.target.value),
-                          })
-                        }
-                      />
-                    ) : (
-                      student.studentId
-                    )}
-                  </TableCell>
-                  <TableCell className='text-center'>
-                    {isEditing ? (
-                      <Input
-                        type='text'
-                        placeholder='Student Name'
-                        value={EditValues.studentName}
-                        onChange={(event) =>
-                          updateFields({ studentName: event.target.value })
-                        }
-                      />
-                    ) : (
-                      student.studentName
-                    )}
-                  </TableCell>
-                  <TableCell className='text-center'>
-                    {isEditing ? (
-                      <Input
-                        type='email'
-                        placeholder='Email'
-                        value={EditValues.email || ""}
-                        onChange={(event) =>
-                          updateFields({ email: event.target.value })
-                        }
-                      />
-                    ) : (
-                      student.email || "—"
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {isEditing ? (
-                      <Select
-                        value={String(EditValues.department_id ?? "")}
-                        onValueChange={(value) => {
-                          updateFields({ department_id: parseInt(value) });
-                        }}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder='Select a department' />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectLabel>Select a Department</SelectLabel>
-                            {Departments.map((department, index) => (
-                              <div key={department.id}>
-                                <SelectItem value={String(department.id)}>
-                                  {department.name}
-                                </SelectItem>
-                                {index !== Departments.length - 1 && (
-                                  <SelectSeparator />
-                                )}
-                              </div>
-                            ))}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    ) : (
-                      Departments.find(
-                        (dept) => dept.id === student.department_id,
-                      )?.name
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {Users.find((user) => user.id === student.added_by)
-                      ?.display_name || "—"}
-                  </TableCell>
-                  <TableCell>{student.added_at}</TableCell>
-                  <TableCell>
-                    {isEditing ? (
-                      <CoursesMenu
-                        selectedCourseCodes={EditAskedCourses}
-                        onSelectionChange={setEditAskedCourses}
-                        buttonLabel='Open Courses Menu'
-                      />
-                    ) : (
-                      <CoursesDisplayList
-                        selectedCourseCodes={
-                          askedCoursesByStudent[student.id] || []
-                        }
-                      />
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {isUpdating === student.studentId ? (
-                      <Spinner />
-                    ) : (
-                      student.nb_visits
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild className='cursor-pointer'>
-                        <Button variant='secondary'>
-                          <MoreHorizontalIcon />
-                          <span className='sr-only'>Open Menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent
-                        align='center'
-                        className='focus:bg-none w-full'
-                      >
-                        {!isEditing && (
-                          <>
-                            <DropdownMenuItem>
-                              <Button
-                                className='cursor-pointer'
-                                onClick={() => startEditing(student)}
-                              >
-                                Edit
-                              </Button>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                          </>
+                <ContextMenu key={student.id}>
+                  <ContextMenuTrigger asChild>
+                    <TableRow>
+                      <TableHead className='text-center'>{index + 1}</TableHead>
+                      <TableCell className='text-center'>
+                        {isEditing ? (
+                          <Input
+                            type='number'
+                            placeholder='Student ID'
+                            value={EditValues.studentId}
+                            onChange={(event) =>
+                              updateFields({
+                                studentId: parseInt(event.target.value),
+                              })
+                            }
+                          />
+                        ) : (
+                          student.studentId
                         )}
-                        {isEditing && (
-                          <>
-                            <DropdownMenuItem>
-                              <Button
-                                className='cursor-pointer'
-                                onClick={() => {
-                                  console.log("Clicked");
-                                  handleEditStudent(student);
-                                }}
-                              >
-                                Submit Edits
-                              </Button>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                          </>
+                      </TableCell>
+                      <TableCell className='text-center'>
+                        {isEditing ? (
+                          <Input
+                            type='text'
+                            placeholder='Student Name'
+                            value={EditValues.studentName}
+                            onChange={(event) =>
+                              updateFields({ studentName: event.target.value })
+                            }
+                          />
+                        ) : (
+                          student.studentName
                         )}
-                        {isEditing && (
-                          <DropdownMenuItem variant='destructive'>
-                            <Button
-                              variant='destructive'
-                              className='cursor-pointer'
-                              onClick={cancelEditing}
-                            >
-                              Cancel Edits
+                      </TableCell>
+                      <TableCell className='text-center'>
+                        {isEditing ? (
+                          <Input
+                            type='email'
+                            placeholder='Email'
+                            value={EditValues.email || ""}
+                            onChange={(event) =>
+                              updateFields({ email: event.target.value })
+                            }
+                          />
+                        ) : (
+                          student.email || "—"
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {isEditing ? (
+                          <Select
+                            value={String(EditValues.department_id ?? "")}
+                            onValueChange={(value) => {
+                              updateFields({ department_id: parseInt(value) });
+                            }}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder='Select a department' />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                <SelectLabel>Select a Department</SelectLabel>
+                                {Departments.map((department, index) => (
+                                  <div key={department.id}>
+                                    <SelectItem value={String(department.id)}>
+                                      {department.name}
+                                    </SelectItem>
+                                    {index !== Departments.length - 1 && (
+                                      <SelectSeparator />
+                                    )}
+                                  </div>
+                                ))}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          Departments.find(
+                            (dept) => dept.id === student.department_id,
+                          )?.name
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {Users.find((user) => user.id === student.added_by)
+                          ?.display_name || "—"}
+                      </TableCell>
+                      <TableCell>{student.added_at}</TableCell>
+                      <TableCell>
+                        {isEditing ? (
+                          <CoursesMenu
+                            selectedCourseCodes={EditAskedCourses}
+                            onSelectionChange={setEditAskedCourses}
+                            buttonLabel='Open Courses Menu'
+                          />
+                        ) : (
+                          <CoursesDisplayList
+                            selectedCourseCodes={
+                              askedCoursesByStudent[student.id] || []
+                            }
+                          />
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {isUpdating === student.studentId ? (
+                          <Spinner />
+                        ) : (
+                          student.nb_visits
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger
+                            asChild
+                            className='cursor-pointer'
+                          >
+                            <Button variant='secondary'>
+                              <MoreHorizontalIcon />
+                              <span className='sr-only'>Open Menu</span>
                             </Button>
-                          </DropdownMenuItem>
-                        )}
-                        {!isEditing && (
-                          <DropdownMenuItem>
-                            <Button
-                              className='cursor-pointer'
-                              onClick={() =>
-                                handleIncrementVisits(student.studentId)
-                              }
-                            >
-                              Increment Visits
-                            </Button>
-                          </DropdownMenuItem>
-                        )}
-                        {!isEditing && (
-                          <DropdownMenuItem variant='destructive'>
-                            <Button
-                              variant='destructive'
-                              className='cursor-pointer'
-                              onClick={() => {
-                                setIsOpen(true);
-                                setDeletedStudent(student);
-                              }}
-                            >
-                              Delete
-                            </Button>
-                          </DropdownMenuItem>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent
+                            align='center'
+                            className='focus:bg-none w-full'
+                          >
+                            <RowActions
+                              menu_item='dropdown'
+                              student={student}
+                              isEditing={isEditing}
+                            />
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  </ContextMenuTrigger>
+
+                  <ContextMenuContent>
+                    <RowActions
+                      menu_item='context'
+                      student={student}
+                      isEditing={isEditing}
+                    />
+                  </ContextMenuContent>
+                </ContextMenu>
               );
             })
           ) : (
@@ -435,12 +475,17 @@ export default function StudentTable({
         </TableBody>
       </Table>
 
+      <div className="flex items-center justify-center gap-2 text-gray-600/50">
+        <LightbulbIcon /> Tip: Right click (or hold on mobile) or click the actions button on a
+        row to view some quick actions.
+      </div>
+
       {/* Pagination */}
       <div className='flex justify-center items-center gap-4 m-4'>
         <Button
           onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
           disabled={currentPage === 1}
-          className="btn-primary"
+          className='btn-primary'
         >
           Previous
         </Button>
@@ -450,7 +495,7 @@ export default function StudentTable({
         <Button
           onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
           disabled={currentPage === totalPages}
-          className="btn-primary"
+          className='btn-primary'
         >
           Next
         </Button>
@@ -462,7 +507,8 @@ export default function StudentTable({
           setOpen={setIsOpen}
           text={DeletedStudent?.studentName || "this student"}
           handleDelete={async () => {
-            if (DeletedStudent) handleDeleteStudent(DeletedStudent.studentId);
+            if (DeletedStudent)
+              await handleDeleteStudent(DeletedStudent.studentId);
           }}
         />
       )}

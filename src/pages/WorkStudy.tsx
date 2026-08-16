@@ -23,7 +23,7 @@ import { useUsers } from "@/hooks/useUsers";
 import { useTimeSlots } from "@/hooks/useTimeSlots";
 import { exportData } from "@/lib/exportUtils";
 import type { NewUser, User, UserInput } from "@/types/users";
-import { FilterIcon, MoreHorizontalIcon } from "lucide-react";
+import { FilterIcon, LightbulbIcon, MoreHorizontalIcon } from "lucide-react";
 import { useState, type SubmitEvent } from "react";
 import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import ErrorCard from "@/components/error-card";
@@ -33,6 +33,12 @@ import { TimeSlotsMenu } from "@/components/TimeSlotMenu";
 import { SetErrorMessage } from "@/helper/errorhelpers";
 import { validateUserInput } from "@/helper/validation";
 import { FilterModal } from "@/components/FilterModal";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 
 export default function WorkStudy() {
   useDocumentTitle("Support Center Staff");
@@ -243,6 +249,33 @@ export default function WorkStudy() {
     );
   }
 
+  function RowActions({
+    user,
+    menu_item,
+  }: {
+    user: User;
+    menu_item: "context" | "dropdown";
+  }) {
+    const MenuItemElement =
+      menu_item === "context" ? ContextMenuItem : DropdownMenuItem;
+
+    return (
+      <>
+        {user.role === "admin" ? (
+          <MenuItemElement>
+            No actions available for admin accounts
+          </MenuItemElement>
+        ) : (
+          <MenuItemElement variant='destructive'>
+            <Button variant='destructive' onClick={() => handleDelete(user.id)}>
+              Remove
+            </Button>
+          </MenuItemElement>
+        )}
+      </>
+    );
+  }
+
   return (
     <>
       <div className='page-header'>
@@ -301,56 +334,59 @@ export default function WorkStudy() {
             {filteredUsers.length > 0 ? (
               filteredUsers.map((user, index) => {
                 return (
-                  <TableRow key={user.id}>
-                    <TableHead className='text-center'>{index + 1}</TableHead>
-                    <TableCell className='text-center'>
-                      {user.display_name}
-                    </TableCell>
-                    <TableCell className='text-center'>{user.email}</TableCell>
-                    <TableCell className='text-center'>
-                      {titleCase(user.role)}
-                    </TableCell>
-                    <TableCell className='text-center'>
-                      {Departments.find(
-                        (department) => department.id === user.department_id,
-                      )?.name || "—"}
-                    </TableCell>
-                    <TableCell>
-                      <TimeSlotsMenu userId={user.id} />
-                    </TableCell>
-                    <TableCell className='text-center'>
-                      {formatDate(user.created_at)}
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild className='cursor-pointer'>
-                          <Button variant='secondary'>
-                            <MoreHorizontalIcon />
-                            <span className='sr-only'>Open Menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent
-                          align='center'
-                          className='focus:bg-none w-full'
-                        >
-                          {user.role === "admin" ? (
-                            <DropdownMenuItem>
-                              No actions available for admin accounts
-                            </DropdownMenuItem>
-                          ) : (
-                            <DropdownMenuItem variant='destructive'>
-                              <Button
-                                variant='destructive'
-                                onClick={() => handleDelete(user.id)}
-                              >
-                                Remove
+                  <ContextMenu>
+                    <ContextMenuTrigger asChild>
+                      <TableRow key={user.id}>
+                        <TableHead className='text-center'>
+                          {index + 1}
+                        </TableHead>
+                        <TableCell className='text-center'>
+                          {user.display_name}
+                        </TableCell>
+                        <TableCell className='text-center'>
+                          {user.email}
+                        </TableCell>
+                        <TableCell className='text-center'>
+                          {titleCase(user.role)}
+                        </TableCell>
+                        <TableCell className='text-center'>
+                          {Departments.find(
+                            (department) =>
+                              department.id === user.department_id,
+                          )?.name || "—"}
+                        </TableCell>
+                        <TableCell>
+                          <TimeSlotsMenu userId={user.id} />
+                        </TableCell>
+                        <TableCell className='text-center'>
+                          {formatDate(user.created_at)}
+                        </TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger
+                              asChild
+                              className='cursor-pointer'
+                            >
+                              <Button variant='secondary'>
+                                <MoreHorizontalIcon />
+                                <span className='sr-only'>Open Menu</span>
                               </Button>
-                            </DropdownMenuItem>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                              align='center'
+                              className='focus:bg-none w-full'
+                            >
+                              <RowActions user={user} menu_item='dropdown' />
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    </ContextMenuTrigger>
+
+                    <ContextMenuContent>
+                      <RowActions user={user} menu_item='context' />
+                    </ContextMenuContent>
+                  </ContextMenu>
                 );
               })
             ) : (
@@ -363,6 +399,11 @@ export default function WorkStudy() {
             )}
           </TableBody>
         </Table>
+
+        <div className='flex items-center justify-center gap-2 text-gray-600/50'>
+          <LightbulbIcon /> Tip: Right click (or hold on mobile) or click the
+          actions button on a row to view some quick actions.
+        </div>
       </div>
 
       <FilterModal
