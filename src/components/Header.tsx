@@ -8,7 +8,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { Button } from "./ui/button";
 import { Link } from "react-router-dom";
 
 type HeaderProps = {
@@ -116,18 +115,14 @@ export default function Header({ onToggleMenu, isMenuOpen }: HeaderProps) {
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem>
-                        <Button variant='secondary'>
                           <Link to='/settings'>Settings</Link>
-                        </Button>
                       </DropdownMenuItem>
-                      <DropdownMenuItem variant='destructive'>
-                        <Button
-                          variant='destructive'
-                          onClick={LogOut}
-                          className='cursor-pointer'
-                        >
-                          LogOut
-                        </Button>
+                      <DropdownMenuItem
+                        variant='destructive'
+                        onClick={LogOut}
+                        className='cursor-pointer'
+                      >
+                        Log out
                       </DropdownMenuItem>
                     </>
                   )}
