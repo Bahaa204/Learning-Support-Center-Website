@@ -28,6 +28,7 @@ import { Spinner } from "./ui/spinner";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -40,10 +41,12 @@ import type { AskedAbout } from "@/types/asked_about";
 import {
   ContextMenu,
   ContextMenuContent,
+  ContextMenuGroup,
   ContextMenuItem,
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from "./ui/context-menu";
+import { validateStudentInput } from "@/helper/validation";
 
 export type TableProps = {
   Students: Student[];
@@ -109,6 +112,14 @@ export default function StudentTable({
   const [IsOpen, setIsOpen] = useState<boolean>(false);
   const [ErrorNotice, setErrorNotice] = useState<ErrorNotice>(EmptyError);
 
+  function SetNotice(notice: ErrorNotice) {
+    setErrorNotice(notice);
+
+    setTimeout(() => {
+      setErrorNotice(EmptyError);
+    }, 2500);
+  }
+
   const askedCoursesByStudent = useMemo(() => {
     const map: Record<string, string[]> = {};
 
@@ -145,7 +156,7 @@ export default function StudentTable({
   async function handleDeleteStudent(id: Student["studentId"]) {
     await DeleteStudent(id, {
       onError: (_error, id) =>
-        setErrorNotice({
+        SetNotice({
           id: id,
           message: "Failed to delete student. Please try again.",
         }),
@@ -160,13 +171,21 @@ export default function StudentTable({
       department_id: EditValues.department_id,
     };
 
+    const validationError = validateStudentInput(EditValues);
+
+    if (validationError)
+      return SetNotice({
+        id: student.studentId,
+        message: validationError,
+      });
+
     await UpdateStudent(student.studentId, updatedStudentPayload, {
       onSuccess: async (updatedStudent) => {
         await syncStudentCourses(updatedStudent.id, EditAskedCourses);
         cancelEditing();
       },
       onError: () => {
-        setErrorNotice({
+        SetNotice({
           id: student.studentId,
           message: "Failed to update student. Please try again.",
         });
@@ -179,13 +198,10 @@ export default function StudentTable({
 
     await IncrementVisits(id, {
       onError: (_error, id) => {
-        setErrorNotice({
+        SetNotice({
           id: id,
           message: "Failed to update student visits. Please try again.",
         });
-        setTimeout(() => {
-          setErrorNotice(EmptyError);
-        }, 2500);
       },
     });
   }
@@ -212,74 +228,60 @@ export default function StudentTable({
     const MenuItemElement =
       menu_item === "context" ? ContextMenuItem : DropdownMenuItem;
 
-    const Separator =
+    const MenuItemGroup =
+      menu_item === "context" ? ContextMenuGroup : DropdownMenuGroup;
+
+    const MenuSeparator =
       menu_item === "context" ? ContextMenuSeparator : DropdownMenuSeparator;
 
     return (
       <>
         {!isEditing && (
-          <>
-            <MenuItemElement>
-              <Button
-                className='cursor-pointer'
-                onClick={() => startEditing(student)}
-              >
-                Edit
-              </Button>
-            </MenuItemElement>
-            <Separator />
-          </>
-        )}
-        {isEditing && (
-          <>
-            <MenuItemElement>
-              <Button
-                className='cursor-pointer'
-                onClick={() => {
-                  console.log("Clicked");
-                  handleEditStudent(student);
-                }}
-              >
-                Submit Edits
-              </Button>
-            </MenuItemElement>
-            <Separator />
-          </>
-        )}
-        {isEditing && (
-          <MenuItemElement variant='destructive'>
-            <Button
-              variant='destructive'
-              className='cursor-pointer'
-              onClick={cancelEditing}
+          <MenuItemGroup>
+            <MenuItemElement
+              onClick={() => startEditing(student)}
+              className='cursor-pointer text-[16px] text-primary'
             >
-              Cancel Edits
-            </Button>
-          </MenuItemElement>
-        )}
-        {!isEditing && (
-          <MenuItemElement>
-            <Button
-              className='cursor-pointer'
+              Edit
+            </MenuItemElement>
+            <MenuItemElement
+              className='cursor-pointer text-[16px] text-primary'
               onClick={() => handleIncrementVisits(student.studentId)}
             >
               Increment Visits
-            </Button>
-          </MenuItemElement>
-        )}
-        {!isEditing && (
-          <MenuItemElement variant='destructive'>
-            <Button
+            </MenuItemElement>
+            <MenuSeparator />
+            <MenuItemElement
               variant='destructive'
-              className='cursor-pointer'
+              className='cursor-pointer text-[16px] text-primary'
               onClick={() => {
                 setIsOpen(true);
                 setDeletedStudent(student);
               }}
             >
               Delete
-            </Button>
-          </MenuItemElement>
+            </MenuItemElement>
+          </MenuItemGroup>
+        )}
+        {isEditing && (
+          <MenuItemGroup>
+            <MenuItemElement
+              className='cursor-pointer text-[16px] text-primary'
+              onClick={() => {
+                handleEditStudent(student);
+              }}
+            >
+              Submit Edits
+            </MenuItemElement>
+            <MenuSeparator />
+            <MenuItemElement
+              variant='destructive'
+              className='cursor-pointer text-[16px] text-primary'
+              onClick={cancelEditing}
+            >
+              Cancel Edits
+            </MenuItemElement>
+          </MenuItemGroup>
         )}
       </>
     );
@@ -287,7 +289,7 @@ export default function StudentTable({
 
   return (
     <>
-      <Table>
+      <Table className='w-screen'>
         <TableHeader>
           <TableRow>
             <TableHead className='text-center'></TableHead>
@@ -296,7 +298,7 @@ export default function StudentTable({
             <TableHead className='text-center'>Email</TableHead>
             <TableHead className='text-center'>Department</TableHead>
             <TableHead className='text-center'>Added By</TableHead>
-            <TableHead className='text-center'>Added At</TableHead>
+            {!EditId && <TableHead className='text-center'>Added At</TableHead>}
             <TableHead className='text-center'>Courses Asked About</TableHead>
             <TableHead className='text-center'>Visits</TableHead>
             <TableHead className='text-center'>Actions</TableHead>
@@ -312,7 +314,7 @@ export default function StudentTable({
                   <TableRow key={student.id}>
                     <TableCell
                       colSpan={10}
-                      className='text-center text-red-500 bg-red-500/5'
+                      className='text-center text-[16px] text-red-500 bg-red-500/5'
                     >
                       {ErrorNotice.message}
                     </TableCell>
@@ -368,7 +370,7 @@ export default function StudentTable({
                           student.email || "—"
                         )}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className='text-center'>
                         {isEditing ? (
                           <Select
                             value={String(EditValues.department_id ?? "")}
@@ -401,12 +403,16 @@ export default function StudentTable({
                           )?.name
                         )}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className='text-center'>
                         {Users.find((user) => user.id === student.added_by)
                           ?.display_name || "—"}
                       </TableCell>
-                      <TableCell>{student.added_at}</TableCell>
-                      <TableCell>
+                      {!isEditing && (
+                        <TableCell className='text-center'>
+                          {student.added_at}
+                        </TableCell>
+                      )}
+                      <TableCell className='text-center'>
                         {isEditing ? (
                           <CoursesMenu
                             selectedCourseCodes={EditAskedCourses}
@@ -421,14 +427,14 @@ export default function StudentTable({
                           />
                         )}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className='text-center'>
                         {isUpdating === student.studentId ? (
                           <Spinner />
                         ) : (
                           student.nb_visits
                         )}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className='text-center'>
                         <DropdownMenu>
                           <DropdownMenuTrigger
                             asChild
@@ -475,9 +481,9 @@ export default function StudentTable({
         </TableBody>
       </Table>
 
-      <div className="flex items-center justify-center gap-2 text-gray-600/50">
-        <LightbulbIcon /> Tip: Right click (or hold on mobile) or click the actions button on a
-        row to view some quick actions.
+      <div className='flex items-center justify-center gap-2 text-gray-600/50'>
+        <LightbulbIcon /> Tip: Right click (hold on mobile) or click the
+        actions button on a row to view some quick actions.
       </div>
 
       {/* Pagination */}

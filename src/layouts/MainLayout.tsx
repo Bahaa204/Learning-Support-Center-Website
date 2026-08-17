@@ -61,7 +61,10 @@ export default function MainLayout() {
           <Footer />
         </div>
       </ContextMenuTrigger>
-      <ContextMenuContent onContextMenu={(event) => event.preventDefault()}>
+      <ContextMenuContent
+        className='z-1000'
+        onContextMenu={(event) => event.preventDefault()}
+      >
         <ContextMenuGroup>
           <ContextMenuItem
             className='cursor-pointer'
@@ -73,7 +76,7 @@ export default function MainLayout() {
             className='cursor-pointer'
             onClick={() => navigate(+1)}
           >
-            <ArrowBigRight /> Forward
+            Forward <ArrowBigRight />
           </ContextMenuItem>
           <ContextMenuItem
             className='cursor-pointer'
@@ -86,31 +89,30 @@ export default function MainLayout() {
         <ContextMenuSub>
           <ContextMenuSubTrigger>Settings</ContextMenuSubTrigger>
           <ContextMenuSubContent>
-            <ContextMenuItem>
-              <Link to='/settings'>Account</Link>
-            </ContextMenuItem>
+            <ContextMenuGroup>
+              <ContextMenuItem>
+                <Link to='/settings'>Account</Link>
+              </ContextMenuItem>
+              <ContextMenuItem>
+                <Link to='/settings'>Change Password</Link>
+              </ContextMenuItem>
+              <ContextMenuItem>
+                <Link to='/settings'>Appearance</Link>
+              </ContextMenuItem>
+              <ContextMenuItem>
+                <Link to='/settings'>Data and Records</Link>
+              </ContextMenuItem>
+            </ContextMenuGroup>
             <ContextMenuSeparator />
-            <ContextMenuItem>
-              <Link to='/settings'>Change Password</Link>
-            </ContextMenuItem>
-            <ContextMenuSeparator />
-            <ContextMenuItem>
-              <Link to='/settings'>Appearance</Link>
-            </ContextMenuItem>
-            <ContextMenuSeparator />
-            <ContextMenuItem>
-              <Link to='/settings'>Data and Records</Link>
+            <ContextMenuItem
+              variant='destructive'
+              onClick={async () => await SignOut()}
+              className='cursor-pointer'
+            >
+              Log out
             </ContextMenuItem>
           </ContextMenuSubContent>
         </ContextMenuSub>
-        <ContextMenuSeparator />
-        <ContextMenuItem
-          variant='destructive'
-          onClick={async () => await SignOut()}
-          className='cursor-pointer'
-        >
-          Log out
-        </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
   );

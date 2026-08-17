@@ -266,10 +266,12 @@ export default function WorkStudy() {
             No actions available for admin accounts
           </MenuItemElement>
         ) : (
-          <MenuItemElement variant='destructive'>
-            <Button variant='destructive' onClick={() => handleDelete(user.id)}>
-              Remove
-            </Button>
+          <MenuItemElement
+            variant='destructive'
+            className='cursor-pointer text-[16px] text-primary'
+            onClick={() => handleDelete(user.id)}
+          >
+            Remove
           </MenuItemElement>
         )}
       </>
@@ -401,7 +403,7 @@ export default function WorkStudy() {
         </Table>
 
         <div className='flex items-center justify-center gap-2 text-gray-600/50'>
-          <LightbulbIcon /> Tip: Right click (or hold on mobile) or click the
+          <LightbulbIcon /> Tip: Right click (hold on mobile) or click the
           actions button on a row to view some quick actions.
         </div>
       </div>
