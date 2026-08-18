@@ -64,11 +64,9 @@ export default function Settings() {
   };
   const [InputPassword, setInputPassword] =
     useState<PasswordInputType>(InitailInput);
-  const [IsChanging, setIsChanging] = useState(false);
   const [PasswordError, setPasswordError] = useState("");
 
-  function SetStates(saving: boolean, error: string) {
-    setIsChanging(saving);
+  function SetError(error: string) {
     setPasswordError(error);
 
     setTimeout(() => {
@@ -89,18 +87,16 @@ export default function Settings() {
 
   async function handleSubmitPassword(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (IsChanging) return;
-    SetStates(true, "");
+    SetError("");
 
     if (!InputPassword.newPassword || !InputPassword.confirmNewPassword)
-      return SetStates(false, "Both password fields are required.");
+      return SetError("Both password fields are required.");
 
     if (InputPassword.newPassword !== InputPassword.confirmNewPassword)
-      return SetStates(false, "New password and confirmation do not match.");
+      return SetError("New password and confirmation do not match.");
 
     await UpdatePassword(InputPassword.newPassword);
-
-    SetStates(false, "");
+    
     setInputPassword(InitailInput);
   }
 
@@ -172,12 +168,8 @@ export default function Settings() {
                   </FieldError>
                 )}
               </FieldGroup>
-              <Button
-                type='submit'
-                disabled={IsChanging}
-                className='btn-primary'
-              >
-                {IsChanging ? "Updating..." : "Change Password"}
+              <Button type='submit' className='btn-primary'>
+                Change Password
               </Button>
             </FieldSet>
           </form>

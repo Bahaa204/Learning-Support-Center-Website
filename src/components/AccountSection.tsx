@@ -38,15 +38,13 @@ export default function AccountSection({
   };
 
   const [AccountInput, setAccountInput] = useState<AccountInput>(InitialInput);
-  const [IsSaving, setIsSaving] = useState(false);
   const [ProfileError, setProfileError] = useState<string>("");
 
   function updateFeilds(fields: Partial<AccountInput>) {
     setAccountInput((prev) => ({ ...prev, ...fields }));
   }
 
-  function SetStates(saving: boolean, error: string) {
-    setIsSaving(saving);
+  function SetError(error: string) {
     setProfileError(error);
 
     setTimeout(() => {
@@ -55,51 +53,37 @@ export default function AccountSection({
   }
 
   async function handleEdit() {
-    if (IsSaving) return;
-    SetStates(true, "");
-
     if (
       !validateDisplayName(AccountInput.displayName) ||
       AccountInput.displayName.trim() ===
         session.user.user_metadata?.display_name?.trim()
     )
-      return SetStates(
-        false,
+      return SetError(
         "Display name must be different and between 3 and 50 characters.",
       );
 
     await updateDisplayName(AccountInput.displayName);
-
-    SetStates(true, "");
   }
 
   async function handleDeleteProfilePicture() {
-    if (IsSaving) return;
-    SetStates(true, "");
-
     const ok = await deleteProfilePicture(session.user.id);
-    if (!ok) return SetStates(false, "Failed to delete profile picture.");
-
-    SetStates(true, "");
+    if (!ok) return SetError("Failed to delete profile picture.");
   }
 
   async function handleProfilePictureChange(
     event: ChangeEvent<HTMLInputElement>,
   ) {
     event.preventDefault();
-    if (IsSaving) return;
-    SetStates(true, "");
 
     const file = event.target.files?.[0];
 
     if (!file || !validateFileSize(file))
-      return SetStates(
-        false,
+      return SetError(
         "Profile Picture is invalid or exceeds the 1MB file size limit.",
       );
 
     await updateProfilePicture(file);
-    SetStates(false, "");
+    SetError("");
   }
 
   const email = session.user.email;
@@ -145,22 +129,14 @@ export default function AccountSection({
             accept='image/*'
             onChange={handleProfilePictureChange}
             className='profile-picture-input'
-            disabled={IsSaving}
           />
           <Button
             type='button'
-            disabled={IsSaving}
             variant='destructive'
             className='w-full text-[16px]'
             onClick={handleDeleteProfilePicture}
           >
-            {IsSaving ? (
-              "Deleting..."
-            ) : (
-              <>
-                <Trash2Icon /> Delete Profile Picture
-              </>
-            )}
+            <Trash2Icon /> Delete Profile Picture
           </Button>
         </div>
 
@@ -176,8 +152,10 @@ export default function AccountSection({
               onChange={(event) =>
                 updateFeilds({ displayName: event.target.value })
               }
+              onKeyDown={(event) => {
+                if (event.key === "Enter") handleEdit();
+              }}
               placeholder='Your display name'
-              disabled={IsSaving}
               className='disabled:cursor-not-allowed'
             />
             <FieldDescription>
@@ -195,16 +173,17 @@ export default function AccountSection({
             />
             <FieldDescription>Your login email address.</FieldDescription>
           </Field>
+          <Field>
+            <Button
+              type='button'
+              onClick={handleEdit}
+              className='w-full p-5 text-[20px] btn-primary'
+            >
+              Update Display Name
+            </Button>
+          </Field>
         </FieldSet>
       </CardContent>
-      <Button
-        type='button'
-        onClick={handleEdit}
-        className='w-full p-5 text-[20px] btn-primary'
-        disabled={IsSaving}
-      >
-        {IsSaving ? "Saving..." : "Submit Edits"}
-      </Button>
       {ProfileError && (
         <div className='text-lg text-destructive bg-red-500/20 px-3 py-1 rounded-lg w-full text-center'>
           {ProfileError}
