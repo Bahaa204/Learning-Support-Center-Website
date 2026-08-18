@@ -58,42 +58,48 @@ export default function AccountSection({
     if (IsSaving) return;
     SetStates(true, "");
 
-    if (!validateDisplayName(AccountInput.displayName))
-      return SetStates(
-        false,
-        "Display name must be between 3 and 50 characters.",
-      );
-
     if (
-      !AccountInput.profilePicture ||
-      !validateFileSize(AccountInput.profilePicture)
+      !validateDisplayName(AccountInput.displayName) ||
+      AccountInput.displayName.trim() ===
+        session.user.user_metadata?.display_name?.trim()
     )
       return SetStates(
         false,
-        "Invalid profile picture or it exceeds the file size limit.",
+        "Display name must be different and between 3 and 50 characters.",
       );
 
     await updateDisplayName(AccountInput.displayName);
-
-    await updateProfilePicture(AccountInput.profilePicture);
 
     SetStates(true, "");
   }
 
   async function handleDeleteProfilePicture() {
     if (IsSaving) return;
-    setIsSaving(true);
+    SetStates(true, "");
 
     const ok = await deleteProfilePicture(session.user.id);
-    if (!ok) return setProfileError("Failed to delete profile picture.");
+    if (!ok) return SetStates(false, "Failed to delete profile picture.");
 
-    setProfileError("");
+    SetStates(true, "");
   }
 
-  function handleProfilePictureChange(event: ChangeEvent<HTMLInputElement>) {
+  async function handleProfilePictureChange(
+    event: ChangeEvent<HTMLInputElement>,
+  ) {
     event.preventDefault();
-    if (event.target.files && event.target.files.length > 0)
-      updateFeilds({ profilePicture: event.target.files[0] });
+    if (IsSaving) return;
+    SetStates(true, "");
+
+    const file = event.target.files?.[0];
+
+    if (!file || !validateFileSize(file))
+      return SetStates(
+        false,
+        "Profile Picture is invalid or exceeds the 1MB file size limit.",
+      );
+
+    await updateProfilePicture(file);
+    SetStates(false, "");
   }
 
   const email = session.user.email;
@@ -111,7 +117,7 @@ export default function AccountSection({
       .slice(0, 2) || "";
 
   return (
-    <Card className='settings-section' id="account">
+    <Card className='settings-section' id='account'>
       <CardHeader className='settings-section-title'>
         <CardTitle className='font-extrabold text-[1.25rem]'>Account</CardTitle>
         <CardDescription>

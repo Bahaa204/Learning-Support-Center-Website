@@ -298,7 +298,7 @@ export default function StudentTable({
             <TableHead className='text-center'>Email</TableHead>
             <TableHead className='text-center'>Department</TableHead>
             <TableHead className='text-center'>Added By</TableHead>
-            {!EditId && <TableHead className='text-center'>Added At</TableHead>}
+            <TableHead className='text-center'>Added At</TableHead>
             <TableHead className='text-center'>Courses Asked About</TableHead>
             <TableHead className='text-center'>Visits</TableHead>
             <TableHead className='text-center'>Actions</TableHead>
@@ -337,6 +337,7 @@ export default function StudentTable({
                                 studentId: parseInt(event.target.value),
                               })
                             }
+                            className='w-full'
                           />
                         ) : (
                           student.studentId
@@ -351,6 +352,7 @@ export default function StudentTable({
                             onChange={(event) =>
                               updateFields({ studentName: event.target.value })
                             }
+                            className='w-full'
                           />
                         ) : (
                           student.studentName
@@ -365,6 +367,7 @@ export default function StudentTable({
                             onChange={(event) =>
                               updateFields({ email: event.target.value })
                             }
+                            className='w-full'
                           />
                         ) : (
                           student.email || "—"
@@ -407,11 +410,9 @@ export default function StudentTable({
                         {Users.find((user) => user.id === student.added_by)
                           ?.display_name || "—"}
                       </TableCell>
-                      {!isEditing && (
-                        <TableCell className='text-center'>
-                          {student.added_at}
-                        </TableCell>
-                      )}
+                      <TableCell className='text-center'>
+                        {student.added_at}
+                      </TableCell>
                       <TableCell className='text-center'>
                         {isEditing ? (
                           <CoursesMenu
@@ -482,8 +483,8 @@ export default function StudentTable({
       </Table>
 
       <div className='flex items-center justify-center gap-2 text-gray-600/50'>
-        <LightbulbIcon /> Tip: Right click (hold on mobile) or click the
-        actions button on a row to view some quick actions.
+        <LightbulbIcon /> Tip: Right click (hold on mobile) or click the actions
+        button on a row to view some quick actions.
       </div>
 
       {/* Pagination */}
