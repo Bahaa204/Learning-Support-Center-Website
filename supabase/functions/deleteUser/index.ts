@@ -49,23 +49,9 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Fetch user's display_name from users table
-    const { data: userData, error: userFetchError } = await supabaseAdmin
-      .from("Users")
-      .select("display_name")
-      .eq("id", userId)
-      .single();
-
-    if (userFetchError) {
-      return jsonResponse(
-        { data: null, error: serializeError(userFetchError) },
-        400,
-      );
-    }
-
     // Delete profile picture from storage
     const bucketName = Deno.env.get("VITE_PROFILE_PICTURES_BUCKET");
-    const profilePictureFolder = `${userData.display_name}_${userId}`;
+    const profilePictureFolder = `${userId}`;
 
     if (!bucketName) {
       return jsonResponse(
