@@ -1,18 +1,28 @@
-import { Link, useLocation } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
-import { Bug, HomeIcon, SettingsIcon, SquarePenIcon } from "lucide-react";
+import { Link, type Location } from "react-router-dom";
+import {
+  Bug,
+  HomeIcon,
+  SettingsIcon,
+  SquarePenIcon,
+  User2Icon,
+} from "lucide-react";
 import { ChatBubbleBottomCenterTextIcon } from "@heroicons/react/24/outline";
+import type { Session } from "@supabase/supabase-js";
 
 type SideBarProps = {
   onNavigate: () => void;
   isOpen: boolean;
+  Session: Session | null;
+  location: Location;
 };
 
-export default function SideBar({ onNavigate, isOpen }: SideBarProps) {
-  const location = useLocation();
-  const { Session } = useAuth();
-
-  const isAdmin = Session?.user.user_metadata.role === "admin";
+export default function SideBar({
+  onNavigate,
+  isOpen,
+  Session,
+  location,
+}: SideBarProps) {
+  const isAdmin = Session?.user.user_metadata.role === "admin" || false;
 
   return (
     <aside className={`sidebar ${isOpen ? "open" : ""}`}>
@@ -42,15 +52,7 @@ export default function SideBar({ onNavigate, isOpen }: SideBarProps) {
           className={`sidebar-link ${location.pathname === "/support-center-staff" ? "active" : ""}`}
           onClick={onNavigate}
         >
-          <svg
-            viewBox='0 0 16 16'
-            fill='none'
-            stroke='currentColor'
-            strokeWidth='1.4'
-          >
-            <circle cx='8' cy='6' r='3' />
-            <path d='M3 14c0-3 2.2-5 5-5s5 2 5 5' />
-          </svg>
+          <User2Icon />
           Support Center Staff
         </Link>
       )}
@@ -77,7 +79,7 @@ export default function SideBar({ onNavigate, isOpen }: SideBarProps) {
       >
         <ChatBubbleBottomCenterTextIcon /> Submit Feedback
       </Link>
-      
+
       <Link
         to='/report'
         className={`sidebar-link ${location.pathname === "/report" ? "active" : ""}`}

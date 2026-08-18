@@ -16,7 +16,7 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import { Trash2Icon } from "lucide-react";
+import { Trash2Icon, UserCircle } from "lucide-react";
 import { validateDisplayName, validateFileSize } from "@/helper/validation";
 
 type AccountSectionProps = {
@@ -102,11 +102,16 @@ export default function AccountSection({
 
   return (
     <Card className='settings-section' id='account'>
-      <CardHeader className='settings-section-title'>
-        <CardTitle className='font-extrabold text-[1.25rem]'>Account</CardTitle>
-        <CardDescription>
-          Update your display name and profile picture.
-        </CardDescription>
+      <CardHeader className='settings-section-title flex items-center gap-4 pl-0'>
+      <UserCircle size={30} />
+        <div className="flex flex-col">
+          <CardTitle className='font-extrabold text-[1.25rem] flex items-center gap-2'>
+            Account
+          </CardTitle>
+          <CardDescription>
+            Update your display name and profile picture.
+          </CardDescription>
+        </div>
       </CardHeader>
 
       <CardContent className='flex flex-wrap gap-8 items-start'>
@@ -177,7 +182,7 @@ export default function AccountSection({
             <Button
               type='button'
               onClick={handleEdit}
-              className='w-full p-5 text-[20px] btn-primary'
+              className='w-full p-4 text-[18px] btn-primary'
             >
               Update Display Name
             </Button>

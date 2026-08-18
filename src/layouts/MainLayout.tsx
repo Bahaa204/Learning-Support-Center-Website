@@ -13,7 +13,17 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { useAuth } from "@/hooks/useAuth";
-import { ArrowBigLeft, ArrowBigRight, RefreshCcw } from "lucide-react";
+import {
+  ArrowBigLeft,
+  ArrowBigRight,
+  DatabaseIcon,
+  LockKeyholeIcon,
+  LogOutIcon,
+  Monitor,
+  RefreshCcw,
+  SettingsIcon,
+  UserCircleIcon,
+} from "lucide-react";
 import { useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 
@@ -23,14 +33,6 @@ export default function MainLayout() {
   const { Session, Loading, SignOut } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  function toggleMenu() {
-    setIsMenuOpen((currentValue) => !currentValue);
-  }
-
-  function closeMenu() {
-    setIsMenuOpen(false);
-  }
-
   return (
     <ContextMenu>
       <ContextMenuTrigger
@@ -38,20 +40,24 @@ export default function MainLayout() {
         disabled={location.pathname === "/login" || Loading}
       >
         <div className='app-shell'>
-          <Header onToggleMenu={toggleMenu} isMenuOpen={isMenuOpen} />
+          <Header
+            onToggleMenu={() => setIsMenuOpen((currentValue) => !currentValue)}
+            isMenuOpen={isMenuOpen}
+          />
           <div className='layout'>
-            {!Loading && Session && (
-              <>
-                <SideBar onNavigate={closeMenu} isOpen={isMenuOpen} />
-                {isMenuOpen && (
-                  <button
-                    className='sidebar-overlay'
-                    onClick={closeMenu}
-                    aria-label='Close menu'
-                    type='button'
-                  />
-                )}
-              </>
+            <SideBar
+              onNavigate={() => setIsMenuOpen(false)}
+              isOpen={isMenuOpen}
+              Session={Session}
+              location={location}
+            />
+            {isMenuOpen && (
+              <button
+                className='sidebar-overlay'
+                onClick={() => setIsMenuOpen(false)}
+                aria-label='Close menu'
+                type='button'
+              />
             )}
 
             <main className='main'>
@@ -61,25 +67,22 @@ export default function MainLayout() {
           <Footer />
         </div>
       </ContextMenuTrigger>
-      <ContextMenuContent
-        className='z-1000'
-        onContextMenu={(event) => event.preventDefault()}
-      >
+      <ContextMenuContent className='z-100000'>
         <ContextMenuGroup>
           <ContextMenuItem
-            className='cursor-pointer'
+            className='cursor-pointer flex gap-2'
             onClick={() => navigate(-1)}
           >
             <ArrowBigLeft /> Back
           </ContextMenuItem>
           <ContextMenuItem
-            className='cursor-pointer'
+            className='cursor-pointer flex gap-2'
             onClick={() => navigate(+1)}
           >
             Forward <ArrowBigRight />
           </ContextMenuItem>
           <ContextMenuItem
-            className='cursor-pointer'
+            className='cursor-pointer flex gap-2'
             onClick={() => window.location.reload()}
           >
             <RefreshCcw /> Refresh
@@ -87,20 +90,30 @@ export default function MainLayout() {
         </ContextMenuGroup>
         <ContextMenuSeparator />
         <ContextMenuSub>
-          <ContextMenuSubTrigger>Settings</ContextMenuSubTrigger>
+          <ContextMenuSubTrigger className='flex gap-2'>
+            <SettingsIcon /> Settings
+          </ContextMenuSubTrigger>
           <ContextMenuSubContent>
             <ContextMenuGroup>
               <ContextMenuItem>
-                <Link to='/settings'>Account</Link>
+                <Link to='/settings' className='flex gap-2'>
+                  <UserCircleIcon /> Account
+                </Link>
               </ContextMenuItem>
               <ContextMenuItem>
-                <Link to='/settings'>Change Password</Link>
+                <Link to='/settings' className='flex gap-2'>
+                  <LockKeyholeIcon /> Security
+                </Link>
               </ContextMenuItem>
               <ContextMenuItem>
-                <Link to='/settings'>Appearance</Link>
+                <Link to='/settings' className='flex gap-2'>
+                  <Monitor /> Appearance
+                </Link>
               </ContextMenuItem>
               <ContextMenuItem>
-                <Link to='/settings'>Data and Records</Link>
+                <Link to='/settings' className='flex gap-2'>
+                  <DatabaseIcon /> Data and Records
+                </Link>
               </ContextMenuItem>
             </ContextMenuGroup>
             <ContextMenuSeparator />
@@ -109,7 +122,7 @@ export default function MainLayout() {
               onClick={async () => await SignOut()}
               className='cursor-pointer'
             >
-              Log out
+              <LogOutIcon /> Log out
             </ContextMenuItem>
           </ContextMenuSubContent>
         </ContextMenuSub>

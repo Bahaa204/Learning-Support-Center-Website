@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Link } from "react-router-dom";
+import { LogOutIcon, SettingsIcon } from "lucide-react";
 
 type HeaderProps = {
   onToggleMenu: () => void;
@@ -115,14 +116,17 @@ export default function Header({ onToggleMenu, isMenuOpen }: HeaderProps) {
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem>
-                          <Link to='/settings'>Settings</Link>
+                        <Link to='/settings' className="flex flex-wrap justify-center items-center gap-2">
+                          <SettingsIcon />
+                          Settings
+                        </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         variant='destructive'
                         onClick={LogOut}
                         className='cursor-pointer'
                       >
-                        Log out
+                         <LogOutIcon /> Log out
                       </DropdownMenuItem>
                     </>
                   )}

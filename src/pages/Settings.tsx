@@ -35,12 +35,19 @@ import ErrorCard from "@/components/error-card";
 import LoadingCard from "@/components/loading-card";
 import {
   Card,
+  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { SetErrorMessage } from "@/helper/errorhelpers";
+import {
+  DatabaseIcon,
+  LockKeyholeIcon,
+  LogOutIcon,
+  Monitor,
+} from "lucide-react";
 
 export default function Settings() {
   useDocumentTitle("Settings");
@@ -96,7 +103,7 @@ export default function Settings() {
       return SetError("New password and confirmation do not match.");
 
     await UpdatePassword(InputPassword.newPassword);
-    
+
     setInputPassword(InitailInput);
   }
 
@@ -123,86 +130,85 @@ export default function Settings() {
         />
 
         <Card className='settings-section'>
-          <form onSubmit={handleSubmitPassword} id='password-form'>
-            <FieldSet>
-              <FieldGroup>
-                <FieldLabel htmlFor='newPassword'>New Password</FieldLabel>
-                <PasswordInput
-                  id='newPassword'
-                  value={InputPassword.newPassword}
-                  onChange={(e) =>
-                    updateFields({ newPassword: e.target.value })
-                  }
-                  placeholder='Enter your new password'
-                  aria-invalid={AriaValididateError()}
-                />
-                <FieldDescription>
-                  The new password must be at least 8 characters long and
-                  different from your current password.
-                </FieldDescription>
-                {PasswordError && (
-                  <FieldError className='text-lg text-destructive bg-red-500/20 px-3 py-1 rounded-lg w-full text-center'>
-                    {PasswordError}
-                  </FieldError>
-                )}
-              </FieldGroup>
-              <FieldGroup>
-                <FieldLabel htmlFor='confirmPassword'>
-                  Confirm New Password
-                </FieldLabel>
-                <PasswordInput
-                  id='confirmPassword'
-                  value={InputPassword.confirmNewPassword}
-                  onChange={(e) =>
-                    updateFields({ confirmNewPassword: e.target.value })
-                  }
-                  placeholder='Confirm your new password'
-                  aria-invalid={AriaValididateError()}
-                />
-                <FieldDescription>
-                  Please re-enter your new password for confirmation.
-                </FieldDescription>
-                {PasswordError && (
-                  <FieldError className='text-lg text-destructive bg-red-500/20 px-3 py-1 rounded-lg w-full text-center'>
-                    {PasswordError}
-                  </FieldError>
-                )}
-              </FieldGroup>
-              <Button type='submit' className='btn-primary'>
-                Change Password
-              </Button>
-            </FieldSet>
-          </form>
-        </Card>
-
-        <Card className='settings-section'>
-          <CardHeader className='settings-section-title border-b-0!'>
-            <CardTitle className='font-extrabold text-[1.25rem]'>
-              Log Out
-            </CardTitle>
-            <CardDescription>
-              Log out of your account on all devices.
-            </CardDescription>
+          <CardHeader className='settings-section-title flex items-center gap-4 pl-0'>
+            <LockKeyholeIcon size={30} />
+            <div className='flex flex-col'>
+              <CardTitle className='font-extrabold text-[1.25rem] flex items-center gap-2'>
+                Security
+              </CardTitle>
+              <CardDescription>
+                Change your password to enhance account security. Make sure to
+                choose a strong and unique password.
+              </CardDescription>
+            </div>
           </CardHeader>
-          <Button
-            variant='destructive'
-            onClick={async () => await SignOut()}
-            className='btn-destructive'
-          >
-            Sign Out
-          </Button>
+          <CardContent className='p-0!'>
+            <form onSubmit={handleSubmitPassword} id='password-form'>
+              <FieldSet>
+                <FieldGroup>
+                  <FieldLabel htmlFor='newPassword'>New Password</FieldLabel>
+                  <PasswordInput
+                    id='newPassword'
+                    value={InputPassword.newPassword}
+                    onChange={(e) =>
+                      updateFields({ newPassword: e.target.value })
+                    }
+                    placeholder='Enter your new password'
+                    aria-invalid={AriaValididateError()}
+                  />
+                  <FieldDescription>
+                    The new password must be at least 8 characters long and
+                    different from your current password.
+                  </FieldDescription>
+                  {PasswordError && (
+                    <FieldError className='text-lg text-destructive bg-red-500/20 px-3 py-1 rounded-lg w-full text-center'>
+                      {PasswordError}
+                    </FieldError>
+                  )}
+                </FieldGroup>
+                <FieldGroup>
+                  <FieldLabel htmlFor='confirmPassword'>
+                    Confirm New Password
+                  </FieldLabel>
+                  <PasswordInput
+                    id='confirmPassword'
+                    value={InputPassword.confirmNewPassword}
+                    onChange={(e) =>
+                      updateFields({ confirmNewPassword: e.target.value })
+                    }
+                    placeholder='Confirm your new password'
+                    aria-invalid={AriaValididateError()}
+                  />
+                  <FieldDescription>
+                    Please re-enter your new password for confirmation.
+                  </FieldDescription>
+                  {PasswordError && (
+                    <FieldError className='text-lg text-destructive bg-red-500/20 px-3 py-1 rounded-lg w-full text-center'>
+                      {PasswordError}
+                    </FieldError>
+                  )}
+                </FieldGroup>
+                <Button type='submit' className='btn-primary text-[18px]'>
+                  Change Password
+                </Button>
+              </FieldSet>
+            </form>
+          </CardContent>
         </Card>
 
         {/* Appearance Section */}
         <Card className='settings-section' id='appearance'>
-          <CardHeader className='settings-section-title'>
-            <CardTitle className='font-extrabold text-[1.25rem]'>
-              Appearance
-            </CardTitle>
-            <CardDescription>
-              Customize the look and feel of the application to your preference.
-              Changes will be saved automatically.
-            </CardDescription>
+          <CardHeader className='settings-section-title flex items-center gap-4 pl-0'>
+            <Monitor size={30} />
+            <div className='flex flex-col'>
+              <CardTitle className='font-extrabold text-[1.25rem]'>
+                Appearance
+              </CardTitle>
+              <CardDescription>
+                Customize the look and feel of the application to your
+                preference. Changes will be saved automatically.
+              </CardDescription>
+            </div>
           </CardHeader>
 
           <FieldSet>
@@ -290,14 +296,17 @@ export default function Settings() {
 
         {/* Data and Records Section */}
         <Card className='settings-section' id='data-records'>
-          <CardHeader className='settings-section-title'>
-            <CardTitle className='font-extrabold text-[1.25rem]'>
-              Data & Records
-            </CardTitle>
-            <CardDescription>
-              Configure how data is displayed, exported, and retained in the
-              application. Changes will be saved automatically.
-            </CardDescription>
+          <CardHeader className='settings-section-title flex items-center gap-4 pl-0'>
+            <DatabaseIcon size={30} />
+            <div className='flex flex-col'>
+              <CardTitle className='font-extrabold text-[1.25rem]'>
+                Data & Records
+              </CardTitle>
+              <CardDescription>
+                Configure how data is displayed, exported, and retained in the
+                application. Changes will be saved automatically.
+              </CardDescription>
+            </div>
           </CardHeader>
 
           <FieldSet>
@@ -382,6 +391,27 @@ export default function Settings() {
               </Field>
             </FieldGroup>
           </FieldSet>
+        </Card>
+
+        <Card className='settings-section'>
+          <CardHeader className='settings-section-title border-b-0!'>
+            <CardTitle className='font-extrabold text-[1.25rem]'>
+              Log Out
+            </CardTitle>
+            <CardDescription>
+              Log out of your account on all devices.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className='flex flex-col gap-4'>
+            <Button
+              variant='destructive'
+              onClick={async () => await SignOut()}
+              className='btn-destructive'
+            >
+              <LogOutIcon />
+              Log Out
+            </Button>
+          </CardContent>
         </Card>
       </div>
     </>
