@@ -21,3 +21,8 @@ export type PasswordInput = {
   newPassword: string;
   confirmNewPassword: string;
 };
+
+export type UpdateSettingsFunction = <Setting extends keyof AppSettings>(
+  setting: Setting,
+  value: AppSettings[Setting],
+) => void;

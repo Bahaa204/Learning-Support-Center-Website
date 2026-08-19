@@ -1,5 +1,6 @@
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
+import Modal from "@/components/Modal";
 import SideBar from "@/components/SideBar";
 import {
   ContextMenu,
@@ -22,6 +23,7 @@ import {
   Monitor,
   RefreshCcw,
   SettingsIcon,
+  TrashIcon,
   UserCircleIcon,
 } from "lucide-react";
 import { useState } from "react";
@@ -30,107 +32,132 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 export default function MainLayout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { Session, Loading, SignOut } = useAuth();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { Session, Loading, SignOut, DeleteUser } = useAuth();
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const [IsOpen, setIsOpen] = useState<boolean>(false);
+
+  async function handleDeleteAccount() {
+    if (!Session) return;
+    const ok = await DeleteUser(Session.user.id);
+    if (ok) await SignOut();
+  }
 
   return (
-    <ContextMenu>
-      <ContextMenuTrigger
-        asChild
-        disabled={location.pathname === "/login" || Loading}
-      >
-        <div className='app-shell'>
-          <Header
-            onToggleMenu={() => setIsMenuOpen((currentValue) => !currentValue)}
-            isMenuOpen={isMenuOpen}
-          />
-          <div className='layout'>
-            {Session && (
-              <>
-                <SideBar
-                  onNavigate={() => setIsMenuOpen(false)}
-                  isOpen={isMenuOpen}
-                  Session={Session}
-                  location={location}
-                />
-                {isMenuOpen && (
-                  <button
-                    className='sidebar-overlay'
-                    onClick={() => setIsMenuOpen(false)}
-                    aria-label='Close menu'
-                    type='button'
+    <>
+      <ContextMenu>
+        <ContextMenuTrigger
+          asChild
+          disabled={location.pathname === "/login" || Loading}
+        >
+          <div className='app-shell'>
+            <Header
+              onToggleMenu={() => setIsMenuOpen((currentValue) => !currentValue)}
+              isMenuOpen={isMenuOpen}
+            />
+            <div className='layout'>
+              {Session && (
+                <>
+                  <SideBar
+                    onNavigate={() => setIsMenuOpen(false)}
+                    isOpen={isMenuOpen}
+                    Session={Session}
+                    location={location}
                   />
-                )}
-              </>
-            )}
-
-            <main className='main'>
-              <Outlet />
-            </main>
+                  {isMenuOpen && (
+                    <button
+                      className='sidebar-overlay'
+                      onClick={() => setIsMenuOpen(false)}
+                      aria-label='Close menu'
+                      type='button'
+                    />
+                  )}
+                </>
+              )}
+              <main className='main'>
+                <Outlet />
+              </main>
+            </div>
+            <Footer />
           </div>
-          <Footer />
-        </div>
-      </ContextMenuTrigger>
-      <ContextMenuContent className='z-100000'>
-        <ContextMenuGroup>
-          <ContextMenuItem
-            className='cursor-pointer flex gap-2'
-            onClick={() => navigate(-1)}
-          >
-            <ArrowBigLeft /> Back
-          </ContextMenuItem>
-          <ContextMenuItem
-            className='cursor-pointer flex gap-2'
-            onClick={() => navigate(+1)}
-          >
-            Forward <ArrowBigRight />
-          </ContextMenuItem>
-          <ContextMenuItem
-            className='cursor-pointer flex gap-2'
-            onClick={() => window.location.reload()}
-          >
-            <RefreshCcw /> Refresh
-          </ContextMenuItem>
-        </ContextMenuGroup>
-        <ContextMenuSeparator />
-        <ContextMenuSub>
-          <ContextMenuSubTrigger className='flex gap-2'>
-            <SettingsIcon /> Settings
-          </ContextMenuSubTrigger>
-          <ContextMenuSubContent>
-            <ContextMenuGroup>
-              <ContextMenuItem>
-                <Link to='/settings' className='flex gap-2'>
-                  <UserCircleIcon /> Account
-                </Link>
-              </ContextMenuItem>
-              <ContextMenuItem>
-                <Link to='/settings' className='flex gap-2'>
-                  <LockKeyholeIcon /> Security
-                </Link>
-              </ContextMenuItem>
-              <ContextMenuItem>
-                <Link to='/settings' className='flex gap-2'>
-                  <Monitor /> Appearance
-                </Link>
-              </ContextMenuItem>
-              <ContextMenuItem>
-                <Link to='/settings' className='flex gap-2'>
-                  <DatabaseIcon /> Data and Records
-                </Link>
-              </ContextMenuItem>
-            </ContextMenuGroup>
-            <ContextMenuSeparator />
+        </ContextMenuTrigger>
+        <ContextMenuContent className='z-100000'>
+          <ContextMenuGroup>
             <ContextMenuItem
-              variant='destructive'
-              onClick={async () => await SignOut()}
-              className='cursor-pointer'
+              className='cursor-pointer flex gap-2'
+              onClick={() => navigate(-1)}
             >
-              <LogOutIcon /> Log out
+              <ArrowBigLeft /> Back
             </ContextMenuItem>
-          </ContextMenuSubContent>
-        </ContextMenuSub>
-      </ContextMenuContent>
-    </ContextMenu>
+            <ContextMenuItem
+              className='cursor-pointer flex gap-2'
+              onClick={() => navigate(+1)}
+            >
+              Forward <ArrowBigRight />
+            </ContextMenuItem>
+            <ContextMenuItem
+              className='cursor-pointer flex gap-2'
+              onClick={() => window.location.reload()}
+            >
+              <RefreshCcw /> Refresh
+            </ContextMenuItem>
+          </ContextMenuGroup>
+          <ContextMenuSeparator />
+          <ContextMenuSub>
+            <ContextMenuSubTrigger className='flex gap-2'>
+              <SettingsIcon /> Settings
+            </ContextMenuSubTrigger>
+            <ContextMenuSubContent>
+              <ContextMenuGroup>
+                <ContextMenuItem>
+                  <Link to='/settings' className='flex gap-2'>
+                    <UserCircleIcon /> Account
+                  </Link>
+                </ContextMenuItem>
+                <ContextMenuItem>
+                  <Link to='/settings' className='flex gap-2'>
+                    <LockKeyholeIcon /> Security
+                  </Link>
+                </ContextMenuItem>
+                <ContextMenuItem>
+                  <Link to='/settings' className='flex gap-2'>
+                    <Monitor /> Appearance
+                  </Link>
+                </ContextMenuItem>
+                <ContextMenuItem>
+                  <Link to='/settings' className='flex gap-2'>
+                    <DatabaseIcon /> Data and Records
+                  </Link>
+                </ContextMenuItem>
+              </ContextMenuGroup>
+              <ContextMenuSeparator />
+              <ContextMenuGroup className='bg-destructive/20 rounded-sm'>
+                <ContextMenuItem
+                  variant='destructive'
+                  onClick={async () => await SignOut()}
+                  className='cursor-pointer'
+                >
+                  <LogOutIcon /> Log out
+                </ContextMenuItem>
+                <ContextMenuItem
+                  variant='destructive'
+                  onClick={()=>setIsOpen(true)}
+                  className='cursor-pointer'
+                >
+                  <TrashIcon /> Delete Account
+                </ContextMenuItem>
+              </ContextMenuGroup>
+            </ContextMenuSubContent>
+          </ContextMenuSub>
+        </ContextMenuContent>
+      </ContextMenu>
+
+      <Modal
+        Open={IsOpen}
+        setOpen={setIsOpen}
+        text='your Account'
+        handleDelete={handleDeleteAccount}
+      />
+
+    </>
   );
 }
