@@ -47,6 +47,7 @@ import {
   LockKeyholeIcon,
   LogOutIcon,
   Monitor,
+  TrashIcon,
 } from "lucide-react";
 
 export default function Settings() {
@@ -61,6 +62,7 @@ export default function Settings() {
     UpdatePassword,
     UpdateProfilePicture,
     DeleteProfilePicture,
+    DeleteUser,
   } = useAuth();
 
   const { Settings, updateSetting } = useSettings();
@@ -410,6 +412,43 @@ export default function Settings() {
             >
               <LogOutIcon />
               Log Out
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className='settings-section'>
+          <CardHeader className='settings-section-title border-b-0!'>
+            <CardTitle className='font-extrabold text-[1.25rem]'>
+              Delete Account
+            </CardTitle>
+            <CardDescription>
+              Delete your account and all associated data.
+              <strong>This action is irreversible.</strong>
+            </CardDescription>
+          </CardHeader>
+          <CardContent className='flex flex-col gap-4'>
+            <Button
+              variant='destructive'
+              onClick={async () => {
+                const confirm = window.confirm(
+                  "Are you sure you want to delete your account? This action cannot be undone.",
+                );
+
+                if (!confirm) return;
+
+                const confirm2 = window.confirm(
+                  "Are you really sure? This will permanently delete your account and all associated data.",
+                );
+
+                if (!confirm2) return;
+
+                const ok = await DeleteUser(Session.user.id);
+                if (ok) await SignOut();
+              }}
+              className='btn-destructive'
+            >
+              <TrashIcon />
+              Delete Account
             </Button>
           </CardContent>
         </Card>

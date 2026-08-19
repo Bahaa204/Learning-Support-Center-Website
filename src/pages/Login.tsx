@@ -4,15 +4,16 @@ import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import type { LoginInput } from "@/types/auth";
 import { useEffect, useState, type SubmitEvent } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import ErrorCard from "@/components/error-card";
 import LoadingCard from "@/components/loading-card";
 import { SetErrorMessage } from "@/helper/errorhelpers";
+import { Field, FieldError, FieldLabel, FieldSet } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export default function Login() {
   useDocumentTitle("Login");
 
   useEffect(() => {
-    
     const main = document.querySelector(".main") as HTMLElement | null;
     const footer = document.querySelector(".site-footer") as HTMLElement | null;
 
@@ -21,7 +22,7 @@ export default function Login() {
     const originalFooterWidth = footer ? footer.style.width : "";
 
     if (main) {
-      main.style.padding = "0px";
+    main.style.padding = "0px";
       main.style.marginLeft = "0px";
     }
     if (footer) footer.style.width = "100%";
@@ -69,6 +70,10 @@ export default function Login() {
     return <Navigate to='/' replace />;
   }
 
+  function updateFields(fields: Partial<LoginInput>) {
+    setLogin((prev) => ({ ...prev, ...fields }));
+  }
+
   return (
     <div className='login-page scrollbar-none'>
       <div className='login-panel'>
@@ -83,32 +88,31 @@ export default function Login() {
         <div className='login-card'>
           <div className='login-card-header'>
             <h2>Login</h2>
-            <p>Use your Learning Center account credentials to continue.</p>
+            <p>Use your Support Center account credentials to continue.</p>
           </div>
 
-          {AuthError && <ErrorCard message={SetErrorMessage(AuthError)} />}
-
           <form onSubmit={handleSubmit} className='login-form'>
-            <div className='login-field'>
-              <label htmlFor='email'>Email</label>
-
-              <input
-                required
-                type='email'
-                id='email'
-                className='login-input'
-                placeholder='Enter your Learning Center email'
-                value={Login.email}
-                onChange={(event) =>
-                  setLogin({ ...Login, email: event.target.value })
-                }
-              />
-            </div>
-
-            <div className='login-field'>
-              <label htmlFor='password'>Password</label>
-
-              <div className='login-password-wrap'>
+            <FieldSet>
+              <Field className='login-field'>
+                <FieldLabel htmlFor='email'>Email</FieldLabel>
+                <Input
+                  required
+                  type='email'
+                  id='email'
+                  className='login-input'
+                  placeholder='Enter your Support Center email'
+                  value={Login.email}
+                  onChange={(event) =>
+                    updateFields({ email: event.target.value })
+                  }
+                  aria-invalid={Boolean(AuthError)}
+                />
+                {AuthError && (
+                  <FieldError>{SetErrorMessage(AuthError)}</FieldError>
+                )}
+              </Field>
+              <Field className='login-field'>
+                <FieldLabel htmlFor='password'>Password</FieldLabel>
                 <PasswordInput
                   required
                   id='password'
@@ -116,31 +120,24 @@ export default function Login() {
                   placeholder='Enter your password'
                   value={Login.password}
                   onChange={(event) =>
-                    setLogin({ ...Login, password: event.target.value })
+                    updateFields({ password: event.target.value })
                   }
+                  aria-invalid={Boolean(AuthError)}
                 />
-              </div>
-            </div>
-
-            <button
-              type='submit'
-              className='login-submit btn btn-primary'
-              disabled={AuthLoading}
-            >
-              {AuthLoading ? (
-                <>
-                  <div
-                    className='spinner-border spinner-border-sm'
-                    role='status'
-                  >
-                    <span className='visually-hidden'>Loading...</span>
-                  </div>
-                  <span>Logging In</span>
-                </>
-              ) : (
-                "Login"
-              )}
-            </button>
+                {AuthError && (
+                  <FieldError>{SetErrorMessage(AuthError)}</FieldError>
+                )}
+              </Field>
+              <Field>
+                <Button
+                  type='submit'
+                  className='login-submit btn btn-primary'
+                  disabled={AuthLoading}
+                >
+                  Login
+                </Button>
+              </Field>
+            </FieldSet>
           </form>
 
           <div className='login-footer-note'>

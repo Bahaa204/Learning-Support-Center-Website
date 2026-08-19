@@ -38,7 +38,7 @@ export function useAuth() {
       const { data, error: SessionError } =
         await supabaseClient.auth.getSession();
 
-      if (SessionError) return setError(SessionError);
+      if (SessionError) return SetError(SessionError);
 
       setSession(data.session);
       setLoading(false);
@@ -63,7 +63,7 @@ export function useAuth() {
   async function SignInWithPassword(email: string, password: string) {
     resetStates();
 
-    const { error: SignInError } = await supabaseClient.auth.signInWithPassword(
+    const {error: SignInError } = await supabaseClient.auth.signInWithPassword(
       {
         email,
         password,
@@ -71,7 +71,7 @@ export function useAuth() {
     );
 
     if (SignInError) {
-      setError(SignInError);
+      SetError(SignInError);
       return false;
     }
 
@@ -95,7 +95,7 @@ export function useAuth() {
     );
 
     if (SignUpError) {
-      setError(SignUpError);
+      SetError(SignUpError);
       return null;
     }
 
@@ -111,7 +111,7 @@ export function useAuth() {
     const { error: SignOutError } = await supabaseClient.auth.signOut();
 
     if (SignOutError) {
-      setError(SignOutError);
+      SetError(SignOutError);
       return false;
     }
 
@@ -129,7 +129,7 @@ export function useAuth() {
     });
 
     if (error) {
-      setError(error);
+      SetError(error);
       return false;
     }
     setLoading(false);
@@ -147,7 +147,7 @@ export function useAuth() {
     });
 
     if (error) {
-      setError(error);
+      SetError(error);
       return false;
     }
 
@@ -163,7 +163,7 @@ export function useAuth() {
     });
 
     if (error) {
-      setError(error);
+      SetError(error);
       return false;
     }
 
@@ -207,7 +207,7 @@ export function useAuth() {
       .remove([`${userId}/profile_picture`]);
 
     if (DeleteError) {
-      setError(DeleteError);
+      SetError(DeleteError);
       return false;
     }
 
@@ -218,7 +218,7 @@ export function useAuth() {
     });
 
     if (UpdateError) {
-      setError(UpdateError);
+      SetError(UpdateError);
       return false;
     }
 
@@ -242,7 +242,7 @@ export function useAuth() {
     });
 
     if (error) {
-      setError(error);
+      SetError(error);
       return false;
     }
     setLoading(false);

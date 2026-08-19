@@ -11,7 +11,8 @@ export async function fetchUsers(user: AuthUser | undefined) {
   const { data, error } = (await supabaseClient
     .from("Users")
     .select("*")
-    .eq("department_id", user.user_metadata.department_id)) as Data<User[]>;
+    // .eq("department_id", user.user_metadata.department_id)
+  ) as Data<User[]>;
 
   if (error) throw error;
 

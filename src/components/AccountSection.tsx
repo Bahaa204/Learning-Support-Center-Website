@@ -16,7 +16,7 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import { Trash2Icon, UserCircle } from "lucide-react";
+import { TrashIcon, UserCircle } from "lucide-react";
 import { validateDisplayName, validateFileSize } from "@/helper/validation";
 
 type AccountSectionProps = {
@@ -141,7 +141,7 @@ export default function AccountSection({
             className='w-full text-[16px]'
             onClick={handleDeleteProfilePicture}
           >
-            <Trash2Icon /> Delete Profile Picture
+            <TrashIcon /> Delete Profile Picture
           </Button>
         </div>
 

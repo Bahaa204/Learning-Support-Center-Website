@@ -45,19 +45,23 @@ export default function MainLayout() {
             isMenuOpen={isMenuOpen}
           />
           <div className='layout'>
-            <SideBar
-              onNavigate={() => setIsMenuOpen(false)}
-              isOpen={isMenuOpen}
-              Session={Session}
-              location={location}
-            />
-            {isMenuOpen && (
-              <button
-                className='sidebar-overlay'
-                onClick={() => setIsMenuOpen(false)}
-                aria-label='Close menu'
-                type='button'
-              />
+            {Session && (
+              <>
+                <SideBar
+                  onNavigate={() => setIsMenuOpen(false)}
+                  isOpen={isMenuOpen}
+                  Session={Session}
+                  location={location}
+                />
+                {isMenuOpen && (
+                  <button
+                    className='sidebar-overlay'
+                    onClick={() => setIsMenuOpen(false)}
+                    aria-label='Close menu'
+                    type='button'
+                  />
+                )}
+              </>
             )}
 
             <main className='main'>

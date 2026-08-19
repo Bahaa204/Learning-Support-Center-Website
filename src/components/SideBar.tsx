@@ -12,7 +12,7 @@ import type { Session } from "@supabase/supabase-js";
 type SideBarProps = {
   onNavigate: () => void;
   isOpen: boolean;
-  Session: Session | null;
+  Session: Session;
   location: Location;
 };
 
