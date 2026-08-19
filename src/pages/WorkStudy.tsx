@@ -39,6 +39,7 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
+import Modal from "@/components/Modal";
 
 export default function WorkStudy() {
   useDocumentTitle("Support Center Staff");
@@ -55,7 +56,8 @@ export default function WorkStudy() {
   const [Input, setInput] = useState<UserInput>(InitialValue);
   const [LocalError, setLocalError] = useState<string>("");
   const [IsSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [IsOpen, setIsOpen] = useState<boolean>(false);
+  const [IsFilterOpen, setIsFilterOpen] = useState<boolean>(false);
+  const [DeletedUser, setDeletedUser] = useState<User | null>(null);
 
   const [SearchParams, setSearchParams] = useSearchParams();
 
@@ -269,7 +271,7 @@ export default function WorkStudy() {
           <MenuItemElement
             variant='destructive'
             className='cursor-pointer text-[16px] text-primary'
-            onClick={() => handleDelete(user.id)}
+            onClick={() => setDeletedUser(user)}
           >
             Remove
           </MenuItemElement>
@@ -311,7 +313,7 @@ export default function WorkStudy() {
           <div className='flex gap-2 mt-2 ml-auto font-[georgia]'>
             <Button
               className='text-lg btn-primary'
-              onClick={() => setIsOpen(true)}
+              onClick={() => setIsFilterOpen(true)}
             >
               <FilterIcon className='size-5!' /> Filter Records
             </Button>
@@ -408,10 +410,20 @@ export default function WorkStudy() {
         </div>
       </div>
 
+      <Modal
+        Open={DeletedUser !== null}
+        setOpen={() => setDeletedUser(null)}
+        text={`${DeletedUser?.display_name}`}
+        handleDelete={async () => {
+          if (!DeletedUser) return;
+          return await handleDelete(DeletedUser.id);
+        }}
+      />
+
       <FilterModal
         mode='user'
-        IsOpen={IsOpen}
-        setIsOpen={setIsOpen}
+        IsOpen={IsFilterOpen}
+        setIsOpen={setIsFilterOpen}
         Departments={Departments}
         SearchParams={SearchParams}
         setSearchParams={setSearchParams}
