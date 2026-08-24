@@ -7,9 +7,9 @@ import {
   CardTitle,
 } from "../ui/card";
 import {
+  Field,
   FieldDescription,
   FieldError,
-  FieldGroup,
   FieldLabel,
   FieldSet,
 } from "../ui/field";
@@ -20,10 +20,12 @@ import { Button } from "../ui/button";
 
 type SecuritySectionProps = {
   UpdatePassword: (newPassword: string) => Promise<boolean>;
+  RegisterPasskey: () => Promise<boolean>;
 };
 
 export default function SecuritySection({
   UpdatePassword,
+  RegisterPasskey,
 }: SecuritySectionProps) {
   const InitailInput: PasswordInputType = {
     newPassword: "",
@@ -84,7 +86,7 @@ export default function SecuritySection({
       <CardContent className='p-0!'>
         <form onSubmit={handleSubmitPassword} id='password-form'>
           <FieldSet>
-            <FieldGroup>
+            <Field>
               <FieldLabel htmlFor='newPassword'>New Password</FieldLabel>
               <PasswordInput
                 id='newPassword'
@@ -102,8 +104,8 @@ export default function SecuritySection({
                   {PasswordError}
                 </FieldError>
               )}
-            </FieldGroup>
-            <FieldGroup>
+            </Field>
+            <Field>
               <FieldLabel htmlFor='confirmPassword'>
                 Confirm New Password
               </FieldLabel>
@@ -124,12 +126,29 @@ export default function SecuritySection({
                   {PasswordError}
                 </FieldError>
               )}
-            </FieldGroup>
+            </Field>
             <Button type='submit' className='btn-primary text-[18px]'>
               Change Password
             </Button>
           </FieldSet>
         </form>
+        <Field className="mt-5">
+          <FieldLabel>Register Passkey</FieldLabel>
+          <FieldDescription>
+            Register a passkey for passwordless authentication. This enhances
+            security and provides a convenient way to log in without entering a
+            password.
+          </FieldDescription>
+          <FieldError>
+            Note: Passkeys are still in development and may change in the future.
+          </FieldError>
+          <Button
+            className='btn-primary text-[18px] mt-4'
+            onClick={RegisterPasskey}
+          >
+            Register Passkey
+          </Button>
+        </Field>
       </CardContent>
     </Card>
   );

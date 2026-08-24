@@ -2,7 +2,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { useSettings } from "@/hooks/useSettings";
 import AccountSection from "@/components/Settings/AccountSection";
-import { Navigate } from "react-router-dom";
 import ErrorCard from "@/components/error-card";
 import LoadingCard from "@/components/loading-card";
 import { SetErrorMessage } from "@/helper/errorhelpers";
@@ -10,6 +9,7 @@ import SecuritySection from "@/components/Settings/SecuritySection";
 import AppearanceSection from "@/components/Settings/AppearanceSection";
 import DataAndRecordsSection from "@/components/Settings/DataAndRecordsSection";
 import DangerZone from "@/components/Settings/DangerZone";
+import NavigateToLogin from "@/components/NavigateToLogin";
 
 export default function Settings() {
   useDocumentTitle("Settings");
@@ -24,6 +24,7 @@ export default function Settings() {
     UpdateProfilePicture,
     DeleteProfilePicture,
     DeleteUser,
+    RegisterPasskey,
   } = useAuth();
 
   const { Settings, updateSetting } = useSettings();
@@ -35,7 +36,7 @@ export default function Settings() {
   if (AuthError) return <ErrorCard message={SetErrorMessage(AuthError)} />;
 
   if (!Session) {
-    return <Navigate to='/login' />;
+    return <NavigateToLogin />;
   }
 
   async function handleDeleteAccount() {
@@ -56,7 +57,10 @@ export default function Settings() {
           deleteProfilePicture={DeleteProfilePicture}
         />
 
-        <SecuritySection UpdatePassword={UpdatePassword} />
+        <SecuritySection
+          UpdatePassword={UpdatePassword}
+          RegisterPasskey={RegisterPasskey}
+        />
 
         {/* Appearance Section */}
         <AppearanceSection

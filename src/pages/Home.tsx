@@ -1,4 +1,3 @@
-import { Navigate } from "react-router-dom";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { useAuth } from "@/hooks/useAuth";
 import { useStudents } from "@/hooks/useStudents";
@@ -8,6 +7,7 @@ import studentsIcon from "/Images/students-icon.svg";
 import visitsIcon from "/Images/visits-icon.svg";
 import averageIcon from "/Images/average-icon.svg";
 import { SetErrorMessage } from "@/helper/errorhelpers";
+import NavigateToLogin from "@/components/NavigateToLogin";
 
 export default function Home() {
   useDocumentTitle("Home");
@@ -37,7 +37,7 @@ export default function Home() {
   }
 
   if (!Session) {
-    return <Navigate to='/login' replace />;
+    return <NavigateToLogin />;
   }
 
   if (error) {

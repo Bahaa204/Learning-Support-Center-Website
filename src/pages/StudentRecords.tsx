@@ -10,7 +10,7 @@ import { useUsers } from "@/hooks/useUsers";
 import { exportData } from "@/lib/exportUtils";
 import type { NewStudent, StudentInput } from "@/types/students";
 import { useState, type SubmitEvent } from "react";
-import { Navigate, useSearchParams } from "react-router-dom";
+import {useSearchParams } from "react-router-dom";
 import LoadingCard from "@/components/loading-card";
 import ErrorCard from "@/components/error-card";
 import { SetErrorMessage } from "@/helper/errorhelpers";
@@ -19,6 +19,7 @@ import { validateStudentInput } from "@/helper/validation";
 import { Button } from "@/components/ui/button";
 import { FilterIcon } from "lucide-react";
 import { FilterModal } from "@/components/FilterModal";
+import NavigateToLogin from "@/components/NavigateToLogin";
 
 export default function StudentRecords() {
   useDocumentTitle("Student Records");
@@ -92,7 +93,7 @@ export default function StudentRecords() {
   }
 
   if (!Session) {
-    return <Navigate to='/login' replace />;
+    return <NavigateToLogin />;
   }
 
   if (error) {

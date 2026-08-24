@@ -37,7 +37,7 @@ export default function MainLayout() {
     <ContextMenu>
       <ContextMenuTrigger
         asChild
-        disabled={location.pathname === "/login" || Loading}
+        disabled={Loading}
       >
         <div className='app-shell'>
           <Header

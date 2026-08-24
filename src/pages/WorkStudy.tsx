@@ -25,7 +25,7 @@ import { exportData } from "@/lib/exportUtils";
 import type { NewUser, User, UserInput } from "@/types/users";
 import { FilterIcon, LightbulbIcon, MoreHorizontalIcon } from "lucide-react";
 import { useState, type SubmitEvent } from "react";
-import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
+import {useNavigate, useSearchParams } from "react-router-dom";
 import ErrorCard from "@/components/error-card";
 import LoadingCard from "@/components/loading-card";
 import { titleCase } from "title-case";
@@ -40,6 +40,7 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import Modal from "@/components/Modal";
+import NavigateToLogin from "@/components/NavigateToLogin";
 
 export default function WorkStudy() {
   useDocumentTitle("Support Center Staff");
@@ -179,7 +180,7 @@ export default function WorkStudy() {
   }
 
   if (!Session) {
-    return <Navigate to='/login' replace />;
+    return <NavigateToLogin />;
   }
 
   if (Session.user.user_metadata.role !== "admin")

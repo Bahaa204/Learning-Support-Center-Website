@@ -63,7 +63,7 @@ export function useAuth() {
   async function SignInWithPassword(email: string, password: string) {
     resetStates();
 
-    const {error: SignInError } = await supabaseClient.auth.signInWithPassword(
+    const { error: SignInError } = await supabaseClient.auth.signInWithPassword(
       {
         email,
         password,
@@ -249,6 +249,50 @@ export function useAuth() {
     return true;
   }
 
+  async function RegisterPasskey() {
+    resetStates();
+
+    const { error } = await supabaseClient.auth.registerPasskey();
+
+    if (error) {
+      SetError(error);
+      return false;
+    }
+
+    setLoading(false);
+    return true;
+  }
+
+  async function SignInWithPasskey() {
+    resetStates();
+
+    const { error } = await supabaseClient.auth.signInWithPasskey();
+
+    if (error) {
+      SetError(error);
+      return false;
+    }
+
+    setLoading(false);
+    return true;
+  }
+
+  async function ResetPassword(email: string) {
+    resetStates();
+
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/reset-password`,
+    });
+
+    if (error) {
+      SetError(error);
+      return false;
+    }
+
+    setLoading(false);
+    return true;
+  }
+
   return {
     Session,
     Error,
@@ -262,5 +306,8 @@ export function useAuth() {
     UpdateProfilePicture,
     DeleteProfilePicture,
     SendEmail,
+    RegisterPasskey,
+    SignInWithPasskey,
+    ResetPassword,
   };
 }

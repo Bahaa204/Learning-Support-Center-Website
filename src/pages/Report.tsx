@@ -1,4 +1,5 @@
 import LoadingCard from "@/components/loading-card";
+import NavigateToLogin from "@/components/NavigateToLogin";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -13,7 +14,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import type { FeedbackInput } from "@/types/Feedback";
 import { useState, type SubmitEvent } from "react";
-import { Navigate } from "react-router-dom";
 
 export default function Report() {
   useDocumentTitle("Report");
@@ -30,7 +30,7 @@ export default function Report() {
 
   if (AuthLoading) return <LoadingCard message='Checking Authentication...' />;
 
-  if (!Session) return <Navigate to='/login' replace />;
+  if (!Session) return <NavigateToLogin />;
 
   function updateFields(fields: Partial<FeedbackInput>) {
     setFeedbackInput((prev) => ({ ...prev, ...fields }));
