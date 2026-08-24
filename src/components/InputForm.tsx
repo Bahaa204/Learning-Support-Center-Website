@@ -32,6 +32,7 @@ import {
   validateStudentInput,
   validateUserInput,
 } from "@/helper/validation.ts";
+import { Spinner } from "./ui/spinner.tsx";
 
 export default function InputForm({
   isSubmitting,
@@ -454,9 +455,19 @@ export default function InputForm({
                 className='btn btn-primary p-5!'
                 disabled={isSubmitting}
               >
-                {isSubmitting
-                  ? "Loading..."
-                  : `Add ${isStudent ? "Student" : userInput.isSupervisor ? "Supervisor" : "WorkStudy"}`}
+                {isSubmitting ? (
+                  <>
+                    <Spinner />
+                    {isStudent
+                      ? "Adding Student"
+                      : userInput.isSupervisor
+                        ? "Adding Supervisor"
+                        : "Adding WorkStudy"}
+                    ...
+                  </>
+                ) : (
+                  `Add ${isStudent ? "Student" : userInput.isSupervisor ? "Supervisor" : "WorkStudy"}`
+                )}
               </Button>
             </div>
           </FieldLegend>

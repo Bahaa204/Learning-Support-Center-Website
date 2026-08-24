@@ -1,16 +1,15 @@
-import NavigateToLogin from "@/components/NavigateToLogin";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { KeyRoundIcon, MailIcon, User2Icon } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 
 export default function AuthHome() {
   useDocumentTitle("Authentication");
 
   const { Session, SignInWithPasskey } = useAuth();
 
-  if (Session) return <NavigateToLogin />;
+  if (Session) return <Navigate to='/' />;
 
   return (
     <div className='login-card'>

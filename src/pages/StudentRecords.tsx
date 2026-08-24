@@ -10,7 +10,7 @@ import { useUsers } from "@/hooks/useUsers";
 import { exportData } from "@/lib/exportUtils";
 import type { NewStudent, StudentInput } from "@/types/students";
 import { useState, type SubmitEvent } from "react";
-import {useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import LoadingCard from "@/components/loading-card";
 import ErrorCard from "@/components/error-card";
 import { SetErrorMessage } from "@/helper/errorhelpers";
@@ -40,14 +40,13 @@ export default function StudentRecords() {
 
   const [SearchParams, setSearchParams] = useSearchParams();
 
-  // console.log("Search Params: ", SearchParams.toString());
 
   const { Session, Loading: AuthLoading, Error: AuthError } = useAuth();
   const { Settings } = useSettings();
 
   const {
     Students,
-    Loading: StudentsLoading,
+    // Loading: StudentsLoading,
     Error: StudentsError,
     IncrementStudentVisits,
     IsUpdating,
@@ -74,8 +73,7 @@ export default function StudentRecords() {
     Error: DepartmentsError,
   } = useDepartments();
 
-  const loading =
-    AuthLoading || StudentsLoading || DepartmentsLoading || UsersLoading;
+  const loading = AuthLoading || DepartmentsLoading || UsersLoading;
 
   const error =
     AuthError ||

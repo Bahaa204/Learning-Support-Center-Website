@@ -74,7 +74,7 @@ export default function WorkStudy() {
 
   const {
     Users,
-    Loading: UsersLoading,
+    // Loading: UsersLoading,
     AddUser,
     Error: UsersError,
   } = useUsers(Session?.user);
@@ -94,7 +94,7 @@ export default function WorkStudy() {
   } = useTimeSlots();
 
   const loading =
-    AuthLoading || UsersLoading || DepartmentsLoading || TimeSlotsLoading;
+    AuthLoading || DepartmentsLoading || TimeSlotsLoading;
 
   const error = AuthError || UsersError || DepartmentsError || TimeSlotsError;
 
@@ -300,7 +300,7 @@ export default function WorkStudy() {
 
       <InputForm
         mode='user'
-        isSubmitting={loading}
+        isSubmitting={IsSubmitting}
         updateFields={updateFields}
         handleUserSubmit={handleSubmit}
         userInput={Input}
