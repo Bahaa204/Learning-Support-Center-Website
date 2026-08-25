@@ -25,6 +25,7 @@ export default function Settings() {
     DeleteProfilePicture,
     DeleteUser,
     RegisterPasskey,
+    DeletePasskeys,
   } = useAuth();
 
   const { Settings, updateSetting } = useSettings();
@@ -81,6 +82,7 @@ export default function Settings() {
         <DangerZone
           LogOut={async () => await SignOut()}
           DeleteAccount={handleDeleteAccount}
+          DeletePasskeys={DeletePasskeys}
         />
       </div>
     </>

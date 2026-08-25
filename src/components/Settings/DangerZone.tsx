@@ -14,10 +14,16 @@ import Modal from "../Modal";
 type DangerZoneProps = {
   LogOut: () => Promise<boolean>;
   DeleteAccount: () => Promise<void>;
+  DeletePasskeys: () => Promise<boolean>;
 };
 
-export default function DangerZone({ LogOut, DeleteAccount }: DangerZoneProps) {
-  const [IsOpen, setIsOpen] = useState<boolean>(false);
+export default function DangerZone({
+  LogOut,
+  DeleteAccount,
+  DeletePasskeys,
+}: DangerZoneProps) {
+  const [IsDeletingAccount, setIsDeletingAccount] = useState<boolean>(false);
+  const [IsDeletingPasskeys, setIsDeletingPasskeys] = useState<boolean>(false);
 
   return (
     <>
@@ -57,8 +63,23 @@ export default function DangerZone({ LogOut, DeleteAccount }: DangerZoneProps) {
                 Delete your account and all associated data. This action cannot
                 be undone.
               </FieldDescription>
-              <Button variant='destructive' onClick={() => setIsOpen(true)}>
+              <Button variant='destructive' onClick={() => setIsDeletingAccount(true)}>
                 <TrashIcon /> Delete Account
+              </Button>
+            </Field>
+            <Field>
+              <FieldLabel className='text-(--navy) text-[1.2rem] font-bold'>
+                Delete Passkeys
+              </FieldLabel>
+              <FieldDescription className='text-[0.875rem]'>
+                Delete all passkeys registered to your account. This action
+                cannot be undone.
+              </FieldDescription>
+              <Button
+                variant='destructive'
+                onClick={() => setIsDeletingPasskeys(true)}
+              >
+                <TrashIcon /> Delete Passkeys
               </Button>
             </Field>
           </FieldGroup>
@@ -66,10 +87,19 @@ export default function DangerZone({ LogOut, DeleteAccount }: DangerZoneProps) {
       </Card>
 
       <Modal
-        Open={IsOpen}
-        setOpen={setIsOpen}
+        Open={IsDeletingAccount}
+        setOpen={setIsDeletingAccount}
         text='your Account'
         handleDelete={DeleteAccount}
+      />
+
+      <Modal
+        Open={IsDeletingPasskeys}
+        setOpen={setIsDeletingPasskeys}
+        text='your Passkeys'
+        handleDelete={async () => {
+          await DeletePasskeys();
+        }}
       />
     </>
   );

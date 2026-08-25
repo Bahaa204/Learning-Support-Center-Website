@@ -1,7 +1,12 @@
 import { invokeFunction } from "@/lib/invokeFunction";
 import { supabaseClient } from "@/supabase-client";
 import type { Department } from "@/types/department";
-import { AuthError, type Session, type User } from "@supabase/supabase-js";
+import {
+  AuthError,
+  type PasskeyDeleteParams,
+  type Session,
+  type User,
+} from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import type { CustomError } from "@/types/types";
@@ -277,6 +282,66 @@ export function useAuth() {
     return true;
   }
 
+  async function ListPasskeys() {
+    resetStates();
+
+    const { data, error } = await supabaseClient.auth.passkey.list();
+
+    if (error) {
+      SetError(error);
+      return null;
+    }
+
+    setLoading(false);
+    return data;
+  }
+
+  async function DeletePasskey(params: PasskeyDeleteParams) {
+    resetStates();
+
+    const { error } = await supabaseClient.auth.passkey.delete(params);
+
+    if (error) {
+      SetError(error);
+      return false;
+    }
+
+    setLoading(false);
+    return true;
+  }
+
+  async function DeletePasskeys() {
+    resetStates();
+
+    const RegisteredPasskeys = await ListPasskeys();
+
+    if (!RegisteredPasskeys) {
+      const error = new AuthError(
+        "No Registered Passkeys Found",
+        404,
+        "no_passkeys",
+      );
+      SetError(error);
+      return false;
+    }
+
+    RegisteredPasskeys.forEach(async (passkey) => {
+      const ok = await DeletePasskey({ passkeyId: passkey.id });
+      if (!ok) {
+        const error = new AuthError(
+          `Failed to Delete Passkey with ID: ${passkey.id}`,
+          500,
+          "delete_passkey_failed",
+        );
+        SetError(error);
+        return false;
+      }
+    });
+
+    setLoading(false);
+    return true;
+  }
+
   async function ResetPassword(email: string) {
     resetStates();
 
@@ -309,5 +374,8 @@ export function useAuth() {
     RegisterPasskey,
     SignInWithPasskey,
     ResetPassword,
+    ListPasskeys,
+    DeletePasskey,
+    DeletePasskeys,
   };
 }
