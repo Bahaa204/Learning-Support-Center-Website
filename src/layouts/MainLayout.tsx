@@ -3,9 +3,13 @@ import Header from "@/components/Header";
 import SideBar from "@/components/SideBar";
 import {
   ContextMenu,
+  ContextMenuCheckboxItem,
   ContextMenuContent,
   ContextMenuGroup,
   ContextMenuItem,
+  ContextMenuLabel,
+  ContextMenuRadioGroup,
+  ContextMenuRadioItem,
   ContextMenuSeparator,
   ContextMenuSub,
   ContextMenuSubContent,
@@ -14,6 +18,13 @@ import {
 } from "@/components/ui/context-menu";
 import WarningDialog from "@/components/WarningDialog";
 import { useAuth } from "@/hooks/useAuth";
+import { useSettings } from "@/hooks/useSettings";
+import type {
+  SettingsExportFormat,
+  SettingsFontSize,
+  SettingsPageSize,
+  SettingsTheme,
+} from "@/types/settings";
 import {
   ArrowBigLeft,
   ArrowBigRight,
@@ -32,6 +43,7 @@ export default function MainLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { Session, Loading, SignOut } = useAuth();
+  const { Settings, updateSetting } = useSettings();
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [ShowWarningDialog, setShowWarningDialog] = useState<boolean>(false);
 
@@ -84,20 +96,21 @@ export default function MainLayout() {
         </ContextMenuTrigger>
         <ContextMenuContent className='z-100000'>
           <ContextMenuGroup>
+            <ContextMenuLabel>Navigation</ContextMenuLabel>
             <ContextMenuItem
-              className='cursor-pointer flex gap-2'
+              className='cursor-pointer flex gap-2 w-full'
               onClick={() => navigate(-1)}
             >
               <ArrowBigLeft /> Back
             </ContextMenuItem>
             <ContextMenuItem
-              className='cursor-pointer flex gap-2'
+              className='cursor-pointer flex gap-2 w-full'
               onClick={() => navigate(+1)}
             >
               Forward <ArrowBigRight />
             </ContextMenuItem>
             <ContextMenuItem
-              className='cursor-pointer flex gap-2'
+              className='cursor-pointer flex gap-2 w-full'
               onClick={() => window.location.reload()}
             >
               <RefreshCcw /> Refresh
@@ -105,40 +118,139 @@ export default function MainLayout() {
           </ContextMenuGroup>
           <ContextMenuSeparator />
           <ContextMenuSub>
-            <ContextMenuSubTrigger className='flex gap-2'>
+            <ContextMenuLabel>Settings</ContextMenuLabel>
+            <ContextMenuSubTrigger className='flex gap-2 w-full'>
               <SettingsIcon /> Settings
             </ContextMenuSubTrigger>
             <ContextMenuSubContent>
               <ContextMenuGroup>
+                <ContextMenuLabel>Settings</ContextMenuLabel>
                 <ContextMenuItem>
-                  <Link to='/settings' className='flex gap-2'>
+                  <Link to='/settings' className='flex gap-2 w-full'>
                     <UserCircleIcon /> Account
                   </Link>
                 </ContextMenuItem>
                 <ContextMenuItem>
-                  <Link to='/settings' className='flex gap-2'>
+                  <Link to='/settings' className='flex gap-2 w-full'>
                     <LockKeyholeIcon /> Security
                   </Link>
                 </ContextMenuItem>
-                <ContextMenuItem>
-                  <Link to='/settings' className='flex gap-2'>
+                <ContextMenuSub>
+                  <ContextMenuSubTrigger className='flex gap-2 w-full'>
                     <Monitor /> Appearance
-                  </Link>
-                </ContextMenuItem>
-                <ContextMenuItem>
-                  <Link to='/settings' className='flex gap-2'>
+                  </ContextMenuSubTrigger>
+                  <ContextMenuSubContent>
+                    <ContextMenuGroup>
+                      <ContextMenuLabel>Theme</ContextMenuLabel>
+                      <ContextMenuRadioGroup
+                        value={Settings.theme}
+                        onValueChange={(value) =>
+                          updateSetting("theme", value as SettingsTheme)
+                        }
+                      >
+                        <ContextMenuRadioItem value='light'>
+                          Light
+                        </ContextMenuRadioItem>
+                        <ContextMenuRadioItem value='dark'>
+                          Dark
+                        </ContextMenuRadioItem>
+                      </ContextMenuRadioGroup>
+                    </ContextMenuGroup>
+                    <ContextMenuGroup>
+                      <ContextMenuLabel>Font Size</ContextMenuLabel>
+                      <ContextMenuRadioGroup
+                        value={Settings.fontSize}
+                        onValueChange={(value) =>
+                          updateSetting("fontSize", value as SettingsFontSize)
+                        }
+                      >
+                        <ContextMenuRadioItem value='normal'>
+                          Normal
+                        </ContextMenuRadioItem>
+                        <ContextMenuRadioItem value='large'>
+                          Large
+                        </ContextMenuRadioItem>
+                      </ContextMenuRadioGroup>
+                    </ContextMenuGroup>
+                    <ContextMenuGroup>
+                      <ContextMenuLabel>Compact Mode</ContextMenuLabel>
+                      <ContextMenuCheckboxItem
+                        checked={Settings.compactMode}
+                        onCheckedChange={(checked) =>
+                          updateSetting("compactMode", checked)
+                        }
+                      >
+                        Compact Mode
+                      </ContextMenuCheckboxItem>
+                    </ContextMenuGroup>
+                  </ContextMenuSubContent>
+                </ContextMenuSub>
+                <ContextMenuSub>
+                  <ContextMenuSubTrigger className='flex gap-2 w-full'>
                     <DatabaseIcon /> Data and Records
-                  </Link>
-                </ContextMenuItem>
+                  </ContextMenuSubTrigger>
+                  <ContextMenuSubContent>
+                    <ContextMenuGroup>
+                      <ContextMenuLabel>Page Size</ContextMenuLabel>
+                      <ContextMenuRadioGroup
+                        value={String(Settings.pageSize)}
+                        onValueChange={(value) =>
+                          updateSetting(
+                            "pageSize",
+                            Number(value) as SettingsPageSize,
+                          )
+                        }
+                      >
+                        <ContextMenuRadioItem value='5'>
+                          5 records per page
+                        </ContextMenuRadioItem>
+                        <ContextMenuRadioItem value='10'>
+                          10 records per page
+                        </ContextMenuRadioItem>
+                        <ContextMenuRadioItem value='25'>
+                          25 records per page
+                        </ContextMenuRadioItem>
+                        <ContextMenuRadioItem value='50'>
+                          50 records per page
+                        </ContextMenuRadioItem>
+                        <ContextMenuRadioItem value='100'>
+                          100 records per page
+                        </ContextMenuRadioItem>
+                      </ContextMenuRadioGroup>
+                    </ContextMenuGroup>
+                    <ContextMenuGroup>
+                      <ContextMenuLabel>Export Format</ContextMenuLabel>
+                      <ContextMenuRadioGroup
+                        value={Settings.exportFormat}
+                        onValueChange={(value) =>
+                          updateSetting(
+                            "exportFormat",
+                            value as SettingsExportFormat,
+                          )
+                        }
+                      >
+                        <ContextMenuRadioItem value='csv'>
+                          CSV
+                        </ContextMenuRadioItem>
+                        <ContextMenuRadioItem value='excel'>
+                          Excel
+                        </ContextMenuRadioItem>
+                      </ContextMenuRadioGroup>
+                    </ContextMenuGroup>
+                  </ContextMenuSubContent>
+                </ContextMenuSub>
               </ContextMenuGroup>
               <ContextMenuSeparator />
-              <ContextMenuItem
-                variant='destructive'
-                onClick={async () => await SignOut()}
-                className='cursor-pointer'
-              >
-                <LogOutIcon /> Log out
-              </ContextMenuItem>
+              <ContextMenuGroup>
+                <ContextMenuLabel>Log Out</ContextMenuLabel>
+                <ContextMenuItem
+                  variant='destructive'
+                  onClick={async () => await SignOut()}
+                  className='cursor-pointer'
+                >
+                  <LogOutIcon /> Log out
+                </ContextMenuItem>
+              </ContextMenuGroup>
             </ContextMenuSubContent>
           </ContextMenuSub>
         </ContextMenuContent>

@@ -30,6 +30,7 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
@@ -43,6 +44,7 @@ import {
   ContextMenuContent,
   ContextMenuGroup,
   ContextMenuItem,
+  ContextMenuLabel,
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from "./ui/context-menu";
@@ -234,34 +236,43 @@ export default function StudentTable({
     const MenuSeparator =
       menu_item === "context" ? ContextMenuSeparator : DropdownMenuSeparator;
 
+    const MenuItemLabel =
+      menu_item === "context" ? ContextMenuLabel : DropdownMenuLabel;
+
     return (
       <>
         {!isEditing && (
-          <MenuItemGroup>
-            <MenuItemElement
-              onClick={() => startEditing(student)}
-              className='cursor-pointer text-[16px] text-primary'
-            >
-              Edit
-            </MenuItemElement>
-            <MenuItemElement
-              className='cursor-pointer text-[16px] text-primary'
-              onClick={() => handleIncrementVisits(student.studentId)}
-            >
-              Increment Visits
-            </MenuItemElement>
+          <>
+            <MenuItemGroup>
+              <MenuItemLabel>Actions</MenuItemLabel>
+              <MenuItemElement
+                onClick={() => startEditing(student)}
+                className='cursor-pointer text-[16px] text-primary'
+              >
+                Edit
+              </MenuItemElement>
+              <MenuItemElement
+                className='cursor-pointer text-[16px] text-primary'
+                onClick={() => handleIncrementVisits(student.studentId)}
+              >
+                Increment Visits
+              </MenuItemElement>
+            </MenuItemGroup>
             <MenuSeparator />
-            <MenuItemElement
-              variant='destructive'
-              className='cursor-pointer text-[16px] text-primary'
-              onClick={() => {
-                setIsOpen(true);
-                setDeletedStudent(student);
-              }}
-            >
-              Delete
-            </MenuItemElement>
-          </MenuItemGroup>
+            <MenuItemGroup>
+            <MenuItemLabel>Danger Zone</MenuItemLabel>
+              <MenuItemElement
+                variant='destructive'
+                className='cursor-pointer text-[16px] text-primary'
+                onClick={() => {
+                  setIsOpen(true);
+                  setDeletedStudent(student);
+                }}
+              >
+                Delete
+              </MenuItemElement>
+            </MenuItemGroup>
+          </>
         )}
         {isEditing && (
           <MenuItemGroup>
