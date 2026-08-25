@@ -70,8 +70,8 @@ export default function SecuritySection({
   }
 
   return (
-    <Card className='settings-section'>
-      <CardHeader className='settings-section-title flex items-center gap-4 pl-0'>
+    <Card className='settings-section' id='security-section'>
+      <CardHeader className='settings-section-title flex flex-wrap items-center gap-4 pl-0'>
         <LockKeyholeIcon size={30} />
         <div className='flex flex-col'>
           <CardTitle className='font-extrabold text-[1.25rem] flex items-center gap-2'>

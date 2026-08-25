@@ -28,7 +28,7 @@ export default function DangerZone({
   return (
     <>
       <Card className='settings-section bg-destructive/20!' id='danger-zone'>
-        <CardHeader className='settings-section-title flex items-center gap-4 pl-0'>
+        <CardHeader className='settings-section-title flex flex-wrap items-center gap-4 pl-0'>
           <AlertTriangleIcon size={50} className='text-destructive' />
           <div className='flex flex-col'>
             <CardTitle className='font-extrabold text-[1.25rem] text-destructive'>

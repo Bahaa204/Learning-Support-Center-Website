@@ -18,6 +18,7 @@ import {
 } from "./ui/dropdown-menu";
 import { Link } from "react-router-dom";
 import {
+  BugIcon,
   DatabaseIcon,
   LockKeyholeIcon,
   LogOutIcon,
@@ -33,6 +34,7 @@ import type {
   SettingsPageSize,
   SettingsTheme,
 } from "@/types/settings";
+import { ChatBubbleBottomCenterTextIcon } from "@heroicons/react/24/outline";
 
 type HeaderProps = {
   onToggleMenu: () => void;
@@ -157,12 +159,18 @@ export default function Header({ onToggleMenu, isMenuOpen }: HeaderProps) {
                             <DropdownMenuGroup>
                               <DropdownMenuLabel>Settings</DropdownMenuLabel>
                               <DropdownMenuItem>
-                                <Link to='/settings' className='flex gap-2 w-full'>
+                                <Link
+                                  to='/settings'
+                                  className='flex gap-2 w-full'
+                                >
                                   <UserCircleIcon /> Account
                                 </Link>
                               </DropdownMenuItem>
                               <DropdownMenuItem>
-                                <Link to='/settings' className='flex gap-2 w-full'>
+                                <Link
+                                  to='/settings'
+                                  className='flex gap-2 w-full'
+                                >
                                   <LockKeyholeIcon /> Security
                                 </Link>
                               </DropdownMenuItem>
@@ -285,19 +293,33 @@ export default function Header({ onToggleMenu, isMenuOpen }: HeaderProps) {
                                 </DropdownMenuSubContent>
                               </DropdownMenuSub>
                             </DropdownMenuGroup>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuGroup>
+                              <DropdownMenuLabel>Log Out</DropdownMenuLabel>
+                              <DropdownMenuItem
+                                variant='destructive'
+                                onClick={LogOut}
+                                className='cursor-pointer'
+                              >
+                                <LogOutIcon /> Log out
+                              </DropdownMenuItem>
+                            </DropdownMenuGroup>
                           </DropdownMenuSubContent>
                         </DropdownMenuSub>
-                      </DropdownMenuGroup>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuGroup>
-                        <DropdownMenuLabel>Log Out</DropdownMenuLabel>
-                        <DropdownMenuItem
-                          variant='destructive'
-                          onClick={LogOut}
-                          className='cursor-pointer'
-                        >
-                          <LogOutIcon /> Log out
-                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuGroup>
+                          <DropdownMenuLabel>Support</DropdownMenuLabel>
+                          <DropdownMenuItem>
+                            <Link to='/feedback' className='flex gap-2 w-full'>
+                              <ChatBubbleBottomCenterTextIcon /> Submit Feedback
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <Link to='/report' className='flex gap-2 w-full'>
+                              <BugIcon /> Report An Issue
+                            </Link>
+                          </DropdownMenuItem>
+                        </DropdownMenuGroup>
                       </DropdownMenuGroup>
                     </>
                   )}

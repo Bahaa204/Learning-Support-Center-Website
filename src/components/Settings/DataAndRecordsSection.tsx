@@ -38,7 +38,7 @@ export default function DataAndRecordsSection({
 }: DataAndRecordsSectionProps) {
   return (
     <Card className='settings-section' id='data-records'>
-      <CardHeader className='settings-section-title flex items-center gap-4 pl-0'>
+      <CardHeader className='settings-section-title flex flex-wrap items-center gap-4 pl-0'>
         <DatabaseIcon size={30} />
         <div className='flex flex-col'>
           <CardTitle className='font-extrabold text-[1.25rem]'>

@@ -25,7 +25,7 @@ export default function AppearanceSection({
 }: AppearanceSectionProps) {
   return (
     <Card className='settings-section' id='appearance'>
-      <CardHeader className='settings-section-title flex items-center gap-4 pl-0'>
+      <CardHeader className='settings-section-title flex flex-wrap items-center gap-4 pl-0'>
         <Monitor size={30} />
         <div className='flex flex-col'>
           <CardTitle className='font-extrabold text-[1.25rem]'>

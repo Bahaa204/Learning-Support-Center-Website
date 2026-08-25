@@ -25,7 +25,7 @@ import { exportData } from "@/lib/exportUtils";
 import type { NewUser, User, UserInput } from "@/types/users";
 import { FilterIcon, LightbulbIcon, MoreHorizontalIcon } from "lucide-react";
 import { useState, type SubmitEvent } from "react";
-import {useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import ErrorCard from "@/components/error-card";
 import LoadingCard from "@/components/loading-card";
 import { titleCase } from "title-case";
@@ -93,8 +93,7 @@ export default function WorkStudy() {
     Error: TimeSlotsError,
   } = useTimeSlots();
 
-  const loading =
-    AuthLoading || DepartmentsLoading || TimeSlotsLoading;
+  const loading = AuthLoading || DepartmentsLoading || TimeSlotsLoading;
 
   const error = AuthError || UsersError || DepartmentsError || TimeSlotsError;
 
@@ -405,7 +404,7 @@ export default function WorkStudy() {
           </TableBody>
         </Table>
 
-        <div className='flex items-center justify-center gap-2 text-gray-600/50'>
+        <div className='flex flex-wrap items-center justify-center gap-2 text-gray-600/50'>
           <LightbulbIcon /> Tip: Right click (hold on mobile) or click the
           actions button on a row to view some quick actions.
         </div>

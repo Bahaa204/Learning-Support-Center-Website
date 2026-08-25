@@ -1,6 +1,6 @@
 import { Link, type Location } from "react-router-dom";
 import {
-  Bug,
+  BugIcon,
   HomeIcon,
   SettingsIcon,
   SquarePenIcon,
@@ -85,7 +85,7 @@ export default function SideBar({
         className={`sidebar-link ${location.pathname === "/report" ? "active" : ""}`}
         onClick={onNavigate}
       >
-        <Bug /> Report an Issue
+        <BugIcon /> Report an Issue
       </Link>
     </aside>
   );

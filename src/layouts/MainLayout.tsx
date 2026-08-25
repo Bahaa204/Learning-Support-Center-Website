@@ -25,9 +25,11 @@ import type {
   SettingsPageSize,
   SettingsTheme,
 } from "@/types/settings";
+import { ChatBubbleBottomCenterTextIcon } from "@heroicons/react/24/outline";
 import {
   ArrowBigLeft,
   ArrowBigRight,
+  BugIcon,
   DatabaseIcon,
   LockKeyholeIcon,
   LogOutIcon,
@@ -131,7 +133,7 @@ export default function MainLayout() {
                   </Link>
                 </ContextMenuItem>
                 <ContextMenuItem>
-                  <Link to='/settings' className='flex gap-2 w-full'>
+                  <Link to="/settings" className='flex gap-2 w-full'>
                     <LockKeyholeIcon /> Security
                   </Link>
                 </ContextMenuItem>
@@ -253,6 +255,20 @@ export default function MainLayout() {
               </ContextMenuGroup>
             </ContextMenuSubContent>
           </ContextMenuSub>
+          <ContextMenuSeparator />
+          <ContextMenuGroup>
+            <ContextMenuLabel>Support</ContextMenuLabel>
+            <ContextMenuItem>
+              <Link to='/feedback' className='flex gap-2 w-full'>
+                <ChatBubbleBottomCenterTextIcon /> Submit Feedback
+              </Link>
+            </ContextMenuItem>
+            <ContextMenuItem>
+              <Link to='/report' className='flex gap-2 w-full'>
+                <BugIcon /> Report An Issue
+              </Link>
+            </ContextMenuItem>
+          </ContextMenuGroup>
         </ContextMenuContent>
       </ContextMenu>
 

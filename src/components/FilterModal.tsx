@@ -202,7 +202,7 @@ export function FilterModal({
                   </FieldSet>
                   <FieldSet className='col-[2/2] row-[1/1]'>
                     <FieldGroup>
-                      <Field>
+                      <Field className='field'>
                         <Label htmlFor='date'>Date:</Label>
                         <div className='flex items-start gap-2'>
                           <div className='flex-1'>

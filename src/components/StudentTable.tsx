@@ -493,7 +493,7 @@ export default function StudentTable({
         </TableBody>
       </Table>
 
-      <div className='flex items-center justify-center gap-2 text-gray-600/50'>
+      <div className='flex flex-wrap items-center justify-center gap-2 text-gray-600/50'>
         <LightbulbIcon /> Tip: Right click (hold on mobile) or click the actions
         button on a row to view some quick actions.
       </div>
