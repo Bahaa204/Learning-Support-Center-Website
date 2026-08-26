@@ -9,22 +9,15 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
-import { useTimeSlots } from "@/hooks/useTimeSlots";
-import type { User } from "@/types/users";
+import type { TimeSlot } from "@/types/users";
 import { useState } from "react";
 
 type TimeSlotsMenuProps = {
-  userId: User["id"];
+  timeslots: TimeSlot[];
 };
 
-export function TimeSlotsMenu({ userId }: TimeSlotsMenuProps) {
+export function TimeSlotsMenu({ timeslots }: TimeSlotsMenuProps) {
   const [open, setOpen] = useState<boolean>(false);
-
-  const { TimeSlots, Loading } = useTimeSlots();
-
-  const UserTimeSlots = TimeSlots?.filter(
-    (timeslot) => timeslot.userId === userId,
-  );
 
   return (
     <div className='flex flex-col gap-4'>
@@ -44,18 +37,14 @@ export function TimeSlotsMenu({ userId }: TimeSlotsMenuProps) {
               <CommandEmpty>
                 No time slots found were found for this user.
               </CommandEmpty>
-              {Loading ? (
-                <CommandItem>Loading...</CommandItem>
-              ) : (
-                UserTimeSlots?.map((slot, index) => (
-                  <div key={slot.id}>
-                    <CommandItem>
-                      {slot.Weekday}: {slot.start_time} to {slot.end_time}
-                    </CommandItem>
-                    {index !== UserTimeSlots.length - 1 && <CommandSeparator />}
-                  </div>
-                ))
-              )}
+              {timeslots.map((slot, index) => (
+                <div key={crypto.randomUUID()}>
+                  <CommandItem>
+                    {slot.weekday}: {slot.start_time} to {slot.end_time}
+                  </CommandItem>
+                  {index !== timeslots.length - 1 && <CommandSeparator />}
+                </div>
+              ))}
             </CommandGroup>
           </CommandList>
         </Command>

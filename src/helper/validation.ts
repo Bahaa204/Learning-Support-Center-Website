@@ -34,7 +34,7 @@ export function validateStudentInput(input: StudentInput) {
 }
 
 export function validateUserInput(input: UserInput) {
-  const { displayname, email, department_id, password, time_slots } = input;
+  const { displayname, email, department_id, password } = input;
 
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -53,7 +53,7 @@ export function validateUserInput(input: UserInput) {
   if (isNaN(Number(department_id)) || department_id < 1)
     return "Invalid department selected";
 
-  if (time_slots.length === 0) return "At least one time slot must be selected";
+  // if (time_slots.length === 0) return "At least one time slot must be selected";
 
   return null; // No validation errors
 }

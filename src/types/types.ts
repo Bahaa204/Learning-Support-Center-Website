@@ -20,6 +20,12 @@ type PublicSchema = Database["public"];
 
 export type Tables = PublicSchema["Tables"];
 
+export type DeepNonNullable<T> = T extends readonly unknown[]
+  ? { [K in keyof T]: DeepNonNullable<T[K]> }
+  : T extends object
+    ? { [K in keyof T]-?: DeepNonNullable<NonNullable<T[K]>> }
+    : T;
+
 export type Data<T> =
   | {
       data: T;

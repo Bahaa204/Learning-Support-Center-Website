@@ -20,7 +20,6 @@ import { useDepartments } from "@/hooks/useDepartments";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { useSettings } from "@/hooks/useSettings";
 import { useUsers } from "@/hooks/useUsers";
-import { useTimeSlots } from "@/hooks/useTimeSlots";
 import { exportData } from "@/lib/exportUtils";
 import type { NewUser, User, UserInput } from "@/types/users";
 import { FilterIcon, LightbulbIcon, MoreHorizontalIcon } from "lucide-react";
@@ -87,15 +86,9 @@ export default function WorkStudy() {
 
   const { Settings } = useSettings();
 
-  const {
-    AddBulkTimeSlots,
-    Loading: TimeSlotsLoading,
-    Error: TimeSlotsError,
-  } = useTimeSlots();
+  const loading = AuthLoading || DepartmentsLoading;
 
-  const loading = AuthLoading || DepartmentsLoading || TimeSlotsLoading;
-
-  const error = AuthError || UsersError || DepartmentsError || TimeSlotsError;
+  const error = AuthError || UsersError || DepartmentsError;
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -132,6 +125,7 @@ export default function WorkStudy() {
       display_name: Input.displayname,
       role: Input.isSupervisor ? "admin" : "workstudy",
       department_id: Input.department_id,
+      time_slots: Input.time_slots,
     };
 
     await AddUser(newUser, {
@@ -139,21 +133,7 @@ export default function WorkStudy() {
         setIsSubmitting(false);
         setLocalError("Failed to create account. Please try again.");
       },
-      onSuccess: async () => {
-        const slotInserts = Input.time_slots.map((s) => ({
-          userId: UserId,
-          Weekday: s.Weekday,
-          start_time: s.start_time,
-          end_time: s.end_time,
-        }));
-
-        await AddBulkTimeSlots(slotInserts, {
-          onError: () => {
-            setIsSubmitting(false);
-            setLocalError("Failed to insert time slots.");
-          },
-        });
-
+      onSuccess: () => {
         setIsSubmitting(false);
         setInput(InitialValue);
       },
@@ -338,9 +318,9 @@ export default function WorkStudy() {
             {filteredUsers.length > 0 ? (
               filteredUsers.map((user, index) => {
                 return (
-                  <ContextMenu>
+                  <ContextMenu key={user.id}>
                     <ContextMenuTrigger asChild>
-                      <TableRow key={user.id}>
+                      <TableRow>
                         <TableHead className='text-center'>
                           {index + 1}
                         </TableHead>
@@ -359,8 +339,8 @@ export default function WorkStudy() {
                               department.id === user.department_id,
                           )?.name || "—"}
                         </TableCell>
-                        <TableCell>
-                          <TimeSlotsMenu userId={user.id} />
+                        <TableCell className='flex justify-center items-center'>
+                          <TimeSlotsMenu timeslots={user.time_slots} />
                         </TableCell>
                         <TableCell className='text-center'>
                           {formatDate(user.created_at)}
@@ -396,8 +376,8 @@ export default function WorkStudy() {
             ) : (
               <TableRow>
                 <TableCell colSpan={10} className='text-center text-[17px]'>
-                  No student records found. Check your filters or add new
-                  student records to see them here.
+                  No workstudy found. Check your filters or add new student
+                  records to see them here.
                 </TableCell>
               </TableRow>
             )}

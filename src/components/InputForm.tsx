@@ -27,12 +27,13 @@ import { Button } from "./ui/button";
 import { useState, type SubmitEvent } from "react";
 import CoursesMenu from "./CoursesMenu";
 import { DateTimePicker } from "./DateTimePicker.tsx";
-import TimeSlots from "./TimeSlots.tsx";
+// import TimeSlots from "./TimeSlots.tsx";
 import {
   validateStudentInput,
   validateUserInput,
 } from "@/helper/validation.ts";
 import { Spinner } from "./ui/spinner.tsx";
+import TimeSlots from "./TimeSlots.tsx";
 
 export default function InputForm({
   isSubmitting,

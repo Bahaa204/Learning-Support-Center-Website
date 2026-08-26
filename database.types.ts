@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.4"
+    PostgrestVersion: "14.17"
   }
   public: {
     Tables: {
@@ -164,6 +164,7 @@ export type Database = {
           email: string
           id: string
           role: Database["public"]["Enums"]["user_role"]
+          time_slots: Database["public"]["CompositeTypes"]["time_slot"][]
         }
         Insert: {
           created_at?: string
@@ -172,6 +173,7 @@ export type Database = {
           email: string
           id: string
           role?: Database["public"]["Enums"]["user_role"]
+          time_slots: Database["public"]["CompositeTypes"]["time_slot"][]
         }
         Update: {
           created_at?: string
@@ -180,6 +182,7 @@ export type Database = {
           email?: string
           id?: string
           role?: Database["public"]["Enums"]["user_role"]
+          time_slots?: Database["public"]["CompositeTypes"]["time_slot"][]
         }
         Relationships: [
           {
@@ -215,8 +218,9 @@ export type Database = {
           isSetofReturn: false
         }
       }
-      is_admin_in_department: {
-        Args: { p_department_id: number }
+      is_admin: { Args: never; Returns: boolean }
+      validate_time_slots: {
+        Args: { slots: Database["public"]["CompositeTypes"]["time_slot"][] }
         Returns: boolean
       }
     }
@@ -225,7 +229,11 @@ export type Database = {
       weekday: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday"
     }
     CompositeTypes: {
-      [_ in never]: never
+      time_slot: {
+        weekday: Database["public"]["Enums"]["weekday"] | null
+        start_time: string | null
+        end_time: string | null
+      }
     }
   }
 }
