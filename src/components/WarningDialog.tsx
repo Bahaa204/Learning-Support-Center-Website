@@ -17,7 +17,6 @@ import {
 } from "@headlessui/react";
 import { AlertTriangleIcon } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useEffect, useRef } from "react";
 
 type WarningDialogProps = {
   IsOpen: boolean;
