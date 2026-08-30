@@ -27,14 +27,14 @@ import type {
 } from "@/types/settings";
 import { ChatBubbleBottomCenterTextIcon } from "@heroicons/react/24/outline";
 import {
-  ArrowBigLeft,
-  ArrowBigRight,
+  ArrowBigLeftIcon,
+  ArrowBigRightIcon,
   BugIcon,
   DatabaseIcon,
   LockKeyholeIcon,
   LogOutIcon,
   Monitor,
-  RefreshCcw,
+  RefreshCw,
   SettingsIcon,
   UserCircleIcon,
 } from "lucide-react";
@@ -63,14 +63,14 @@ export default function MainLayout() {
     <>
       <ContextMenu>
         <ContextMenuTrigger asChild disabled={Loading}>
-          <div className='app-shell'>
+          <div className="app-shell">
             <Header
               onToggleMenu={() =>
                 setIsMenuOpen((currentValue) => !currentValue)
               }
               isMenuOpen={isMenuOpen}
             />
-            <div className='layout'>
+            <div className="layout">
               {Session && (
                 <>
                   <SideBar
@@ -81,64 +81,70 @@ export default function MainLayout() {
                   />
                   {isMenuOpen && (
                     <button
-                      className='sidebar-overlay'
+                      className="sidebar-overlay"
                       onClick={() => setIsMenuOpen(false)}
-                      aria-label='Close menu'
-                      type='button'
+                      aria-label="Close menu"
+                      type="button"
                     />
                   )}
                 </>
               )}
-              <main className='main'>
+              <main className="main">
                 <Outlet />
               </main>
             </div>
             <Footer />
           </div>
         </ContextMenuTrigger>
-        <ContextMenuContent className='z-100000'>
+        <ContextMenuContent className="z-100000">
           <ContextMenuGroup>
             <ContextMenuLabel>Navigation</ContextMenuLabel>
             <ContextMenuItem
-              className='cursor-pointer flex gap-2 w-full'
+              className="cursor-pointer flex items-center gap-2 w-full"
               onClick={() => navigate(-1)}
             >
-              <ArrowBigLeft /> Back
+              <ArrowBigLeftIcon /> Back
             </ContextMenuItem>
             <ContextMenuItem
-              className='cursor-pointer flex gap-2 w-full'
+              className="cursor-pointer flex items-center gap-2 w-full"
               onClick={() => navigate(+1)}
             >
-              Forward <ArrowBigRight />
+              Forward <ArrowBigRightIcon />
             </ContextMenuItem>
             <ContextMenuItem
-              className='cursor-pointer flex gap-2 w-full'
+              className="cursor-pointer flex items-center gap-2 w-full"
               onClick={() => window.location.reload()}
             >
-              <RefreshCcw /> Refresh
+              <RefreshCw /> Refresh
             </ContextMenuItem>
           </ContextMenuGroup>
           <ContextMenuSeparator />
           <ContextMenuSub>
             <ContextMenuLabel>Settings</ContextMenuLabel>
-            <ContextMenuSubTrigger className='flex gap-2 w-full'>
+            <ContextMenuSubTrigger className="flex items-center gap-2 w-full">
               <SettingsIcon /> Settings
             </ContextMenuSubTrigger>
             <ContextMenuSubContent>
               <ContextMenuGroup>
                 <ContextMenuLabel>Settings</ContextMenuLabel>
                 <ContextMenuItem>
-                  <Link to='/settings' className='flex gap-2 w-full'>
+                  <Link
+                    to="/settings"
+                    className="flex items-center gap-2 w-full"
+                  >
                     <UserCircleIcon /> Account
                   </Link>
                 </ContextMenuItem>
                 <ContextMenuItem>
-                  <Link to="/settings" className='flex gap-2 w-full'>
+                  <Link
+                    to="/settings"
+                    className="flex items-center gap-2 w-full"
+                  >
                     <LockKeyholeIcon /> Security
                   </Link>
                 </ContextMenuItem>
                 <ContextMenuSub>
-                  <ContextMenuSubTrigger className='flex gap-2 w-full'>
+                  <ContextMenuSubTrigger className="flex items-center gap-2 w-full">
                     <Monitor /> Appearance
                   </ContextMenuSubTrigger>
                   <ContextMenuSubContent>
@@ -150,10 +156,16 @@ export default function MainLayout() {
                           updateSetting("theme", value as SettingsTheme)
                         }
                       >
-                        <ContextMenuRadioItem value='light'>
+                        <ContextMenuRadioItem
+                          value="light"
+                          className="cursor-pointer"
+                        >
                           Light
                         </ContextMenuRadioItem>
-                        <ContextMenuRadioItem value='dark'>
+                        <ContextMenuRadioItem
+                          value="dark"
+                          className="cursor-pointer"
+                        >
                           Dark
                         </ContextMenuRadioItem>
                       </ContextMenuRadioGroup>
@@ -166,10 +178,16 @@ export default function MainLayout() {
                           updateSetting("fontSize", value as SettingsFontSize)
                         }
                       >
-                        <ContextMenuRadioItem value='normal'>
+                        <ContextMenuRadioItem
+                          value="normal"
+                          className="cursor-pointer"
+                        >
                           Normal
                         </ContextMenuRadioItem>
-                        <ContextMenuRadioItem value='large'>
+                        <ContextMenuRadioItem
+                          value="large"
+                          className="cursor-pointer"
+                        >
                           Large
                         </ContextMenuRadioItem>
                       </ContextMenuRadioGroup>
@@ -181,6 +199,7 @@ export default function MainLayout() {
                         onCheckedChange={(checked) =>
                           updateSetting("compactMode", checked)
                         }
+                        className="cursor-pointer"
                       >
                         Compact Mode
                       </ContextMenuCheckboxItem>
@@ -188,7 +207,7 @@ export default function MainLayout() {
                   </ContextMenuSubContent>
                 </ContextMenuSub>
                 <ContextMenuSub>
-                  <ContextMenuSubTrigger className='flex gap-2 w-full'>
+                  <ContextMenuSubTrigger className="flex items-center gap-2 w-full">
                     <DatabaseIcon /> Data and Records
                   </ContextMenuSubTrigger>
                   <ContextMenuSubContent>
@@ -203,19 +222,34 @@ export default function MainLayout() {
                           )
                         }
                       >
-                        <ContextMenuRadioItem value='5'>
+                        <ContextMenuRadioItem
+                          value="5"
+                          className="cursor-pointer"
+                        >
                           5 records per page
                         </ContextMenuRadioItem>
-                        <ContextMenuRadioItem value='10'>
+                        <ContextMenuRadioItem
+                          value="10"
+                          className="cursor-pointer"
+                        >
                           10 records per page
                         </ContextMenuRadioItem>
-                        <ContextMenuRadioItem value='25'>
+                        <ContextMenuRadioItem
+                          value="25"
+                          className="cursor-pointer"
+                        >
                           25 records per page
                         </ContextMenuRadioItem>
-                        <ContextMenuRadioItem value='50'>
+                        <ContextMenuRadioItem
+                          value="50"
+                          className="cursor-pointer"
+                        >
                           50 records per page
                         </ContextMenuRadioItem>
-                        <ContextMenuRadioItem value='100'>
+                        <ContextMenuRadioItem
+                          value="100"
+                          className="cursor-pointer"
+                        >
                           100 records per page
                         </ContextMenuRadioItem>
                       </ContextMenuRadioGroup>
@@ -231,10 +265,16 @@ export default function MainLayout() {
                           )
                         }
                       >
-                        <ContextMenuRadioItem value='csv'>
+                        <ContextMenuRadioItem
+                          value="csv"
+                          className="cursor-pointer"
+                        >
                           CSV
                         </ContextMenuRadioItem>
-                        <ContextMenuRadioItem value='excel'>
+                        <ContextMenuRadioItem
+                          value="excel"
+                          className="cursor-pointer"
+                        >
                           Excel
                         </ContextMenuRadioItem>
                       </ContextMenuRadioGroup>
@@ -246,9 +286,9 @@ export default function MainLayout() {
               <ContextMenuGroup>
                 <ContextMenuLabel>Log Out</ContextMenuLabel>
                 <ContextMenuItem
-                  variant='destructive'
+                  variant="destructive"
                   onClick={async () => await SignOut()}
-                  className='cursor-pointer'
+                  className="cursor-pointer"
                 >
                   <LogOutIcon /> Log out
                 </ContextMenuItem>
@@ -258,13 +298,13 @@ export default function MainLayout() {
           <ContextMenuSeparator />
           <ContextMenuGroup>
             <ContextMenuLabel>Support</ContextMenuLabel>
-            <ContextMenuItem>
-              <Link to='/feedback' className='flex gap-2 w-full'>
+            <ContextMenuItem className="cursor-pointer">
+              <Link to="/feedback" className="flex items-center gap-2 w-full">
                 <ChatBubbleBottomCenterTextIcon /> Submit Feedback
               </Link>
             </ContextMenuItem>
-            <ContextMenuItem>
-              <Link to='/report' className='flex gap-2 w-full'>
+            <ContextMenuItem className="cursor-pointer">
+              <Link to="/report" className="flex items-center  gap-2 w-full">
                 <BugIcon /> Report An Issue
               </Link>
             </ContextMenuItem>
