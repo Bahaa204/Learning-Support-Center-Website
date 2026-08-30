@@ -108,7 +108,7 @@ export function FilterModal({
           <DialogBackdrop className='fixed inset-0 bg-black/15' />
           <DialogPanel
             transition
-            className='w-full max-w-3xl  rounded-xl bg-white p-6 backdrop-blur-2xl duration-300 ease-out data-closed:transform-[scale(95%)] data-closed:opacity-0'
+            className='w-full max-w-3xl  rounded-xl bg-white dark:bg-card p-6 backdrop-blur-2xl duration-300 ease-out data-closed:transform-[scale(95%)] data-closed:opacity-0'
           >
             <Card className='ring-0!'>
               <CardHeader>

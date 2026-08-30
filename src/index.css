@@ -3,7 +3,7 @@
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/inter";
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 @theme inline {
   --font-heading: var(--font-sans);
@@ -99,7 +99,7 @@
   --surface-soft: #f5f3ef;
 }
 
-.dark {
+html[data-theme="dark"] {
   --background: oklch(0.145 0.008 326);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.212 0.019 322.12);
@@ -131,9 +131,6 @@
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: rgba(255, 255, 255, 0.1);
   --sidebar-ring: rgba(255, 255, 255, 0.18);
-}
-
-html[data-theme="dark"] {
   --navy: #d3b6e0;
   --navy-mid: #21182a;
   --navy-light: #3a2748;
@@ -1786,6 +1783,11 @@ html[data-theme="dark"] .stat-icon {
   padding: 2rem;
   margin-bottom: 2rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  color: var(--text-dark);
+}
+
+.settings-section#danger-zone {
+  background-color: color-mix(in oklab, var(--destructive) 20%, transparent);
 }
 
 .settings-section-title {

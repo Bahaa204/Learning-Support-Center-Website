@@ -113,7 +113,7 @@ export default function Header({ onToggleMenu, isMenuOpen }: HeaderProps) {
 
             {Session && (
               <DropdownMenu>
-                <DropdownMenuTrigger className='cursor-pointer bg-(--navy) rounded-4xl border-2 z-99999 border-(--gold)'>
+                <DropdownMenuTrigger className='cursor-pointer bg-(--navy-light) rounded-4xl border-2 z-99999 border-(--gold)'>
                   <div className='size-9 flex items-center justify-center relative text-center'>
                     <span className='text-(--gold-light) text-[0.72rem] font-semibold text-center'>
                       {Session.user.user_metadata?.avatar_url ? (
