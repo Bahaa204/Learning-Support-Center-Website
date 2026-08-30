@@ -70,7 +70,7 @@ export default function SideBar({
       </Link>
 
       <hr className='sidebar-divider' />
-      <div className='sidebar-section-label'>Feedback</div>
+      <div className='sidebar-section-label'>Support</div>
 
       <Link
         to='/feedback'

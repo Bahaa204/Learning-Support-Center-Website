@@ -14,9 +14,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import type { FeedbackInput } from "@/types/Feedback";
 import { useState, type SubmitEvent } from "react";
+import { titleCase } from "title-case";
 
-export default function Report() {
-  useDocumentTitle("Report");
+type SupportProps = {
+  type: "feedback" | "report";
+};
+
+export default function Support({ type }: SupportProps) {
+  useDocumentTitle("Feedback");
 
   const { Session, Loading: AuthLoading, SendEmail } = useAuth();
 
@@ -28,7 +33,7 @@ export default function Report() {
   const [FeedbackInput, setFeedbackInput] =
     useState<FeedbackInput>(InitialValue);
 
-  if (AuthLoading) return <LoadingCard message='Checking Authentication...' />;
+  if (AuthLoading) return <LoadingCard message="Checking Authentication..." />;
 
   if (!Session) return <NavigateToLogin />;
 
@@ -41,13 +46,13 @@ export default function Report() {
 
     if (AuthLoading || !Session?.user.email) return;
 
-    const subject = `[REPORT] ${FeedbackInput.subject}`;
+    const subject = `[${type.toUpperCase()}] ${FeedbackInput.subject}`;
 
-    const message = `Report from ${Session.user.email}:\n\n${FeedbackInput.message}`;
+    const message = `${titleCase(type)} from ${Session.user.email}:\n\n${FeedbackInput.message}`;
 
     const ok = await SendEmail(
       "brawass6@gmail.com",
-      "RHU Learning Support Center Support <support@trustedappartmentbridge.app>",
+      import.meta.env.VITE_RESEND_SUPPORT_EMAIL,
       subject,
       message,
       Session.user.email,
@@ -58,8 +63,8 @@ export default function Report() {
 
   return (
     <>
-      <h1 className='page-title'>Submit Report</h1>
-      <p className='page-desc'>
+      <h1 className="page-title">Submit {titleCase(type)}</h1>
+      <p className="page-desc">
         We value your feedback! Please fill out the form below to share your
         thoughts, suggestions, or concerns.
         <br />
@@ -72,36 +77,36 @@ export default function Report() {
         <FieldSet>
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor='subject'>Subject</FieldLabel>
+              <FieldLabel htmlFor="subject">Subject</FieldLabel>
               <Input
-                id='subject'
-                type='text'
-                placeholder='Enter the subject of your report'
+                id="subject"
+                type="text"
+                placeholder={`Enter the subject of your ${type}`}
                 onChange={(e) => updateFields({ subject: e.target.value })}
                 value={FeedbackInput.subject}
                 required
               />
               <FieldDescription>
-                Please provide a brief and descriptive subject for your report.
+                Please provide a brief and descriptive subject for your {type}.
               </FieldDescription>
             </Field>
             <Field>
-              <FieldLabel htmlFor='message'>Message</FieldLabel>
+              <FieldLabel htmlFor="message">Message</FieldLabel>
               <Textarea
-                id='message'
-                placeholder='Enter your report'
+                id="message"
+                placeholder={`Enter your ${type}`}
                 onChange={(e) => updateFields({ message: e.target.value })}
                 value={FeedbackInput.message}
                 required
               />
               <FieldDescription>
-                Please provide a detailed description of your report.
+                Please provide a detailed description of your {type}.
               </FieldDescription>
             </Field>
           </FieldGroup>
           <FieldGroup>
-            <Button type='submit' className='btn-primary'>
-              Send Report
+            <Button type="submit" className="btn-primary">
+              Send {titleCase(type)}
             </Button>
           </FieldGroup>
         </FieldSet>

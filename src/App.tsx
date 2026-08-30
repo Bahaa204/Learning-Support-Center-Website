@@ -7,11 +7,10 @@ import Home from "./pages/Home.tsx";
 import Settings from "./pages/Settings.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import ErrorPage from "./pages/ErrorPage.tsx";
-import Feedback from "./pages/Feedback.tsx";
-import Report from "./pages/Report.tsx";
 import AuthLayout from "./layouts/AuthLayout.tsx";
 import AuthHome from "./pages/AuthPages/AuthHome.tsx";
 import ResetPassword from "./pages/AuthPages/ResetPassword.tsx";
+import Support from "./pages/Support.tsx";
 
 const router = createBrowserRouter([
   {
@@ -24,8 +23,8 @@ const router = createBrowserRouter([
       { path: "support-center-staff", element: <WorkStudy /> },
       { path: "student-records", element: <StudentRecords /> },
       { path: "settings", element: <Settings /> },
-      { path: "feedback", element: <Feedback /> },
-      { path: "report", element: <Report /> },
+      { path: "feedback", element: <Support type="feedback" /> },
+      { path: "report", element: <Support type="report" /> },
       { path: "*", element: <NotFound /> },
     ],
   },
