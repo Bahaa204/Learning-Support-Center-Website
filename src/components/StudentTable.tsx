@@ -71,6 +71,7 @@ export type TableProps = {
     options?: MutationOptions<boolean, Student["studentId"]>,
   ) => Promise<boolean>;
   isUpdating: Student["studentId"] | null;
+  isDeleting: Student["studentId"] | null;
   AskedAbout: AskedAbout[];
   syncStudentCourses: (
     studentId: AskedAbout["student_Id"],
@@ -84,6 +85,7 @@ export default function StudentTable({
   UpdateStudent,
   DeleteStudent,
   isUpdating,
+  isDeleting,
   Users,
   Departments,
   AskedAbout,
@@ -247,12 +249,12 @@ export default function StudentTable({
               <MenuItemLabel>Actions</MenuItemLabel>
               <MenuItemElement
                 onClick={() => startEditing(student)}
-                className='cursor-pointer text-[16px] text-primary'
+                className="cursor-pointer text-[16px] text-primary"
               >
                 Edit
               </MenuItemElement>
               <MenuItemElement
-                className='cursor-pointer text-[16px] text-primary'
+                className="cursor-pointer text-[16px] text-primary"
                 onClick={() => handleIncrementVisits(student.studentId)}
               >
                 Increment Visits
@@ -260,10 +262,10 @@ export default function StudentTable({
             </MenuItemGroup>
             <MenuSeparator />
             <MenuItemGroup>
-            <MenuItemLabel>Danger Zone</MenuItemLabel>
+              <MenuItemLabel>Danger Zone</MenuItemLabel>
               <MenuItemElement
-                variant='destructive'
-                className='cursor-pointer text-[16px] text-primary'
+                variant="destructive"
+                className="cursor-pointer text-[16px] text-primary"
                 onClick={() => {
                   setIsOpen(true);
                   setDeletedStudent(student);
@@ -277,7 +279,7 @@ export default function StudentTable({
         {isEditing && (
           <MenuItemGroup>
             <MenuItemElement
-              className='cursor-pointer text-[16px] text-primary'
+              className="cursor-pointer text-[16px] text-primary"
               onClick={() => {
                 handleEditStudent(student);
               }}
@@ -286,8 +288,8 @@ export default function StudentTable({
             </MenuItemElement>
             <MenuSeparator />
             <MenuItemElement
-              variant='destructive'
-              className='cursor-pointer text-[16px] text-primary'
+              variant="destructive"
+              className="cursor-pointer text-[16px] text-primary"
               onClick={cancelEditing}
             >
               Cancel Edits
@@ -300,19 +302,19 @@ export default function StudentTable({
 
   return (
     <>
-      <Table className='w-screen'>
+      <Table className="w-screen">
         <TableHeader>
           <TableRow>
-            <TableHead className='text-center'></TableHead>
-            <TableHead className='text-center'>Student ID</TableHead>
-            <TableHead className='text-center'>Student Name</TableHead>
-            <TableHead className='text-center'>Email</TableHead>
-            <TableHead className='text-center'>Department</TableHead>
-            <TableHead className='text-center'>Added By</TableHead>
-            <TableHead className='text-center'>Added At</TableHead>
-            <TableHead className='text-center'>Courses Asked About</TableHead>
-            <TableHead className='text-center'>Visits</TableHead>
-            <TableHead className='text-center'>Actions</TableHead>
+            <TableHead className="text-center"></TableHead>
+            <TableHead className="text-center">Student ID</TableHead>
+            <TableHead className="text-center">Student Name</TableHead>
+            <TableHead className="text-center">Email</TableHead>
+            <TableHead className="text-center">Department</TableHead>
+            <TableHead className="text-center">Added By</TableHead>
+            <TableHead className="text-center">Added At</TableHead>
+            <TableHead className="text-center">Courses Asked About</TableHead>
+            <TableHead className="text-center">Visits</TableHead>
+            <TableHead className="text-center">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -325,9 +327,33 @@ export default function StudentTable({
                   <TableRow key={student.id}>
                     <TableCell
                       colSpan={10}
-                      className='text-center text-[16px] text-red-500 bg-red-500/5'
+                      className="text-center text-[17px] text-red-500 bg-red-500/5"
                     >
                       {ErrorNotice.message}
+                    </TableCell>
+                  </TableRow>
+                );
+
+              if (
+                isDeleting === student.studentId ||
+                isUpdating === student.studentId
+              )
+                return (
+                  <TableRow key={student.id}>
+                    <TableCell
+                      colSpan={10}
+                      className={`text-center text-[17px] ${
+                        isDeleting === student.studentId
+                          ? "text-red-500 bg-red-500/5"
+                          : "text-primary bg-primary/5"
+                      }`}
+                    >
+                      <div className="flex justify-center items-center gap-5">
+                        <Spinner className="size-5" />
+                        {isDeleting === student.studentId
+                          ? "Deleting student Record ..."
+                          : "Updating student Record ..."}
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
@@ -336,55 +362,55 @@ export default function StudentTable({
                 <ContextMenu key={student.id}>
                   <ContextMenuTrigger asChild>
                     <TableRow>
-                      <TableHead className='text-center'>{index + 1}</TableHead>
-                      <TableCell className='text-center'>
+                      <TableHead className="text-center">{index + 1}</TableHead>
+                      <TableCell className="text-center">
                         {isEditing ? (
                           <Input
-                            type='number'
-                            placeholder='Student ID'
+                            type="number"
+                            placeholder="Student ID"
                             value={EditValues.studentId}
                             onChange={(event) =>
                               updateFields({
                                 studentId: parseInt(event.target.value),
                               })
                             }
-                            className='w-full'
+                            className="w-full"
                           />
                         ) : (
                           student.studentId
                         )}
                       </TableCell>
-                      <TableCell className='text-center'>
+                      <TableCell className="text-center">
                         {isEditing ? (
                           <Input
-                            type='text'
-                            placeholder='Student Name'
+                            type="text"
+                            placeholder="Student Name"
                             value={EditValues.studentName}
                             onChange={(event) =>
                               updateFields({ studentName: event.target.value })
                             }
-                            className='w-full'
+                            className="w-full"
                           />
                         ) : (
                           student.studentName
                         )}
                       </TableCell>
-                      <TableCell className='text-center'>
+                      <TableCell className="text-center">
                         {isEditing ? (
                           <Input
-                            type='email'
-                            placeholder='Email'
+                            type="email"
+                            placeholder="Email"
                             value={EditValues.email || ""}
                             onChange={(event) =>
                               updateFields({ email: event.target.value })
                             }
-                            className='w-full'
+                            className="w-full"
                           />
                         ) : (
                           student.email || "—"
                         )}
                       </TableCell>
-                      <TableCell className='text-center'>
+                      <TableCell className="text-center">
                         {isEditing ? (
                           <Select
                             value={String(EditValues.department_id ?? "")}
@@ -393,7 +419,7 @@ export default function StudentTable({
                             }}
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder='Select a department' />
+                              <SelectValue placeholder="Select a department" />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectGroup>
@@ -417,19 +443,19 @@ export default function StudentTable({
                           )?.name
                         )}
                       </TableCell>
-                      <TableCell className='text-center'>
+                      <TableCell className="text-center">
                         {Users.find((user) => user.id === student.added_by)
                           ?.display_name || "—"}
                       </TableCell>
-                      <TableCell className='text-center'>
+                      <TableCell className="text-center">
                         {student.added_at}
                       </TableCell>
-                      <TableCell className='text-center'>
+                      <TableCell className="text-center">
                         {isEditing ? (
                           <CoursesMenu
                             selectedCourseCodes={EditAskedCourses}
                             onSelectionChange={setEditAskedCourses}
-                            buttonLabel='Open Courses Menu'
+                            buttonLabel="Open Courses Menu"
                           />
                         ) : (
                           <CoursesDisplayList
@@ -439,30 +465,26 @@ export default function StudentTable({
                           />
                         )}
                       </TableCell>
-                      <TableCell className='text-center'>
-                        {isUpdating === student.studentId ? (
-                          <Spinner />
-                        ) : (
-                          student.nb_visits
-                        )}
+                      <TableCell className="text-center">
+                        {student.nb_visits}
                       </TableCell>
-                      <TableCell className='text-center'>
+                      <TableCell className="text-center">
                         <DropdownMenu>
                           <DropdownMenuTrigger
                             asChild
-                            className='cursor-pointer'
+                            className="cursor-pointer"
                           >
-                            <Button variant='secondary'>
+                            <Button variant="secondary">
                               <MoreHorizontalIcon />
-                              <span className='sr-only'>Open Menu</span>
+                              <span className="sr-only">Open Menu</span>
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent
-                            align='center'
-                            className='focus:bg-none w-full'
+                            align="center"
+                            className="focus:bg-none w-full"
                           >
                             <RowActions
-                              menu_item='dropdown'
+                              menu_item="dropdown"
                               student={student}
                               isEditing={isEditing}
                             />
@@ -474,7 +496,7 @@ export default function StudentTable({
 
                   <ContextMenuContent>
                     <RowActions
-                      menu_item='context'
+                      menu_item="context"
                       student={student}
                       isEditing={isEditing}
                     />
@@ -484,7 +506,7 @@ export default function StudentTable({
             })
           ) : (
             <TableRow>
-              <TableCell colSpan={10} className='text-center text-[17px]'>
+              <TableCell colSpan={10} className="text-center text-[17px]">
                 No student records found. Check your filters or add new student
                 records to see them here.
               </TableCell>
@@ -493,42 +515,42 @@ export default function StudentTable({
         </TableBody>
       </Table>
 
-      <div className='flex flex-wrap items-center justify-center gap-2 text-gray-600/50'>
+      <div className="flex flex-wrap items-center justify-center gap-2 text-gray-600/50">
         <LightbulbIcon /> Tip: Right click (hold on mobile) or click the actions
         button on a row to view some quick actions.
       </div>
 
       {/* Pagination */}
-      <div className='flex justify-center items-center gap-4 m-4'>
+      <div className="flex justify-center items-center gap-4 m-4">
         <Button
           onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
           disabled={currentPage === 1}
-          className='btn-primary'
+          className="btn-primary"
         >
           Previous
         </Button>
-        <span className='text-[0.9rem] text-(--text-muted)'>
+        <span className="text-[0.9rem] text-(--text-muted)">
           Page {currentPage} of {Math.max(1, totalPages)}
         </span>
         <Button
           onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
           disabled={currentPage === totalPages}
-          className='btn-primary'
+          className="btn-primary"
         >
           Next
         </Button>
       </div>
 
-        <Modal
-          Open={IsOpen}
-          setOpen={setIsOpen}
-          text={DeletedStudent?.studentName || "this student"}
-          IsDestructive
-          handleDelete={async () => {
-            if (DeletedStudent)
-              await handleDeleteStudent(DeletedStudent.studentId);
-          }}
-        />
+      <Modal
+        Open={IsOpen}
+        setOpen={setIsOpen}
+        text={DeletedStudent?.studentName || "this student"}
+        IsDestructive
+        handleDelete={async () => {
+          if (DeletedStudent)
+            await handleDeleteStudent(DeletedStudent.studentId);
+        }}
+      />
     </>
   );
 }

@@ -18,6 +18,9 @@ export function useStudents(user: AuthUser | undefined) {
   const [IsUpdating, setIsUpdating] = useState<Student["studentId"] | null>(
     null,
   );
+  const [IsDeleting, setIsDeleting] = useState<Student["studentId"] | null>(
+    null,
+  );
   const [Loading, setLoading] = useState<boolean>(false);
   const [Error, setError] = useState<PostgrestError | null>(null);
 
@@ -91,7 +94,7 @@ export function useStudents(user: AuthUser | undefined) {
     { id: Student["studentId"]; updatedStudent: UpdatedStudent }
   >({
     mutationFn: updateStudent,
-    onMutate: () => setLoading(true),
+    onMutate: (student) => setIsUpdating(student.id),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["students", user?.user_metadata.department_id],
@@ -99,7 +102,7 @@ export function useStudents(user: AuthUser | undefined) {
     },
     onSettled: (_data, error) => {
       if (error) setError(error);
-      setLoading(false);
+      setIsUpdating(null);
     },
   });
 
@@ -109,7 +112,7 @@ export function useStudents(user: AuthUser | undefined) {
     Student["studentId"]
   >({
     mutationFn: deleteStudent,
-    onMutate: () => setLoading(true),
+    onMutate: (studentId) => setIsDeleting(studentId),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["students", user?.user_metadata.department_id],
@@ -117,7 +120,7 @@ export function useStudents(user: AuthUser | undefined) {
     },
     onSettled: (_data, error) => {
       if (error) setError(error);
-      setLoading(false);
+      setIsDeleting(null);
     },
   });
 
@@ -173,6 +176,7 @@ export function useStudents(user: AuthUser | undefined) {
     Students,
     Loading: Loading || isLoading,
     Error: QueryError || Error,
+    IsDeleting,
     IsUpdating,
     AddStudent,
     IncrementStudentVisits,

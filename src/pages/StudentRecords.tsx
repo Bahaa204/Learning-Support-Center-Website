@@ -50,6 +50,7 @@ export default function StudentRecords() {
     Error: StudentsError,
     IncrementStudentVisits,
     IsUpdating,
+    IsDeleting,
     AddStudent,
     UpdateStudent,
     DeleteStudent,
@@ -273,6 +274,7 @@ export default function StudentRecords() {
           UpdateStudent={UpdateStudent}
           DeleteStudent={DeleteStudent}
           isUpdating={IsUpdating}
+          isDeleting={IsDeleting}
           AskedAbout={AskedAbout}
           syncStudentCourses={syncStudentCourses}
         />
