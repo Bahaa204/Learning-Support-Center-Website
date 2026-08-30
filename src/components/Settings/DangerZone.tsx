@@ -90,6 +90,7 @@ export default function DangerZone({
         Open={IsDeletingAccount}
         setOpen={setIsDeletingAccount}
         text='your Account'
+        IsDestructive
         handleDelete={DeleteAccount}
       />
 
@@ -97,6 +98,7 @@ export default function DangerZone({
         Open={IsDeletingPasskeys}
         setOpen={setIsDeletingPasskeys}
         text='your Passkeys'
+        IsDestructive
         handleDelete={async () => {
           await DeletePasskeys();
         }}

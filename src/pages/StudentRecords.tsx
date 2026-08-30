@@ -8,7 +8,7 @@ import { useSettings } from "@/hooks/useSettings";
 import { useStudents } from "@/hooks/useStudents";
 import { useUsers } from "@/hooks/useUsers";
 import { exportData } from "@/lib/exportUtils";
-import type { NewStudent, StudentInput } from "@/types/students";
+import type { NewStudent, Student, StudentInput } from "@/types/students";
 import { useState, type SubmitEvent } from "react";
 import { useSearchParams } from "react-router-dom";
 import LoadingCard from "@/components/loading-card";
@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { FilterIcon } from "lucide-react";
 import { FilterModal } from "@/components/FilterModal";
 import NavigateToLogin from "@/components/NavigateToLogin";
+import Modal from "@/components/Modal";
 
 export default function StudentRecords() {
   useDocumentTitle("Student Records");
@@ -37,9 +38,8 @@ export default function StudentRecords() {
   const [LocalError, setLocalError] = useState<string>("");
   const [IsSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [IsOpen, setIsOpen] = useState<boolean>(false);
-
+  const [ExistingStudent, setExistingStudent] = useState<Student | null>(null);
   const [SearchParams, setSearchParams] = useSearchParams();
-
 
   const { Session, Loading: AuthLoading, Error: AuthError } = useAuth();
   const { Settings } = useSettings();
@@ -101,7 +101,7 @@ export default function StudentRecords() {
   const data = Students && Users && Departments && AskedAbout;
 
   if (!data) {
-    return <ErrorCard message='Failed to load required data.' />;
+    return <ErrorCard message="Failed to load required data." />;
   }
 
   const IsFilterActive = SearchParams.toString() !== "";
@@ -168,6 +168,15 @@ export default function StudentRecords() {
       nb_visits: 1,
     };
 
+    const ExistingStudent = Students?.find(
+      (student) => student.studentId === newStudent.studentId,
+    );
+
+    if (ExistingStudent) {
+      setExistingStudent(ExistingStudent);
+      return true;
+    }
+
     await AddStudent(newStudent, {
       onSuccess: async (newStudent) => {
         if (StudentInput.askedCourses.length > 0) {
@@ -215,18 +224,18 @@ export default function StudentRecords() {
 
   return (
     <>
-      <div className='page-header'>
-        <div className='flex justify-between items-start'>
+      <div className="page-header">
+        <div className="flex justify-between items-start">
           <div>
-            <h1 className='page-title'>Student Support Center Visits</h1>
-            <p className='page-desc'>
+            <h1 className="page-title">Student Support Center Visits</h1>
+            <p className="page-desc">
               Track student visits and support sessions at the Learning Support
               Center.
             </p>
           </div>
           <button
             onClick={handleExport}
-            className='btn btn-primary export-button'
+            className="btn btn-primary export-button"
           >
             Export {Settings.exportFormat === "csv" ? "CSV" : "Excel"}
           </button>
@@ -234,7 +243,7 @@ export default function StudentRecords() {
       </div>
 
       <InputForm
-        mode='student'
+        mode="student"
         handleStudentSubmit={handleSubmit}
         studentInput={StudentInput}
         updateFields={UpdateFields}
@@ -243,15 +252,15 @@ export default function StudentRecords() {
         formError={LocalError}
       />
 
-      <div className='p-5 flex flex-col gap-4'>
-        <h2 className='text-xl text-(--navy) mb-4 font-serif font-semibold flex '>
+      <div className="p-5 flex flex-col gap-4">
+        <h2 className="text-xl text-(--navy) mb-4 font-serif font-semibold flex ">
           Student Records
-          <div className='flex gap-2 mt-2 ml-auto font-[georgia]'>
+          <div className="flex gap-2 mt-2 ml-auto font-[georgia]">
             <Button
-              className='text-lg btn-primary'
+              className="text-lg btn-primary"
               onClick={() => setIsOpen(true)}
             >
-              <FilterIcon className='size-5!' /> Filter Records
+              <FilterIcon className="size-5!" /> Filter Records
             </Button>
           </div>
         </h2>
@@ -275,7 +284,48 @@ export default function StudentRecords() {
         SearchParams={SearchParams}
         setSearchParams={setSearchParams}
         Departments={Departments}
-        mode='student'
+        mode="student"
+      />
+
+      <Modal
+        IsDestructive={false}
+        Open={ExistingStudent !== null}
+        setOpen={() => setExistingStudent(null)}
+        BtnText="Overwrite"
+        text={
+          <>
+            Student {StudentInput.studentName} with {StudentInput.studentId}{" "}
+            already exists. Do you want to overwrite their record?
+            <strong>This Action Cannot Be Undone</strong>
+          </>
+        }
+        OnConfirm={async () => {
+          if (!ExistingStudent) return;
+
+          await UpdateStudent(
+            ExistingStudent.studentId,
+            {
+              added_at: ExistingStudent.added_at,
+              added_by: ExistingStudent.added_by,
+              department_id: StudentInput.department_id,
+              email: StudentInput.email,
+              studentName: StudentInput.studentName,
+              nb_visits: ExistingStudent.nb_visits + 1,
+            },
+            {
+              onSuccess: async (updatedStudent) => {
+                await syncStudentCourses(
+                  updatedStudent.id,
+                  StudentInput.askedCourses,
+                );
+                setIsSubmitting(false);
+              },
+              onError: () => {
+                setLocalError("Failed to update student. Please try again.");
+              },
+            },
+          );
+        }}
       />
     </>
   );

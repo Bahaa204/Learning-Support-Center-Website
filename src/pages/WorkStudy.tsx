@@ -165,15 +165,15 @@ export default function WorkStudy() {
   if (Session.user.user_metadata.role !== "admin")
     return (
       <ErrorCard
-        message='You do not have permission to view this page.'
-        actionLabel='Go to Home'
+        message="You do not have permission to view this page."
+        actionLabel="Go to Home"
         onAction={() => navigate("/")}
       />
     );
 
   const data = Users && Departments;
 
-  if (!data) return <ErrorCard message='Failed to load required data.' />;
+  if (!data) return <ErrorCard message="Failed to load required data." />;
 
   const IsFilterActive = SearchParams.toString() !== "";
 
@@ -249,8 +249,8 @@ export default function WorkStudy() {
           </MenuItemElement>
         ) : (
           <MenuItemElement
-            variant='destructive'
-            className='cursor-pointer text-[16px] text-primary'
+            variant="destructive"
+            className="cursor-pointer text-[16px] text-primary"
             onClick={() => setDeletedUser(user)}
           >
             Remove
@@ -262,15 +262,15 @@ export default function WorkStudy() {
 
   return (
     <>
-      <div className='page-header'>
-        <div className='flex justify-between items-start'>
+      <div className="page-header">
+        <div className="flex justify-between items-start">
           <div>
-            <h1 className='page-title'>Support Center Staff Management</h1>
-            <p className='page-desc'>Manage Support Center Staff accounts.</p>
+            <h1 className="page-title">Support Center Staff Management</h1>
+            <p className="page-desc">Manage Support Center Staff accounts.</p>
           </div>
           <button
             onClick={handleExport}
-            className='btn btn-primary export-button'
+            className="btn btn-primary export-button"
           >
             Export {Settings.exportFormat === "csv" ? "CSV" : "Excel"}
           </button>
@@ -278,7 +278,7 @@ export default function WorkStudy() {
       </div>
 
       <InputForm
-        mode='user'
+        mode="user"
         isSubmitting={IsSubmitting}
         updateFields={updateFields}
         handleUserSubmit={handleSubmit}
@@ -287,15 +287,15 @@ export default function WorkStudy() {
         formError={LocalError}
       />
 
-      <div className='p-5 flex flex-col gap-4'>
-        <h2 className='text-xl text-(--navy) mb-4 font-serif font-semibold flex '>
+      <div className="p-5 flex flex-col gap-4">
+        <h2 className="text-xl text-(--navy) mb-4 font-serif font-semibold flex ">
           Active WorkStudy Accounts
-          <div className='flex gap-2 mt-2 ml-auto font-[georgia]'>
+          <div className="flex gap-2 mt-2 ml-auto font-[georgia]">
             <Button
-              className='text-lg btn-primary'
+              className="text-lg btn-primary"
               onClick={() => setIsFilterOpen(true)}
             >
-              <FilterIcon className='size-5!' /> Filter Records
+              <FilterIcon className="size-5!" /> Filter Records
             </Button>
           </div>
         </h2>
@@ -303,14 +303,14 @@ export default function WorkStudy() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className='text-center'></TableHead>
-              <TableHead className='text-center'>Name</TableHead>
-              <TableHead className='text-center'>Email</TableHead>
-              <TableHead className='text-center'>Role</TableHead>
-              <TableHead className='text-center'>Department</TableHead>
-              <TableHead className='text-center'>Time Slots</TableHead>
-              <TableHead className='text-center'>Added At</TableHead>
-              <TableHead className='text-center'>Actions</TableHead>
+              <TableHead className="text-center"></TableHead>
+              <TableHead className="text-center">Name</TableHead>
+              <TableHead className="text-center">Email</TableHead>
+              <TableHead className="text-center">Role</TableHead>
+              <TableHead className="text-center">Department</TableHead>
+              <TableHead className="text-center">Time Slots</TableHead>
+              <TableHead className="text-center">Added At</TableHead>
+              <TableHead className="text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
 
@@ -321,46 +321,46 @@ export default function WorkStudy() {
                   <ContextMenu key={user.id}>
                     <ContextMenuTrigger asChild>
                       <TableRow>
-                        <TableHead className='text-center'>
+                        <TableHead className="text-center">
                           {index + 1}
                         </TableHead>
-                        <TableCell className='text-center'>
+                        <TableCell className="text-center">
                           {user.display_name}
                         </TableCell>
-                        <TableCell className='text-center'>
+                        <TableCell className="text-center">
                           {user.email}
                         </TableCell>
-                        <TableCell className='text-center'>
+                        <TableCell className="text-center">
                           {titleCase(user.role)}
                         </TableCell>
-                        <TableCell className='text-center'>
+                        <TableCell className="text-center">
                           {Departments.find(
                             (department) =>
                               department.id === user.department_id,
                           )?.name || "—"}
                         </TableCell>
-                        <TableCell className='flex justify-center items-center'>
+                        <TableCell className="flex justify-center items-center">
                           <TimeSlotsMenu timeslots={user.time_slots} />
                         </TableCell>
-                        <TableCell className='text-center'>
+                        <TableCell className="text-center">
                           {formatDate(user.created_at)}
                         </TableCell>
                         <TableCell>
                           <DropdownMenu>
                             <DropdownMenuTrigger
                               asChild
-                              className='cursor-pointer'
+                              className="cursor-pointer"
                             >
-                              <Button variant='secondary'>
+                              <Button variant="secondary">
                                 <MoreHorizontalIcon />
-                                <span className='sr-only'>Open Menu</span>
+                                <span className="sr-only">Open Menu</span>
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent
-                              align='center'
-                              className='focus:bg-none w-full'
+                              align="center"
+                              className="focus:bg-none w-full"
                             >
-                              <RowActions user={user} menu_item='dropdown' />
+                              <RowActions user={user} menu_item="dropdown" />
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
@@ -368,14 +368,14 @@ export default function WorkStudy() {
                     </ContextMenuTrigger>
 
                     <ContextMenuContent>
-                      <RowActions user={user} menu_item='context' />
+                      <RowActions user={user} menu_item="context" />
                     </ContextMenuContent>
                   </ContextMenu>
                 );
               })
             ) : (
               <TableRow>
-                <TableCell colSpan={10} className='text-center text-[17px]'>
+                <TableCell colSpan={10} className="text-center text-[17px]">
                   No workstudy found. Check your filters or add new student
                   records to see them here.
                 </TableCell>
@@ -384,7 +384,7 @@ export default function WorkStudy() {
           </TableBody>
         </Table>
 
-        <div className='flex flex-wrap items-center justify-center gap-2 text-gray-600/50'>
+        <div className="flex flex-wrap items-center justify-center gap-2 text-gray-600/50">
           <LightbulbIcon /> Tip: Right click (hold on mobile) or click the
           actions button on a row to view some quick actions.
         </div>
@@ -393,7 +393,8 @@ export default function WorkStudy() {
       <Modal
         Open={DeletedUser !== null}
         setOpen={() => setDeletedUser(null)}
-        text={`${DeletedUser?.display_name}`}
+        text={DeletedUser?.display_name}
+        IsDestructive
         handleDelete={async () => {
           if (!DeletedUser) return;
           return await handleDelete(DeletedUser.id);
@@ -401,7 +402,7 @@ export default function WorkStudy() {
       />
 
       <FilterModal
-        mode='user'
+        mode="user"
         IsOpen={IsFilterOpen}
         setIsOpen={setIsFilterOpen}
         Departments={Departments}

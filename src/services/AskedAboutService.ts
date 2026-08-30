@@ -23,11 +23,8 @@ export async function addAskedAbout(AskedAbout: AskedAboutInsert) {
     .select("*")
     .single()) as Data<AskedAbout>;
 
-  console.log("new AskedAbout error: ", error);
 
   if (error) throw error;
-
-  console.log("new AskedAbout: ", data);
 
   return data;
 }
@@ -79,11 +76,7 @@ export async function bulkAddAskedAbout(rows: AskedAboutInsert[]) {
     .insert(rows)
     .select("*")) as Data<AskedAbout[]>;
 
-  console.log("new AskedAbout error: ", error);
-
   if (error) throw error;
-
-  console.log("new AskedAbout: ", data);
 
   return data;
 }

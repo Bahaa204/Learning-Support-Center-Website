@@ -141,8 +141,6 @@ export default function useAskedAbout() {
   ) {
     const { mutateAsync, isSuccess, data } = UpdateMutation;
 
-    console.log("called update with id: ", id, " and AskedAbout: ", AskedAbout);
-
     await mutateAsync(
       { id, AskedAbout },
       {
@@ -157,8 +155,6 @@ export default function useAskedAbout() {
 
   async function RemoveAskedAbout(id: AskedAbout["id"]) {
     const { mutateAsync, isSuccess } = RemoveMutation;
-
-    console.log("called remove with id: ", id);
 
     await mutateAsync(id, {
       onSuccess: () => {

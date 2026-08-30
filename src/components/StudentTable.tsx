@@ -519,17 +519,16 @@ export default function StudentTable({
         </Button>
       </div>
 
-      {IsOpen && (
         <Modal
           Open={IsOpen}
           setOpen={setIsOpen}
           text={DeletedStudent?.studentName || "this student"}
+          IsDestructive
           handleDelete={async () => {
             if (DeletedStudent)
               await handleDeleteStudent(DeletedStudent.studentId);
           }}
         />
-      )}
     </>
   );
 }
