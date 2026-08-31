@@ -218,11 +218,13 @@ export default function WorkStudy() {
     const exportData_formatted = filteredUsers.map((user) => ({
       Name: user.display_name,
       Email: user.email,
-      Role: user.role,
+      Role: user.role === "admin" ? "Supervisor" : user.role,
       Department:
         Departments!.find((d) => d.id === user.department_id)?.name || "—",
       "Created At": formatDate(user.created_at),
-      "Time Slots": user.time_slots.join(", "),
+      "Time Slots": user.time_slots
+        .map((slot) => `${slot.weekday}: ${slot.start_time} - ${slot.end_time}`)
+        .join(", "),
     }));
 
     exportData(
@@ -332,7 +334,9 @@ export default function WorkStudy() {
                           {user.email}
                         </TableCell>
                         <TableCell className="text-center">
-                          {titleCase(user.role)}
+                          {titleCase(
+                            user.role === "admin" ? "Supervisor" : user.role,
+                          )}
                         </TableCell>
                         <TableCell className="text-center">
                           {Departments.find(
