@@ -10,6 +10,7 @@ import AppearanceSection from "@/components/Settings/AppearanceSection";
 import DataAndRecordsSection from "@/components/Settings/DataAndRecordsSection";
 import DangerZone from "@/components/Settings/DangerZone";
 import NavigateToLogin from "@/components/NavigateToLogin";
+import { useUsers } from "@/hooks/useUsers";
 
 export default function Settings() {
   useDocumentTitle("Settings");
@@ -29,9 +30,17 @@ export default function Settings() {
   } = useAuth();
 
   const { Settings, updateSetting } = useSettings();
+  const { UpdateUser } = useUsers(Session?.user, false);
+
+  async function handleUpdateUserName(display_name: string) {
+    if (!Session) return false;
+
+    const updatedUser = await UpdateUser(Session.user.id, { display_name });
+    return updatedUser !== null;
+  }
 
   if (AuthLoading) {
-    return <LoadingCard message='Checking authentication' />;
+    return <LoadingCard message="Checking authentication" />;
   }
 
   if (AuthError) return <ErrorCard message={SetErrorMessage(AuthError)} />;
@@ -48,14 +57,15 @@ export default function Settings() {
 
   return (
     <>
-      <h1 className='page-title'>Settings</h1>
+      <h1 className="page-title">Settings</h1>
 
-      <div className='settings-container'>
+      <div className="settings-container">
         <AccountSection
           session={Session}
           updateDisplayName={UpdateDisplayName}
           updateProfilePicture={UpdateProfilePicture}
           deleteProfilePicture={DeleteProfilePicture}
+          updateUserName={handleUpdateUserName}
         />
 
         <SecuritySection

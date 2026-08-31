@@ -1,7 +1,7 @@
 import { BuildCustomPostgrestError } from "@/helper/errorhelpers";
 import { supabaseClient } from "@/supabase-client";
 import type { Data } from "@/types/types";
-import type { NewUser, User } from "@/types/users";
+import type { NewUser, UpdatedUser, User } from "@/types/users";
 import type { User as AuthUser } from "@supabase/supabase-js";
 
 export async function fetchUsers(user: AuthUser | undefined) {
@@ -11,8 +11,8 @@ export async function fetchUsers(user: AuthUser | undefined) {
   const { data, error } = (await supabaseClient
     .from("Users")
     .select("*")
-    // .eq("department_id", user.user_metadata.department_id)
-  ) as Data<User[]>;
+    .order("role")) as Data<User[]>;
+  // .eq("department_id", user.user_metadata.department_id)
 
   if (error) throw error;
 
@@ -37,4 +37,23 @@ export async function removeUser(id: User["id"]) {
   if (error) throw error;
 
   return true;
+}
+
+export async function updateUser({
+  userId,
+  updatedUser,
+}: {
+  userId: User["id"];
+  updatedUser: UpdatedUser;
+}) {
+  const { data, error } = (await supabaseClient
+    .from("Users")
+    .update(updatedUser)
+    .eq("id", userId)
+    .select("*")
+    .single()) as Data<User>;
+
+  if (error) throw error;
+
+  return data;
 }

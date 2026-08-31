@@ -11,6 +11,8 @@ export type User = DeepNonNullable<UsersTable["Row"]>;
 
 export type NewUser = UsersTable["Insert"];
 
+export type UpdatedUser = UsersTable["Update"];
+
 export type UserInput = {
   displayname: User["display_name"];
   email: User["email"];

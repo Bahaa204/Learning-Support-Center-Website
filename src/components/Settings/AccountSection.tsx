@@ -24,6 +24,7 @@ type AccountSectionProps = {
   updateDisplayName: (displayName: string) => Promise<boolean>;
   updateProfilePicture: (file: File) => Promise<boolean>;
   deleteProfilePicture: (userId: User["id"]) => Promise<boolean>;
+  updateUserName: (display_name: string) => Promise<boolean>;
 };
 
 export default function AccountSection({
@@ -31,6 +32,7 @@ export default function AccountSection({
   updateDisplayName,
   updateProfilePicture,
   deleteProfilePicture,
+  updateUserName,
 }: AccountSectionProps) {
   const InitialInput: AccountInput = {
     displayName: session.user.user_metadata?.display_name || "",
@@ -62,7 +64,10 @@ export default function AccountSection({
         "Display name must be different and between 3 and 50 characters.",
       );
 
-    await updateDisplayName(AccountInput.displayName);
+    const DisplayNameOk = await updateDisplayName(AccountInput.displayName);
+    if (!DisplayNameOk) return SetError("Failed to update display name.");
+    const UserNameOk = await updateUserName(AccountInput.displayName);
+    if (!UserNameOk) return SetError("Failed to update user name.");
   }
 
   async function handleDeleteProfilePicture() {
@@ -101,11 +106,11 @@ export default function AccountSection({
       .slice(0, 2) || "";
 
   return (
-    <Card className='settings-section' id='account'>
-      <CardHeader className='settings-section-title flex flex-wrap items-center gap-4 pl-0'>
+    <Card className="settings-section" id="account">
+      <CardHeader className="settings-section-title flex flex-wrap items-center gap-4 pl-0">
         <UserCircle size={30} />
-        <div className='flex flex-col'>
-          <CardTitle className='font-extrabold text-[1.25rem] flex items-center gap-2'>
+        <div className="flex flex-col">
+          <CardTitle className="font-extrabold text-[1.25rem] flex items-center gap-2">
             Account
           </CardTitle>
           <CardDescription>
@@ -114,31 +119,31 @@ export default function AccountSection({
         </div>
       </CardHeader>
 
-      <CardContent className='flex flex-wrap gap-8 items-start'>
-        <div className='flex flex-col gap-8 items-center'>
-          <div className='w-25 h-25 rounded-full flex items-center justify-center overflow-hidden border-[3px] border-(--navy) bg-(--navy-light)'>
+      <CardContent className="flex flex-wrap gap-8 items-start">
+        <div className="flex flex-col gap-8 items-center">
+          <div className="w-25 h-25 rounded-full flex items-center justify-center overflow-hidden border-[3px] border-(--navy) bg-(--navy-light)">
             {session.user.user_metadata?.avatar_url ? (
               <img
                 src={session.user.user_metadata?.avatar_url}
-                alt='Profile'
-                className='w-full h-full rounded-full object-cover'
+                alt="Profile"
+                className="w-full h-full rounded-full object-cover"
               />
             ) : (
-              <span className='text-(--gold-light) text-5xl font-semibold text-center'>
+              <span className="text-(--gold-light) text-5xl font-semibold text-center">
                 {initials}
               </span>
             )}
           </div>
           <Input
-            type='file'
-            accept='image/*'
+            type="file"
+            accept="image/*"
             onChange={handleProfilePictureChange}
-            className='profile-picture-input'
+            className="profile-picture-input"
           />
           <Button
-            type='button'
-            variant='destructive'
-            className='w-full text-[16px]'
+            type="button"
+            variant="destructive"
+            className="w-full text-[16px]"
             onClick={handleDeleteProfilePicture}
           >
             <TrashIcon /> Delete Profile Picture
@@ -146,13 +151,13 @@ export default function AccountSection({
         </div>
 
         <FieldSet>
-          <Field className='gap-5!'>
-            <FieldLabel htmlFor='displayName' className='p-0! m-0!'>
+          <Field className="gap-5!">
+            <FieldLabel htmlFor="displayName" className="p-0! m-0!">
               Display Name
             </FieldLabel>
             <Input
-              id='displayName'
-              type='text'
+              id="displayName"
+              type="text"
               value={AccountInput.displayName}
               onChange={(event) =>
                 updateFeilds({ displayName: event.target.value })
@@ -160,29 +165,29 @@ export default function AccountSection({
               onKeyDown={(event) => {
                 if (event.key === "Enter") handleEdit();
               }}
-              placeholder='Your display name'
-              className='disabled:cursor-not-allowed'
+              placeholder="Your display name"
+              className="disabled:cursor-not-allowed"
             />
             <FieldDescription>
               the name that will be shown to other users.
             </FieldDescription>
           </Field>
           <Field>
-            <FieldLabel htmlFor='email'>Email</FieldLabel>
+            <FieldLabel htmlFor="email">Email</FieldLabel>
             <Input
-              id='email'
-              type='email'
+              id="email"
+              type="email"
               value={session.user.email || ""}
               disabled
-              className='disabled:cursor-not-allowed!'
+              className="disabled:cursor-not-allowed!"
             />
             <FieldDescription>Your login email address.</FieldDescription>
           </Field>
           <Field>
             <Button
-              type='button'
+              type="button"
               onClick={handleEdit}
-              className='w-full p-4 text-[18px] btn-primary'
+              className="w-full p-4 text-[18px] btn-primary"
             >
               Update Display Name
             </Button>
@@ -190,7 +195,7 @@ export default function AccountSection({
         </FieldSet>
       </CardContent>
       {ProfileError && (
-        <div className='text-lg text-destructive bg-red-500/20 px-3 py-1 rounded-lg w-full text-center'>
+        <div className="text-lg text-destructive bg-red-500/20 px-3 py-1 rounded-lg w-full text-center">
           {ProfileError}
         </div>
       )}
