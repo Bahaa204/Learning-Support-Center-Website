@@ -1,44 +1,43 @@
 import type { SettingsExportFormat } from "@/types/settings";
+import * as XLSX from "xlsx";
 
-export function exportToCSV(data: any[], filename: string) {
-  if (data.length === 0) {
-    alert("No data to export");
-    return;
-  }
-
-  // Get headers from first object
-  const headers = Object.keys(data[0]);
-
-  // Create CSV content
-  let csvContent = headers.join(",") + "\n";
-
-  data.forEach((row) => {
-    const values = headers.map((header) => {
-      const value = row[header];
-      // Escape quotes and wrap in quotes if contains comma
-      if (typeof value === "string" && value.includes(",")) {
-        return `"${value.replace(/"/g, '""')}"`;
-      }
-      return value;
-    });
-    csvContent += values.join(",") + "\n";
-  });
-
-  // Create blob and download
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  const link = document.createElement("a");
+function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
-  link.setAttribute("href", url);
-  link.setAttribute("download", `${filename}.csv`);
-  link.style.visibility = "hidden";
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = filename;
+  link.style.display = "none";
+
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+
+  URL.revokeObjectURL(url);
 }
 
-export function exportToExcel(data: any[], filename: string) {
-  // For now, we export as CSV with .xlsx name
-  // This is compatible with Excel and other spreadsheet applications
+function escapeCSVValue(value: unknown): string {
+  if (value === null || value === undefined) {
+    return "";
+  }
+
+  const stringValue = String(value);
+
+  // CSV requires values containing commas, quotes, or newlines
+  // to be wrapped in double quotes.
+  if (
+    stringValue.includes(",") ||
+    stringValue.includes('"') ||
+    stringValue.includes("\n") ||
+    stringValue.includes("\r")
+  ) {
+    return `"${stringValue.replace(/"/g, '""')}"`;
+  }
+
+  return stringValue;
+}
+
+export function exportToCSV(data: Record<string, unknown>[], filename: string) {
   if (data.length === 0) {
     alert("No data to export");
     return;
@@ -46,42 +45,56 @@ export function exportToExcel(data: any[], filename: string) {
 
   const headers = Object.keys(data[0]);
 
-  // Create CSV content
-  let csvContent = headers.join(",") + "\n";
+  const csvContent = [
+    headers.map(escapeCSVValue).join(","),
+    ...data.map((row) =>
+      headers.map((header) => escapeCSVValue(row[header])).join(","),
+    ),
+  ].join("\r\n");
 
-  data.forEach((row) => {
-    const values = headers.map((header) => {
-      const value = row[header];
-      if (typeof value === "string" && value.includes(",")) {
-        return `"${value.replace(/"/g, '""')}"`;
-      }
-      return value;
-    });
-    csvContent += values.join(",") + "\n";
+  const blob = new Blob(["\uFEFF" + csvContent], {
+    type: "text/csv;charset=utf-8;",
   });
 
-  // Create blob and download as Excel-compatible CSV
-  const blob = new Blob([csvContent], {
-    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  });
-  const link = document.createElement("a");
-  const url = URL.createObjectURL(blob);
-  link.setAttribute("href", url);
-  link.setAttribute("download", `${filename}.xlsx`);
-  link.style.visibility = "hidden";
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  downloadBlob(blob, `${filename}.csv`);
+}
+
+export function exportToExcel(
+  data: Record<string, unknown>[],
+  filename: string,
+) {
+  if (data.length === 0) {
+    alert("No data to export");
+    return;
+  }
+
+  // Create a worksheet from the data
+  const worksheet = XLSX.utils.json_to_sheet(data);
+
+  // Create a new workbook
+  const workbook = XLSX.utils.book_new();
+
+  // Add the worksheet to the workbook
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
+
+  // Generate and download a real .xlsx file
+  XLSX.writeFile(workbook, `${filename}.xlsx`);
 }
 
 export function exportData(
-  data: any[],
+  data: Record<string, unknown>[],
   format: SettingsExportFormat,
   filename: string,
 ) {
+  if (data.length === 0) {
+    alert("No data to export");
+    return;
+  }
+
   if (format === "csv") {
     exportToCSV(data, filename);
-  } else {
-    exportToExcel(data, filename);
+    return;
   }
+
+  exportToExcel(data, filename);
 }

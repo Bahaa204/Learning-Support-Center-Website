@@ -222,6 +222,7 @@ export default function WorkStudy() {
       Department:
         Departments!.find((d) => d.id === user.department_id)?.name || "—",
       "Created At": formatDate(user.created_at),
+      "Time Slots": user.time_slots.join(", "),
     }));
 
     exportData(

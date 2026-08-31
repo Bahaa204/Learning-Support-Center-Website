@@ -213,6 +213,10 @@ export default function StudentRecords() {
       "Added By":
         Users!.find((u) => u.id === student.added_by)?.display_name || "—",
       "Added At": student.added_at,
+      "Courses Asked About": AskedAbout!
+        .filter((course) => course.student_Id === student.id)
+        .map((course) => course.course_code)
+        .join(", "),
       Visits: student.nb_visits,
     }));
 
