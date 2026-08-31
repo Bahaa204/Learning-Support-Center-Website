@@ -15,7 +15,9 @@ export function isAppSettings(value: any): value is AppSettings {
   const candidate = value as Partial<AppSettings>;
 
   return (
-    (candidate.theme === "light" || candidate.theme === "dark") &&
+    (candidate.theme === "system" ||
+      candidate.theme === "light" ||
+      candidate.theme === "dark") &&
     (candidate.fontSize === "normal" || candidate.fontSize === "large") &&
     typeof candidate.compactMode === "boolean" &&
     (candidate.pageSize === 5 ||

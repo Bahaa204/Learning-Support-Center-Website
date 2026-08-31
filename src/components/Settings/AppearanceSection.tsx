@@ -49,6 +49,16 @@ export default function AppearanceSection({
           >
             <div className='flex items-center gap-3'>
               <RadioGroupItem
+                value='system'
+                id='system-theme'
+                className={`${Theme === "system" ? "btn-primary" : ""}`}
+              />
+              <Label htmlFor='system-theme' className='cursor-pointer'>
+                System
+              </Label>
+            </div>
+            <div className='flex items-center gap-3'>
+              <RadioGroupItem
                 value='light'
                 id='light-theme'
                 className={`${Theme === "light" ? "btn-primary" : ""}`}

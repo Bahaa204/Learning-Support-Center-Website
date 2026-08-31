@@ -19,7 +19,35 @@ export function useSettings() {
 
   useEffect(() => {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(Settings));
-    document.documentElement.setAttribute("data-theme", Settings.theme);
+
+    // Getting the OS theme preference
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+    function ApplyTheme() {
+      // checking if the theme is set to system
+      // If yes, check the OS theme preference and set the theme accordingly
+      // If not, set the theme to the selected theme
+      const actualTheme =
+        Settings.theme === "system"
+          ? mediaQuery.matches
+            ? "dark"
+            : "light"
+          : Settings.theme;
+
+      document.documentElement.setAttribute("data-theme", actualTheme);
+    }
+
+    ApplyTheme();
+
+    if (Settings.theme === "system") {
+      // Listen for changes in the OS theme preference
+      mediaQuery.addEventListener("change", ApplyTheme);
+
+      return () => {
+        mediaQuery.removeEventListener("change", ApplyTheme);
+      };
+    }
+
     document.documentElement.setAttribute("data-font-size", Settings.fontSize);
 
     if (Settings.compactMode) {

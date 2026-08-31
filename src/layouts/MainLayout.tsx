@@ -157,6 +157,12 @@ export default function MainLayout() {
                         }
                       >
                         <ContextMenuRadioItem
+                          value="system"
+                          className="cursor-pointer"
+                        >
+                          System
+                        </ContextMenuRadioItem>
+                        <ContextMenuRadioItem
                           value="light"
                           className="cursor-pointer"
                         >

@@ -1,4 +1,4 @@
-export type SettingsTheme = "light" | "dark";
+export type SettingsTheme = "system" | "light" | "dark";
 export type SettingsFontSize = "normal" | "large";
 export type SettingsPageSize = 5 | 10 | 25 | 50 | 100;
 export type SettingsExportFormat = "csv" | "excel";

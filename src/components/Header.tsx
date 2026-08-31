@@ -74,53 +74,53 @@ export default function Header({ onToggleMenu, isMenuOpen }: HeaderProps) {
   return (
     <>
       {ShowLogoutNotice && (
-        <div className='fixed top-4 right-4 z-9999 rounded-md border border-emerald-200 bg-emerald-50/90 px-4 py-2 text-sm font-medium text-emerald-700 shadow-lg'>
+        <div className="fixed top-4 right-4 z-9999 rounded-md border border-emerald-200 bg-emerald-50/90 px-4 py-2 text-sm font-medium text-emerald-700 shadow-lg">
           {ShowLogoutNotice}
         </div>
       )}
-      <header className='site-header'>
+      <header className="site-header">
         {Session && (
           <Button
-            type='button'
-            className='hamburger-menu'
+            type="button"
+            className="hamburger-menu"
             onClick={onToggleMenu}
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
             aria-expanded={isMenuOpen}
           >
             <svg
-              viewBox='0 0 24 24'
-              fill='none'
-              stroke='currentColor'
-              strokeWidth='2'
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              aria-hidden='true'
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
             >
-              <line x1='4' y1='6' x2='20' y2='6' />
-              <line x1='4' y1='12' x2='20' y2='12' />
-              <line x1='4' y1='18' x2='20' y2='18' />
+              <line x1="4" y1="6" x2="20" y2="6" />
+              <line x1="4" y1="12" x2="20" y2="12" />
+              <line x1="4" y1="18" x2="20" y2="18" />
             </svg>
           </Button>
         )}
-        <div className='header-brand relative'>
-          <Link to='/'>
-            <img src={RHULogo} alt='RHU Logo' className='header-logo' />
+        <div className="header-brand relative">
+          <Link to="/">
+            <img src={RHULogo} alt="RHU Logo" className="header-logo" />
           </Link>
         </div>
         {Session && (
-          <div className='header-user'>
-            <div className='user-name'>{DisplayName}</div>
+          <div className="header-user">
+            <div className="user-name">{DisplayName}</div>
 
             {Session && (
               <DropdownMenu>
-                <DropdownMenuTrigger className='cursor-pointer bg-(--navy-light) rounded-4xl border-2 z-99999 border-(--gold)'>
-                  <div className='size-9 flex items-center justify-center relative text-center'>
-                    <span className='text-(--gold-light) text-[0.72rem] font-semibold text-center'>
+                <DropdownMenuTrigger className="cursor-pointer bg-(--navy-light) rounded-4xl border-2 z-99999 border-(--gold)">
+                  <div className="size-9 flex items-center justify-center relative text-center">
+                    <span className="text-(--gold-light) text-[0.72rem] font-semibold text-center">
                       {Session.user.user_metadata?.avatar_url ? (
                         <img
                           src={Session.user.user_metadata.avatar_url}
-                          alt='Profile'
-                          className='w-full h-full rounded-full object-cover'
+                          alt="Profile"
+                          className="w-full h-full rounded-full object-cover"
                         />
                       ) : (
                         initials
@@ -128,7 +128,7 @@ export default function Header({ onToggleMenu, isMenuOpen }: HeaderProps) {
                     </span>
                   </div>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className='w-full z-99999'>
+                <DropdownMenuContent className="w-full z-99999">
                   {AuthLoading ? (
                     <DropdownMenuItem>
                       Checking Authentication...
@@ -151,7 +151,7 @@ export default function Header({ onToggleMenu, isMenuOpen }: HeaderProps) {
                       <DropdownMenuGroup>
                         <DropdownMenuLabel>Settings</DropdownMenuLabel>
                         <DropdownMenuSub>
-                          <DropdownMenuSubTrigger className='flex gap-2 w-full'>
+                          <DropdownMenuSubTrigger className="flex gap-2 w-full">
                             <SettingsIcon />
                             Settings
                           </DropdownMenuSubTrigger>
@@ -160,22 +160,22 @@ export default function Header({ onToggleMenu, isMenuOpen }: HeaderProps) {
                               <DropdownMenuLabel>Settings</DropdownMenuLabel>
                               <DropdownMenuItem>
                                 <Link
-                                  to='/settings'
-                                  className='flex gap-2 w-full'
+                                  to="/settings"
+                                  className="flex gap-2 w-full"
                                 >
                                   <UserCircleIcon /> Account
                                 </Link>
                               </DropdownMenuItem>
                               <DropdownMenuItem>
                                 <Link
-                                  to='/settings'
-                                  className='flex gap-2 w-full'
+                                  to="/settings"
+                                  className="flex gap-2 w-full"
                                 >
                                   <LockKeyholeIcon /> Security
                                 </Link>
                               </DropdownMenuItem>
                               <DropdownMenuSub>
-                                <DropdownMenuSubTrigger className='flex gap-2 w-full'>
+                                <DropdownMenuSubTrigger className="flex gap-2 w-full">
                                   <Monitor /> Appearance
                                 </DropdownMenuSubTrigger>
                                 <DropdownMenuSubContent>
@@ -190,10 +190,22 @@ export default function Header({ onToggleMenu, isMenuOpen }: HeaderProps) {
                                         )
                                       }
                                     >
-                                      <DropdownMenuRadioItem value='light'>
+                                      <DropdownMenuRadioItem
+                                        value="system"
+                                        className="flex gap-2 w-full cursor-pointer"
+                                      >
+                                        System
+                                      </DropdownMenuRadioItem>
+                                      <DropdownMenuRadioItem
+                                        value="light"
+                                        className="flex gap-2 w-full cursor-pointer"
+                                      >
                                         Light
                                       </DropdownMenuRadioItem>
-                                      <DropdownMenuRadioItem value='dark'>
+                                      <DropdownMenuRadioItem
+                                        value="dark"
+                                        className="flex gap-2 w-full cursor-pointer"
+                                      >
                                         Dark
                                       </DropdownMenuRadioItem>
                                     </DropdownMenuRadioGroup>
@@ -211,10 +223,16 @@ export default function Header({ onToggleMenu, isMenuOpen }: HeaderProps) {
                                         )
                                       }
                                     >
-                                      <DropdownMenuRadioItem value='normal'>
+                                      <DropdownMenuRadioItem
+                                        value="normal"
+                                        className="flex gap-2 w-full cursor-pointer"
+                                      >
                                         Normal
                                       </DropdownMenuRadioItem>
-                                      <DropdownMenuRadioItem value='large'>
+                                      <DropdownMenuRadioItem
+                                        value="large"
+                                        className="flex gap-2 w-full cursor-pointer"
+                                      >
                                         Large
                                       </DropdownMenuRadioItem>
                                     </DropdownMenuRadioGroup>
@@ -228,6 +246,7 @@ export default function Header({ onToggleMenu, isMenuOpen }: HeaderProps) {
                                       onCheckedChange={(checked) =>
                                         updateSetting("compactMode", checked)
                                       }
+                                      className="flex gap-2 w-full cursor-pointer"
                                     >
                                       Compact Mode
                                     </DropdownMenuCheckboxItem>
@@ -235,7 +254,7 @@ export default function Header({ onToggleMenu, isMenuOpen }: HeaderProps) {
                                 </DropdownMenuSubContent>
                               </DropdownMenuSub>
                               <DropdownMenuSub>
-                                <DropdownMenuSubTrigger className='flex gap-2 w-full'>
+                                <DropdownMenuSubTrigger className="flex gap-2 w-full">
                                   <DatabaseIcon /> Data and Records
                                 </DropdownMenuSubTrigger>
                                 <DropdownMenuSubContent>
@@ -252,19 +271,34 @@ export default function Header({ onToggleMenu, isMenuOpen }: HeaderProps) {
                                         )
                                       }
                                     >
-                                      <DropdownMenuRadioItem value='5'>
+                                      <DropdownMenuRadioItem
+                                        value="5"
+                                        className="flex gap-2 w-full cursor-pointer"
+                                      >
                                         5 records per page
                                       </DropdownMenuRadioItem>
-                                      <DropdownMenuRadioItem value='10'>
+                                      <DropdownMenuRadioItem
+                                        value="10"
+                                        className="flex gap-2 w-full cursor-pointer"
+                                      >
                                         10 records per page
                                       </DropdownMenuRadioItem>
-                                      <DropdownMenuRadioItem value='25'>
+                                      <DropdownMenuRadioItem
+                                        value="25"
+                                        className="flex gap-2 w-full cursor-pointer"
+                                      >
                                         25 records per page
                                       </DropdownMenuRadioItem>
-                                      <DropdownMenuRadioItem value='50'>
+                                      <DropdownMenuRadioItem
+                                        value="50"
+                                        className="flex gap-2 w-full cursor-pointer"
+                                      >
                                         50 records per page
                                       </DropdownMenuRadioItem>
-                                      <DropdownMenuRadioItem value='100'>
+                                      <DropdownMenuRadioItem
+                                        value="100"
+                                        className="flex gap-2 w-full cursor-pointer"
+                                      >
                                         100 records per page
                                       </DropdownMenuRadioItem>
                                     </DropdownMenuRadioGroup>
@@ -282,10 +316,16 @@ export default function Header({ onToggleMenu, isMenuOpen }: HeaderProps) {
                                         )
                                       }
                                     >
-                                      <DropdownMenuRadioItem value='csv'>
+                                      <DropdownMenuRadioItem
+                                        value="csv"
+                                        className="flex gap-2 w-full cursor-pointer"
+                                      >
                                         CSV
                                       </DropdownMenuRadioItem>
-                                      <DropdownMenuRadioItem value='excel'>
+                                      <DropdownMenuRadioItem
+                                        value="excel"
+                                        className="flex gap-2 w-full cursor-pointer"
+                                      >
                                         Excel
                                       </DropdownMenuRadioItem>
                                     </DropdownMenuRadioGroup>
@@ -297,9 +337,9 @@ export default function Header({ onToggleMenu, isMenuOpen }: HeaderProps) {
                             <DropdownMenuGroup>
                               <DropdownMenuLabel>Log Out</DropdownMenuLabel>
                               <DropdownMenuItem
-                                variant='destructive'
+                                variant="destructive"
                                 onClick={LogOut}
-                                className='cursor-pointer'
+                                className="cursor-pointer"
                               >
                                 <LogOutIcon /> Log out
                               </DropdownMenuItem>
@@ -310,12 +350,12 @@ export default function Header({ onToggleMenu, isMenuOpen }: HeaderProps) {
                         <DropdownMenuGroup>
                           <DropdownMenuLabel>Support</DropdownMenuLabel>
                           <DropdownMenuItem>
-                            <Link to='/feedback' className='flex gap-2 w-full'>
+                            <Link to="/feedback" className="flex gap-2 w-full">
                               <ChatBubbleBottomCenterTextIcon /> Submit Feedback
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem>
-                            <Link to='/report' className='flex gap-2 w-full'>
+                            <Link to="/report" className="flex gap-2 w-full">
                               <BugIcon /> Report An Issue
                             </Link>
                           </DropdownMenuItem>
