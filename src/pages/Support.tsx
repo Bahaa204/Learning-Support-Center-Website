@@ -21,7 +21,7 @@ type SupportProps = {
 };
 
 export default function Support({ type }: SupportProps) {
-  useDocumentTitle("Feedback");
+  useDocumentTitle("Support");
 
   const { Session, Loading: AuthLoading, SendEmail } = useAuth();
 
