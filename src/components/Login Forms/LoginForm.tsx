@@ -26,27 +26,30 @@ export default function LoginForm({
 }: LoginFormProps) {
   return (
     <FieldSet>
-      <Field className='login-field'>
-        <FieldLabel htmlFor='email'>Email</FieldLabel>
+      <Field className="login-field">
+        <FieldLabel htmlFor="email">Email</FieldLabel>
         <Input
           required
-          type='email'
-          id='email'
-          className='login-input'
-          placeholder='Enter your Support Center email'
+          autoFocus
+          tabIndex={1}
+          type="email"
+          id="email"
+          className="login-input"
+          placeholder="Enter your Support Center email"
           value={email}
           onChange={(event) => updateFields({ email: event.target.value })}
           aria-invalid={Boolean(error)}
         />
         {error && <FieldError>{SetErrorMessage(error)}</FieldError>}
       </Field>
-      <Field className='login-field'>
-        <FieldLabel htmlFor='password'>Password</FieldLabel>
+      <Field className="login-field">
+        <FieldLabel htmlFor="password">Password</FieldLabel>
         <PasswordInput
           required
-          id='password'
-          className='login-input login-password-input'
-          placeholder='Enter your password'
+          tabIndex={2}
+          id="password"
+          className="login-input login-password-input"
+          placeholder="Enter your password"
           value={password}
           onChange={(event) => updateFields({ password: event.target.value })}
           aria-invalid={Boolean(error)}
@@ -55,8 +58,9 @@ export default function LoginForm({
       </Field>
       <Field>
         <Button
-          type='submit'
-          className='login-submit btn btn-primary'
+          type="submit"
+          tabIndex={3}
+          className="btn btn-primary"
           disabled={loading}
         >
           {loading ? (

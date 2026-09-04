@@ -64,11 +64,11 @@ export default function Login() {
   }
 
   return (
-    <div className='login-card'>
-      <div className='login-card-header'>
+    <>
+      {/* <div className='login-card-header'>
         <h2>Login</h2>
         <p>Use your Support Center account credentials to continue.</p>
-      </div>
+      </div> */}
 
       <form onSubmit={handleSubmit} className='login-form'>
         {step}
@@ -89,6 +89,6 @@ export default function Login() {
           </Button>
         </div>
       )}
-    </div>
+    </>
   );
 }

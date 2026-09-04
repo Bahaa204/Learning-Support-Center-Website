@@ -464,31 +464,41 @@ body {
   align-items: center;
   min-height: 100%;
   /* padding: 1rem; */
+  background: url("/Images/Auth-Background.png");
+  background-size: cover;
   flex: 1;
 }
 
 .login-panel {
-  width: min(800px, 90vw);
-  height: auto;
-  max-height: 80vh;
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  border: 1px solid var(--border);
+  padding: 48px;
+  width: min(500px, 90vw);
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  /* grid-template-columns: 1.1fr 0.9fr; */
+  /* border: 1px solid var(--border); */
   border-radius: 20px;
   overflow: hidden;
   background: var(--white);
   box-shadow: 0 28px 70px rgba(26, 22, 18, 0.14);
 }
 
+.login-panel > img {
+  width: 50%;
+}
+
 .login-hero {
-  background:
-    linear-gradient(180deg, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.45)),
-    url("/Images/rhu-photo.jpg") center / 350% no-repeat;
-  color: #f7f2ea;
+  /* background: var(--white); */
+  /* color: #f7f2ea; */
   padding: 1.5rem 1rem;
+  width:100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
+  text-align: center;
   gap: 0.75rem;
 }
 
@@ -507,18 +517,19 @@ body {
 }
 
 .login-hero h1 {
-  font-size: clamp(1.2rem, 2vw, 1.6rem);
+  /* font-size: clamp(1.2rem, 2vw, 1.6rem); */
+  font-size: 1.5rem;
   font-weight: 800;
   line-height: 1.05;
-  color: #fff9ef;
+  color: var(--navy);
   margin: 0;
 }
 
 .login-hero p {
   margin: 0;
   max-width: 32ch;
-  color: rgba(255, 248, 237, 0.82);
-  font-size: 0.7rem;
+  color: var(--gold);
+  font-size: 0.95rem;
   font-weight: 600;
   line-height: 1.3;
 }
@@ -564,6 +575,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  width:100%;
 }
 
 .login-field {
@@ -1571,7 +1583,7 @@ html[data-theme="dark"] .badge.bg-primary {
 
   .login-hero {
     padding: 1.25rem;
-    display: none;
+    /* display: none; */
   }
 
   .login-card {

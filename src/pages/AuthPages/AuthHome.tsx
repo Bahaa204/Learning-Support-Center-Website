@@ -12,12 +12,12 @@ export default function AuthHome() {
   if (Session) return <Navigate to='/' />;
 
   return (
-    <div className='login-card'>
-      <div className='login-card-header'>
-        <h2>Welcome to the Learning Support Center</h2>
-        <p>Choose which option to login with.</p>
-      </div>
-      <div className='flex flex-col justify-center items-center gap-4'>
+    // <div className='login-card'>
+      // <div className='login-card-header'>
+      //   <h2>Welcome to the Learning Support Center</h2>
+      //   <p>Choose which option to login with.</p>
+      // </div>
+      <div className='flex flex-col justify-evenly items-center lg:gap-0 gap-4 w-full h-1/2'>
         <Button className='btn-primary w-full text-[16px]'>
           <Link
             to='/auth/login'
@@ -38,6 +38,6 @@ export default function AuthHome() {
           <span className='text-[13px] text-muted'>(coming soon)</span>
         </Button>
       </div>
-    </div>
+    // </div>
   );
 }
