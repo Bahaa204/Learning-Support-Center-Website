@@ -345,11 +345,14 @@ export default function WorkStudy() {
                     <FieldDescription>
                       Enter the{" "}
                       {UserInput.isSupervisor ? "supervisor's" : "workstudy's"}{" "}
-                      display name
-                      {LocalError.includes("Display name") && (
-                        <FieldError> {LocalError}</FieldError>
+                      display name <br />
+                      {!UserInput.displayname && (
+                        <span className="text-destructive"> Required</span>
                       )}
                     </FieldDescription>
+                    {LocalError.includes("Display name") && (
+                      <FieldError> {LocalError}</FieldError>
+                    )}
                   </FieldContent>
                 </Field>
                 <Field>
@@ -466,7 +469,7 @@ export default function WorkStudy() {
                   <FieldContent className="flex flex-row! gap-2 items-center">
                     <Button
                       type="button"
-                      className="w-1/2 cursor-pointer"
+                      className={`${UserInput.isSupervisor ? "btn-primary" : ""} w-1/2 cursor-pointer`}
                       variant={UserInput.isSupervisor ? "default" : "outline"}
                       onClick={() => {
                         if (UserInput.isSupervisor) return; // Stops re-rendering if the user is already a supervisor
@@ -478,7 +481,7 @@ export default function WorkStudy() {
                     </Button>
                     <Button
                       type="button"
-                      className="w-1/2 cursor-pointer"
+                      className={`${!UserInput.isSupervisor ? "btn-primary" : ""} w-1/2 cursor-pointer`}
                       variant={UserInput.isSupervisor ? "outline" : "default"}
                       onClick={() => {
                         if (!UserInput.isSupervisor) return; // Stops re-rendering if the user is already a workstudy
