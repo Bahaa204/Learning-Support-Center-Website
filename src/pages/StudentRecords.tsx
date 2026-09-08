@@ -265,7 +265,7 @@ export default function StudentRecords() {
       <form onSubmit={handleSubmit}>
         <Card>
           <CardHeader>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-4">
               <UserPlusIcon className="size-8 text-primary" />
               <div>
                 <CardTitle>Add New Student</CardTitle>
@@ -284,7 +284,7 @@ export default function StudentRecords() {
           </CardHeader>
           <CardContent className="space-y-6">
             <FormSection icon={<UserRoundIcon />} title="Student Information">
-              <FieldGroup className="grid grid-cols-2 grid-rows-2">
+              <FieldGroup className="grid grid-cols-1 md:grid-cols-2 grid-rows-2">
                 <Field>
                   <FieldLabel>
                     Student Name <span className="text-destructive">*</span>
@@ -369,9 +369,9 @@ export default function StudentRecords() {
                   <FieldContent>
                     <Select
                       value={
-                        isNaN(StudentInput.department_id)
-                          ? undefined
-                          : String(StudentInput.department_id)
+                        StudentInput.department_id
+                          ? String(StudentInput.department_id)
+                          : undefined
                       }
                       onValueChange={(value) =>
                         UpdateFields({ department_id: Number(value) })
@@ -410,7 +410,7 @@ export default function StudentRecords() {
               </FieldGroup>
             </FormSection>
             <FormSection icon={<BookOpenIcon />} title="Visit Details">
-              <FieldGroup className="grid grid-cols-2 grid-rows-1">
+              <FieldGroup className="grid grid-cols-1 md:grid-cols-2 grid-rows-1">
                 <Field>
                   <FieldLabel>Date And Time</FieldLabel>
                   <FieldContent>
@@ -464,7 +464,7 @@ export default function StudentRecords() {
             <CardAction>
               <Button
                 type="submit"
-                className="btn-primary"
+                className="btn-primary w-37.5"
                 disabled={IsSubmitting}
               >
                 {IsSubmitting ? (

@@ -59,6 +59,7 @@ import {
   Field,
   FieldContent,
   FieldDescription,
+  FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
@@ -301,7 +302,7 @@ export default function WorkStudy() {
       <form onSubmit={handleSubmit}>
         <Card>
           <CardHeader>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-4">
               <UserPlusIcon className="size-8 text-primary" />
               <div>
                 <CardTitle>Add New User</CardTitle>
@@ -324,7 +325,7 @@ export default function WorkStudy() {
               icon={<UserRoundIcon />}
               title={`${UserInput.isSupervisor ? "Supervisor" : "Workstudy"} Account Details`}
             >
-              <FieldGroup className="grid grid-cols-2 grid-rows-2">
+              <FieldGroup className="grid grid-cols-1 md:grid-cols-2 grid-rows-2">
                 <Field>
                   <FieldLabel>
                     Display Name <span className="text-destructive">*</span>
@@ -339,18 +340,16 @@ export default function WorkStudy() {
                       placeholder="e.g. John Doe"
                       required
                       aria-invalid={LocalError.includes("Display name")}
+                      disabled={IsSubmitting}
                     />
                     <FieldDescription>
                       Enter the{" "}
                       {UserInput.isSupervisor ? "supervisor's" : "workstudy's"}{" "}
                       display name
                       {LocalError.includes("Display name") && (
-                        <span className="text-destructive"> Required</span>
+                        <FieldError> {LocalError}</FieldError>
                       )}
                     </FieldDescription>
-                    {!UserInput.displayname && (
-                      <span className="text-destructive"> Required</span>
-                    )}
                   </FieldContent>
                 </Field>
                 <Field>
@@ -367,6 +366,7 @@ export default function WorkStudy() {
                       placeholder="e.g. john.doe@example.com"
                       required
                       aria-invalid={LocalError.includes("Email")}
+                      disabled={IsSubmitting}
                     />
                     <FieldDescription>
                       Enter the{" "}
@@ -394,6 +394,7 @@ export default function WorkStudy() {
                       placeholder="Enter a strong password"
                       required
                       aria-invalid={LocalError.includes("Password")}
+                      disabled={IsSubmitting}
                     />
                     <FieldDescription>
                       Enter a strong password for the{" "}
@@ -423,7 +424,13 @@ export default function WorkStudy() {
                         updateFields({ department_id: Number(value) })
                       }
                     >
-                      <SelectTrigger className="w-full">
+                      <SelectTrigger
+                        className="w-full"
+                        aria-invalid={LocalError.toLowerCase().includes(
+                          "department",
+                        )}
+                        disabled={IsSubmitting}
+                      >
                         <SelectValue placeholder="Select a department" />
                       </SelectTrigger>
                       <SelectContent>
@@ -445,12 +452,15 @@ export default function WorkStudy() {
                       {UserInput.isSupervisor ? "supervisor's" : "workstudy's"}{" "}
                       department
                     </FieldDescription>
+                    {LocalError.toLowerCase().includes("department") && (
+                      <FieldError>{LocalError}</FieldError>
+                    )}
                   </FieldContent>
                 </Field>
               </FieldGroup>
             </FormSection>
             <FormSection icon={<InfoIcon />} title="Additional Information">
-              <FieldGroup className="grid grid-cols-2 grid-rows-1">
+              <FieldGroup className="grid grid-cols-1 md:grid-cols-2 grid-rows-1">
                 <Field>
                   <FieldLabel>Role</FieldLabel>
                   <FieldContent className="flex flex-row! gap-2 items-center">
@@ -458,7 +468,11 @@ export default function WorkStudy() {
                       type="button"
                       className="w-1/2 cursor-pointer"
                       variant={UserInput.isSupervisor ? "default" : "outline"}
-                      onClick={() => updateFields({ isSupervisor: true })}
+                      onClick={() => {
+                        if (UserInput.isSupervisor) return; // Stops re-rendering if the user is already a supervisor
+                        updateFields({ isSupervisor: true });
+                      }}
+                      disabled={IsSubmitting}
                     >
                       Supervisor
                     </Button>
@@ -466,7 +480,11 @@ export default function WorkStudy() {
                       type="button"
                       className="w-1/2 cursor-pointer"
                       variant={UserInput.isSupervisor ? "outline" : "default"}
-                      onClick={() => updateFields({ isSupervisor: false })}
+                      onClick={() => {
+                        if (!UserInput.isSupervisor) return; // Stops re-rendering if the user is already a workstudy
+                        updateFields({ isSupervisor: false });
+                      }}
+                      disabled={IsSubmitting}
                     >
                       WorkStudy
                     </Button>
@@ -503,10 +521,15 @@ export default function WorkStudy() {
               type="reset"
               variant="outline"
               onClick={() => setUserInput(InitialValue)}
+              disabled={IsSubmitting}
             >
               Clear
             </Button>
-            <Button type="submit" className="btn-primary">
+            <Button
+              type="submit"
+              className="btn-primary w-37.5"
+              disabled={IsSubmitting}
+            >
               {IsSubmitting ? (
                 <>
                   <Spinner /> Adding{" "}
@@ -521,15 +544,6 @@ export default function WorkStudy() {
           </CardFooter>
         </Card>
       </form>
-
-      <div className="page-header">
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="page-title">Support Center Staff Management</h1>
-            <p className="page-desc">Manage Support Center Staff accounts.</p>
-          </div>
-        </div>
-      </div>
 
       <div className="p-5 flex flex-col gap-4">
         <h2 className="text-xl text-(--navy) mb-4 font-serif font-semibold flex ">
