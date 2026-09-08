@@ -19,7 +19,7 @@ type TimeSlotProps = {
 };
 
 type Row = {
-  rowId: ReturnType<typeof crypto.randomUUID>;
+  rowId: number;
 } & TimeSlot;
 
 export default function TimeSlots({
@@ -28,7 +28,7 @@ export default function TimeSlots({
   disabled,
 }: TimeSlotProps) {
   const Rows: Row[] = userinput.time_slots.map((slot) => ({
-    rowId: crypto.randomUUID(),
+    rowId: Math.random(),
     ...slot,
   }));
 

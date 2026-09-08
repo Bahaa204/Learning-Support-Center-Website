@@ -1,4 +1,3 @@
-import InputForm from "@/components/InputForm";
 import StudentTable from "@/components/StudentTable";
 import { formatDate } from "@/helper/functions";
 import { useAuth } from "@/hooks/useAuth";
@@ -17,10 +16,46 @@ import { SetErrorMessage } from "@/helper/errorhelpers";
 import useAskedAbout from "@/hooks/useAsked_About";
 import { validateStudentInput } from "@/helper/validation";
 import { Button } from "@/components/ui/button";
-import { FilterIcon } from "lucide-react";
+import {
+  BookOpenIcon,
+  FilterIcon,
+  UserPlusIcon,
+  UserRoundIcon,
+} from "lucide-react";
 import { FilterModal } from "@/components/FilterModal";
 import NavigateToLogin from "@/components/NavigateToLogin";
 import Modal from "@/components/Modal";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import FormSection from "@/components/FormSection";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { DateTimePicker } from "@/components/DateTimePicker";
+import CoursesMenu from "@/components/CoursesMenu";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function StudentRecords() {
   useDocumentTitle("Student Records");
@@ -148,7 +183,7 @@ export default function StudentRecords() {
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (loading || IsSubmitting) return false;
+    if (loading || IsSubmitting) return;
     setIsSubmitting(true);
 
     const validationmessage = validateStudentInput(StudentInput);
@@ -156,7 +191,7 @@ export default function StudentRecords() {
     if (validationmessage) {
       setLocalError(validationmessage);
       setIsSubmitting(false);
-      return false;
+      return;
     }
 
     const newStudent: NewStudent = {
@@ -175,7 +210,7 @@ export default function StudentRecords() {
 
     if (ExistingStudent) {
       setExistingStudent(ExistingStudent);
-      return true;
+      return;
     }
 
     await AddStudent(newStudent, {
@@ -199,8 +234,6 @@ export default function StudentRecords() {
         setStudentInput(InitialValue);
       },
     });
-
-    return true;
   }
 
   function handleExport() {
@@ -229,33 +262,223 @@ export default function StudentRecords() {
 
   return (
     <>
-      <div className="page-header">
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="page-title">Student Support Center Visits</h1>
-            <p className="page-desc">
-              Track student visits and support sessions at the Learning Support
-              Center.
-            </p>
-          </div>
-          <button
-            onClick={handleExport}
-            className="btn btn-primary export-button"
-          >
-            Export {Settings.exportFormat === "csv" ? "CSV" : "Excel"}
-          </button>
-        </div>
-      </div>
-
-      <InputForm
-        mode="student"
-        handleStudentSubmit={handleSubmit}
-        studentInput={StudentInput}
-        updateFields={UpdateFields}
-        Departments={Departments}
-        isSubmitting={IsSubmitting}
-        formError={LocalError}
-      />
+      <form onSubmit={handleSubmit}>
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-4">
+              <UserPlusIcon className="size-8 text-primary" />
+              <div>
+                <CardTitle>Add New Student</CardTitle>
+                <CardDescription>
+                  Register a student and record their support center visit.
+                </CardDescription>
+              </div>
+              <Button
+                type="button"
+                onClick={handleExport}
+                className="btn-primary ml-auto"
+              >
+                Export {Settings.exportFormat === "csv" ? "CSV" : "Excel"}
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <FormSection icon={<UserRoundIcon />} title="Student Information">
+              <FieldGroup className="grid grid-cols-2 grid-rows-2">
+                <Field>
+                  <FieldLabel>
+                    Student Name <span className="text-destructive">*</span>
+                  </FieldLabel>
+                  <FieldContent>
+                    <Input
+                      type="text"
+                      value={StudentInput.studentName}
+                      onChange={(event) =>
+                        UpdateFields({ studentName: event.target.value })
+                      }
+                      required
+                      aria-invalid={LocalError.includes("Student name")}
+                      disabled={IsSubmitting}
+                      placeholder="e.g John Doe"
+                    />
+                    <FieldDescription>
+                      Enter the Student's full name <br />
+                      {!StudentInput.studentName && (
+                        <span className="text-destructive">Required</span>
+                      )}
+                    </FieldDescription>
+                    {LocalError.includes("Student name") && (
+                      <FieldError>{LocalError}</FieldError>
+                    )}
+                  </FieldContent>
+                </Field>
+                <Field>
+                  <FieldLabel>
+                    Student ID <span className="text-destructive">*</span>
+                  </FieldLabel>
+                  <FieldContent>
+                    <Input
+                      type="number"
+                      value={StudentInput.studentId}
+                      onChange={(event) =>
+                        UpdateFields({ studentId: Number(event.target.value) })
+                      }
+                      required
+                      aria-invalid={LocalError.includes("Student ID")}
+                      disabled={IsSubmitting}
+                      placeholder="e.g 123456"
+                    />
+                    <FieldDescription>
+                      Enter the Student's RHU ID
+                      <br />
+                      {!StudentInput.studentId && (
+                        <span className="text-destructive">Required</span>
+                      )}
+                    </FieldDescription>
+                    {LocalError.includes("Student ID") && (
+                      <FieldError>{LocalError}</FieldError>
+                    )}
+                  </FieldContent>
+                </Field>
+                <Field>
+                  <FieldLabel>Student email</FieldLabel>
+                  <FieldContent>
+                    <Input
+                      type="email"
+                      value={StudentInput.email || ""}
+                      onChange={(event) =>
+                        UpdateFields({ email: event.target.value })
+                      }
+                      aria-invalid={LocalError.includes("Invalid email")}
+                      disabled={IsSubmitting}
+                      placeholder="e.g john.doe@students.rhu.edu.lb"
+                    />
+                    <FieldDescription>
+                      Enter the Student's RHU email address <br /> Optional
+                    </FieldDescription>
+                    {LocalError.includes("Invalid email") && (
+                      <FieldError>{LocalError}</FieldError>
+                    )}
+                  </FieldContent>
+                </Field>
+                <Field>
+                  <FieldLabel>
+                    Student Department{" "}
+                    <span className="text-destructive">*</span>
+                  </FieldLabel>
+                  <FieldContent>
+                    <Select
+                      value={
+                        isNaN(StudentInput.department_id)
+                          ? undefined
+                          : String(StudentInput.department_id)
+                      }
+                      onValueChange={(value) =>
+                        UpdateFields({ department_id: Number(value) })
+                      }
+                    >
+                      <SelectTrigger
+                        className="w-full"
+                        aria-invalid={LocalError.toLowerCase().includes(
+                          "department",
+                        )}
+                      >
+                        <SelectValue placeholder="Select a department" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Departments</SelectLabel>
+                          {Departments.map((department, index) => (
+                            <SelectItem
+                              key={index}
+                              value={String(department.id)}
+                            >
+                              {department.name}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                    <FieldDescription>
+                      Select the Student's department
+                    </FieldDescription>
+                    {LocalError.toLowerCase().includes("department") && (
+                      <FieldError>{LocalError}</FieldError>
+                    )}
+                  </FieldContent>
+                </Field>
+              </FieldGroup>
+            </FormSection>
+            <FormSection icon={<BookOpenIcon />} title="Visit Details">
+              <FieldGroup className="grid grid-cols-2 grid-rows-1">
+                <Field>
+                  <FieldLabel>Date And Time</FieldLabel>
+                  <FieldContent>
+                    <DateTimePicker
+                      value={StudentInput.visitDateTime}
+                      onChange={(value) =>
+                        UpdateFields({ visitDateTime: value })
+                      }
+                    />
+                    <FieldDescription>
+                      Date and Time of the student's visit <br />
+                      Defaults to the current date and time
+                    </FieldDescription>
+                    {LocalError.includes("date and time") && (
+                      <FieldError>{LocalError}</FieldError>
+                    )}
+                  </FieldContent>
+                </Field>
+                <Field>
+                  <FieldLabel>Asked About Courses</FieldLabel>
+                  <FieldContent>
+                    <CoursesMenu
+                      selectedCourseCodes={StudentInput.askedCourses}
+                      onSelectionChange={(courses) =>
+                        UpdateFields({ askedCourses: courses })
+                      }
+                    />
+                  </FieldContent>
+                  <FieldDescription>
+                    Select the courses the student asked about during their
+                    visit
+                  </FieldDescription>
+                  {LocalError.includes("courses") && (
+                    <FieldError>{LocalError}</FieldError>
+                  )}
+                </Field>
+              </FieldGroup>
+            </FormSection>
+          </CardContent>
+          <CardFooter className="justify-end gap-3">
+            <CardAction>
+              <Button
+                type="reset"
+                variant="outline"
+                onClick={() => setStudentInput(InitialValue)}
+                disabled={IsSubmitting}
+              >
+                Clear
+              </Button>
+            </CardAction>
+            <CardAction>
+              <Button
+                type="submit"
+                className="btn-primary"
+                disabled={IsSubmitting}
+              >
+                {IsSubmitting ? (
+                  <>
+                    <Spinner /> Adding Student...
+                  </>
+                ) : (
+                  "Add Student"
+                )}
+              </Button>
+            </CardAction>
+          </CardFooter>
+        </Card>
+      </form>
 
       <div className="p-5 flex flex-col gap-4">
         <h2 className="text-xl text-(--navy) mb-4 font-serif font-semibold flex ">

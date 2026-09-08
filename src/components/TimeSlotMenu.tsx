@@ -38,7 +38,7 @@ export function TimeSlotsMenu({ timeslots }: TimeSlotsMenuProps) {
                 No time slots found were found for this user.
               </CommandEmpty>
               {timeslots.map((slot, index) => (
-                <div key={crypto.randomUUID()}>
+                <div key={index}>
                   <CommandItem>
                     {slot.weekday}: {slot.start_time} to {slot.end_time}
                   </CommandItem>

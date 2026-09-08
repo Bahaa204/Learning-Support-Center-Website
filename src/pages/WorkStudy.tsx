@@ -1,4 +1,3 @@
-import InputForm from "@/components/InputForm";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -22,7 +21,13 @@ import { useSettings } from "@/hooks/useSettings";
 import { useUsers } from "@/hooks/useUsers";
 import { exportData } from "@/lib/exportUtils";
 import type { NewUser, User, UserInput } from "@/types/users";
-import { FilterIcon, LightbulbIcon, MoreHorizontalIcon } from "lucide-react";
+import {
+  FilterIcon,
+  InfoIcon,
+  LightbulbIcon,
+  MoreHorizontalIcon,
+  UserRoundIcon,
+} from "lucide-react";
 import { useState, type SubmitEvent } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import ErrorCard from "@/components/error-card";
@@ -40,6 +45,36 @@ import {
 } from "@/components/ui/context-menu";
 import Modal from "@/components/Modal";
 import NavigateToLogin from "@/components/NavigateToLogin";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { UserPlusIcon } from "@heroicons/react/24/outline";
+import FormSection from "@/components/FormSection";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import PasswordInput from "@/components/PasswordInput";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import TimeSlots from "@/components/TimeSlots";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function WorkStudy() {
   useDocumentTitle("Support Center Staff");
@@ -53,7 +88,7 @@ export default function WorkStudy() {
     time_slots: [],
   };
 
-  const [Input, setInput] = useState<UserInput>(InitialValue);
+  const [UserInput, setUserInput] = useState<UserInput>(InitialValue);
   const [LocalError, setLocalError] = useState<string>("");
   const [IsSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [IsFilterOpen, setIsFilterOpen] = useState<boolean>(false);
@@ -92,40 +127,40 @@ export default function WorkStudy() {
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (loading || IsSubmitting) return false;
+    if (loading || IsSubmitting) return;
     setIsSubmitting(true);
 
-    const validationmessage = validateUserInput(Input);
+    const validationmessage = validateUserInput(UserInput);
 
     if (validationmessage) {
       setLocalError(validationmessage);
       setIsSubmitting(false);
-      return false;
+      return;
     }
 
     const SignUpData = await SignUp(
-      Input.email,
-      Input.password,
-      Input.displayname,
-      Input.isSupervisor,
-      Input.department_id,
+      UserInput.email,
+      UserInput.password,
+      UserInput.displayname,
+      UserInput.isSupervisor,
+      UserInput.department_id,
     );
 
     if (!SignUpData?.user) {
       setIsSubmitting(false);
       setLocalError("Failed to create account. Please try again.");
-      return false;
+      return;
     }
 
     const UserId = SignUpData.user.id;
 
     const newUser: NewUser = {
       id: UserId,
-      email: Input.email,
-      display_name: Input.displayname,
-      role: Input.isSupervisor ? "admin" : "workstudy",
-      department_id: Input.department_id,
-      time_slots: Input.time_slots,
+      email: UserInput.email,
+      display_name: UserInput.displayname,
+      role: UserInput.isSupervisor ? "admin" : "workstudy",
+      department_id: UserInput.department_id,
+      time_slots: UserInput.time_slots,
     };
 
     await AddUser(newUser, {
@@ -135,15 +170,13 @@ export default function WorkStudy() {
       },
       onSuccess: () => {
         setIsSubmitting(false);
-        setInput(InitialValue);
+        setUserInput(InitialValue);
       },
     });
-
-    return true;
   }
 
   function updateFields(fields: Partial<UserInput>) {
-    setInput((prev) => ({ ...prev, ...fields }));
+    setUserInput((prev) => ({ ...prev, ...fields }));
   }
 
   if (error) {
@@ -265,30 +298,238 @@ export default function WorkStudy() {
 
   return (
     <>
+      <form onSubmit={handleSubmit}>
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-4">
+              <UserPlusIcon className="size-8 text-primary" />
+              <div>
+                <CardTitle>Add New User</CardTitle>
+                <CardDescription>
+                  Add a new workstudy or supervisor account to the Support
+                  Center Staff
+                </CardDescription>
+              </div>
+              <Button
+                type="button"
+                onClick={handleExport}
+                className="btn-primary ml-auto"
+              >
+                Export {Settings.exportFormat === "csv" ? "CSV" : "Excel"}
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <FormSection
+              icon={<UserRoundIcon />}
+              title={`${UserInput.isSupervisor ? "Supervisor" : "Workstudy"} Account Details`}
+            >
+              <FieldGroup className="grid grid-cols-2 grid-rows-2">
+                <Field>
+                  <FieldLabel>
+                    Display Name <span className="text-destructive">*</span>
+                  </FieldLabel>
+                  <FieldContent>
+                    <Input
+                      type="text"
+                      value={UserInput.displayname}
+                      onChange={(event) =>
+                        updateFields({ displayname: event.target.value })
+                      }
+                      placeholder="e.g. John Doe"
+                      required
+                      aria-invalid={LocalError.includes("Display name")}
+                    />
+                    <FieldDescription>
+                      Enter the{" "}
+                      {UserInput.isSupervisor ? "supervisor's" : "workstudy's"}{" "}
+                      display name
+                      {LocalError.includes("Display name") && (
+                        <span className="text-destructive"> Required</span>
+                      )}
+                    </FieldDescription>
+                    {!UserInput.displayname && (
+                      <span className="text-destructive"> Required</span>
+                    )}
+                  </FieldContent>
+                </Field>
+                <Field>
+                  <FieldLabel>
+                    Email <span className="text-destructive">*</span>
+                  </FieldLabel>
+                  <FieldContent>
+                    <Input
+                      type="email"
+                      value={UserInput.email}
+                      onChange={(event) =>
+                        updateFields({ email: event.target.value })
+                      }
+                      placeholder="e.g. john.doe@example.com"
+                      required
+                      aria-invalid={LocalError.includes("Email")}
+                    />
+                    <FieldDescription>
+                      Enter the{" "}
+                      {UserInput.isSupervisor ? "supervisor's" : "workstudy's"}{" "}
+                      email address
+                      {LocalError.includes("Email") && (
+                        <span className="text-destructive"> Required</span>
+                      )}
+                    </FieldDescription>
+                    {!UserInput.email && (
+                      <span className="text-destructive"> Required</span>
+                    )}
+                  </FieldContent>
+                </Field>
+                <Field>
+                  <FieldLabel>
+                    Password <span className="text-destructive">*</span>
+                  </FieldLabel>
+                  <FieldContent>
+                    <PasswordInput
+                      value={UserInput.password}
+                      onChange={(event) =>
+                        updateFields({ password: event.target.value })
+                      }
+                      placeholder="Enter a strong password"
+                      required
+                      aria-invalid={LocalError.includes("Password")}
+                    />
+                    <FieldDescription>
+                      Enter a strong password for the{" "}
+                      {UserInput.isSupervisor ? "supervisor's" : "workstudy's"}{" "}
+                      account
+                      {LocalError.includes("Password") && (
+                        <span className="text-destructive"> Required</span>
+                      )}
+                    </FieldDescription>
+                    {!UserInput.password && (
+                      <span className="text-destructive"> Required</span>
+                    )}
+                  </FieldContent>
+                </Field>
+                <Field>
+                  <FieldLabel>
+                    Department <span className="text-destructive">*</span>
+                  </FieldLabel>
+                  <FieldContent>
+                    <Select
+                      value={
+                        UserInput.department_id
+                          ? String(UserInput.department_id)
+                          : undefined
+                      }
+                      onValueChange={(value) =>
+                        updateFields({ department_id: Number(value) })
+                      }
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a department" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Departments</SelectLabel>
+                          {Departments.map((department) => (
+                            <SelectItem
+                              key={department.id}
+                              value={String(department.id)}
+                            >
+                              {department.name}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                    <FieldDescription>
+                      Enter the{" "}
+                      {UserInput.isSupervisor ? "supervisor's" : "workstudy's"}{" "}
+                      department
+                    </FieldDescription>
+                  </FieldContent>
+                </Field>
+              </FieldGroup>
+            </FormSection>
+            <FormSection icon={<InfoIcon />} title="Additional Information">
+              <FieldGroup className="grid grid-cols-2 grid-rows-1">
+                <Field>
+                  <FieldLabel>Role</FieldLabel>
+                  <FieldContent className="flex flex-row! gap-2 items-center">
+                    <Button
+                      type="button"
+                      className="w-1/2 cursor-pointer"
+                      variant={UserInput.isSupervisor ? "default" : "outline"}
+                      onClick={() => updateFields({ isSupervisor: true })}
+                    >
+                      Supervisor
+                    </Button>
+                    <Button
+                      type="button"
+                      className="w-1/2 cursor-pointer"
+                      variant={UserInput.isSupervisor ? "outline" : "default"}
+                      onClick={() => updateFields({ isSupervisor: false })}
+                    >
+                      WorkStudy
+                    </Button>
+                  </FieldContent>
+                  <FieldDescription>
+                    Select the role for the new account.
+                    <br /> Supervisors have elevated permissions and can manage
+                    workstudy accounts.
+                  </FieldDescription>
+                </Field>
+                <Field>
+                  <FieldLabel>
+                    Time Slots <span className="text-destructive">*</span>
+                  </FieldLabel>
+                  <FieldContent>
+                    <TimeSlots
+                      userinput={UserInput}
+                      updateFields={updateFields}
+                      disabled={IsSubmitting}
+                    />
+                    <FieldDescription>
+                      Select the time slots for the{" "}
+                      {UserInput.isSupervisor ? "supervisor" : "workstudy"} to
+                      be available. <br />
+                      At least one time slot must be selected.
+                    </FieldDescription>
+                  </FieldContent>
+                </Field>
+              </FieldGroup>
+            </FormSection>
+          </CardContent>
+          <CardFooter className="justify-end gap-3">
+            <Button
+              type="reset"
+              variant="outline"
+              onClick={() => setUserInput(InitialValue)}
+            >
+              Clear
+            </Button>
+            <Button type="submit" className="btn-primary">
+              {IsSubmitting ? (
+                <>
+                  <Spinner /> Adding{" "}
+                  {UserInput.isSupervisor ? "Supervisor" : "WorkStudy"}
+                </>
+              ) : UserInput.isSupervisor ? (
+                "Add Supervisor"
+              ) : (
+                "Add WorkStudy"
+              )}
+            </Button>
+          </CardFooter>
+        </Card>
+      </form>
+
       <div className="page-header">
         <div className="flex justify-between items-start">
           <div>
             <h1 className="page-title">Support Center Staff Management</h1>
             <p className="page-desc">Manage Support Center Staff accounts.</p>
           </div>
-          <button
-            onClick={handleExport}
-            className="btn btn-primary export-button"
-          >
-            Export {Settings.exportFormat === "csv" ? "CSV" : "Excel"}
-          </button>
         </div>
       </div>
-
-      <InputForm
-        mode="user"
-        isSubmitting={IsSubmitting}
-        updateFields={updateFields}
-        handleUserSubmit={handleSubmit}
-        userInput={Input}
-        Departments={Departments}
-        formError={LocalError}
-      />
 
       <div className="p-5 flex flex-col gap-4">
         <h2 className="text-xl text-(--navy) mb-4 font-serif font-semibold flex ">
