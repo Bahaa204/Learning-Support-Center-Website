@@ -1,3 +1,10 @@
+import { ChevronDownIcon } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "./ui/collapsible";
+
 type FormSectionProps = {
   icon: React.ReactNode;
   title: string;
@@ -10,14 +17,15 @@ export default function FormSection({
   children,
 }: FormSectionProps) {
   return (
-    <section className="overflow-hidden rounded-lg border">
-      <div className="flex items-center gap-3 border-b bg-muted/40 px-5 py-3">
+    <Collapsible defaultOpen className="overflow-hidden rounded-lg border">
+      <CollapsibleTrigger className="group flex w-full items-center gap-3 border-b bg-muted/40 px-5 py-3">
         <span className="text-primary">{icon}</span>
 
         <h2 className="font-semibold text-primary">{title}</h2>
-      </div>
+        <ChevronDownIcon className="ml-auto transition-transform group-data-[state=open]:rotate-180" />
+      </CollapsibleTrigger>
 
-      <div className="p-5">{children}</div>
-    </section>
+      <CollapsibleContent className="p-5">{children}</CollapsibleContent>
+    </Collapsible>
   );
 }
