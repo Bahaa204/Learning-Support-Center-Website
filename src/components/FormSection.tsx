@@ -9,15 +9,21 @@ type FormSectionProps = {
   icon: React.ReactNode;
   title: string;
   children: React.ReactNode;
+  disableCollapse?: boolean;
 };
 
 export default function FormSection({
   icon,
   title,
   children,
+  disableCollapse,
 }: FormSectionProps) {
   return (
-    <Collapsible defaultOpen className="overflow-hidden rounded-lg border">
+    <Collapsible
+      disabled={disableCollapse}
+      defaultOpen
+      className="overflow-hidden rounded-lg border"
+    >
       <CollapsibleTrigger className="group flex w-full items-center gap-3 border-b bg-muted/40 px-5 py-3">
         <span className="text-primary">{icon}</span>
 

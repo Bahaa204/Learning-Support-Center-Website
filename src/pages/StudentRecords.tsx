@@ -18,6 +18,7 @@ import { validateStudentInput } from "@/helper/validation";
 import { Button } from "@/components/ui/button";
 import {
   BookOpenIcon,
+  CalendarDaysIcon,
   FilterIcon,
   UserPlusIcon,
   UserRoundIcon,
@@ -54,8 +55,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DateTimePicker } from "@/components/DateTimePicker";
-import CoursesMenu from "@/components/CoursesMenu";
 import { Spinner } from "@/components/ui/spinner";
+
+import { useCourses } from "@/hooks/useCourses";
+import CoursesComboboxMultiple from "@/components/CoursesComboboxMultiple";
 
 export default function StudentRecords() {
   useDocumentTitle("Student Records");
@@ -109,14 +112,22 @@ export default function StudentRecords() {
     Error: DepartmentsError,
   } = useDepartments();
 
-  const loading = AuthLoading || DepartmentsLoading || UsersLoading;
+  const {
+    Courses,
+    Loading: CoursesLoading,
+    Error: CoursesError,
+  } = useCourses();
+
+  const loading =
+    AuthLoading || DepartmentsLoading || UsersLoading || CoursesLoading;
 
   const error =
     AuthError ||
     StudentsError ||
     DepartmentsError ||
     UsersError ||
-    AskedAboutError;
+    AskedAboutError ||
+    CoursesError;
 
   if (loading) {
     return (
@@ -134,7 +145,7 @@ export default function StudentRecords() {
     return <ErrorCard message={SetErrorMessage(error)} />;
   }
 
-  const data = Students && Users && Departments && AskedAbout;
+  const data = Students && Users && Departments && AskedAbout && Courses;
 
   if (!data) {
     return <ErrorCard message="Failed to load required data." />;
@@ -283,7 +294,11 @@ export default function StudentRecords() {
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
-            <FormSection icon={<UserRoundIcon />} title="Student Information">
+            <FormSection
+              icon={<UserRoundIcon />}
+              title="Student Information"
+              disableCollapse={IsSubmitting}
+            >
               <FieldGroup className="grid grid-cols-1 md:grid-cols-2 grid-rows-2">
                 <Field>
                   <FieldLabel>
@@ -409,45 +424,49 @@ export default function StudentRecords() {
                 </Field>
               </FieldGroup>
             </FormSection>
-            <FormSection icon={<BookOpenIcon />} title="Visit Details">
-              <FieldGroup className="grid grid-cols-1 md:grid-cols-2 grid-rows-1">
-                <Field>
-                  <FieldLabel>Date And Time</FieldLabel>
-                  <FieldContent>
-                    <DateTimePicker
-                      value={StudentInput.visitDateTime}
-                      onChange={(value) =>
-                        UpdateFields({ visitDateTime: value })
-                      }
-                    />
-                    <FieldDescription>
-                      Date and Time of the student's visit <br />
-                      Defaults to the current date and time
-                    </FieldDescription>
-                    {LocalError.includes("date and time") && (
-                      <FieldError>{LocalError}</FieldError>
-                    )}
-                  </FieldContent>
-                </Field>
-                <Field>
-                  <FieldLabel>Asked About Courses</FieldLabel>
-                  <FieldContent>
-                    <CoursesMenu
-                      selectedCourseCodes={StudentInput.askedCourses}
-                      onSelectionChange={(courses) =>
-                        UpdateFields({ askedCourses: courses })
-                      }
-                    />
-                  </FieldContent>
+            <FormSection
+              icon={<CalendarDaysIcon />}
+              title="Visit Details"
+              disableCollapse={IsSubmitting}
+            >
+              <Field>
+                <FieldLabel>Date And Time</FieldLabel>
+                <FieldContent>
+                  <DateTimePicker
+                    value={StudentInput.visitDateTime}
+                    onChange={(value) => UpdateFields({ visitDateTime: value })}
+                  />
                   <FieldDescription>
-                    Select the courses the student asked about during their
-                    visit
+                    Date and Time of the student's visit <br />
+                    Defaults to the current date and time
                   </FieldDescription>
-                  {LocalError.includes("courses") && (
+                  {LocalError.includes("date and time") && (
                     <FieldError>{LocalError}</FieldError>
                   )}
-                </Field>
-              </FieldGroup>
+                </FieldContent>
+              </Field>
+            </FormSection>
+            <FormSection
+              icon={<BookOpenIcon />}
+              title="Courses Asked About"
+              disableCollapse={IsSubmitting}
+            >
+              <Field>
+                <FieldLabel>Courses Asked About</FieldLabel>
+                <FieldContent>
+                  <CoursesComboboxMultiple
+                    courses={Courses}
+                    value={StudentInput.askedCourses}
+                    onValueChange={(value) =>
+                      UpdateFields({ askedCourses: value })
+                    }
+                  />
+                  <FieldDescription>
+                    Select the courses the student asked about during their
+                    visit. You can search by course code or title.
+                  </FieldDescription>
+                </FieldContent>
+              </Field>
             </FormSection>
           </CardContent>
           <CardFooter className="justify-end gap-3">
