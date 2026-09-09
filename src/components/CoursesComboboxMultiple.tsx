@@ -66,6 +66,7 @@ export default function CoursesComboboxMultiple({
       items={items}
       filter={filter}
       multiple
+      autoHighlight
       value={value}
       defaultValue={defaultValue}
       onValueChange={onValueChange}

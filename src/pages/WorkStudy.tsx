@@ -321,203 +321,228 @@ export default function WorkStudy() {
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
-            <FormSection
-              icon={<UserRoundIcon />}
-              title={`${UserInput.isSupervisor ? "Supervisor" : "Workstudy"} Account Details`}
-            >
-              <FieldGroup className="grid grid-cols-1 md:grid-cols-2 grid-rows-2">
-                <Field>
-                  <FieldLabel>
-                    Display Name <span className="text-destructive">*</span>
-                  </FieldLabel>
-                  <FieldContent>
-                    <Input
-                      type="text"
-                      value={UserInput.displayname}
-                      onChange={(event) =>
-                        updateFields({ displayname: event.target.value })
-                      }
-                      placeholder="e.g. John Doe"
-                      required
-                      aria-invalid={LocalError.includes("Display name")}
-                      disabled={IsSubmitting}
-                    />
-                    <FieldDescription>
-                      Enter the{" "}
-                      {UserInput.isSupervisor ? "supervisor's" : "workstudy's"}{" "}
-                      display name <br />
-                      {!UserInput.displayname && (
-                        <span className="text-destructive"> Required</span>
-                      )}
-                    </FieldDescription>
-                    {LocalError.includes("Display name") && (
-                      <FieldError> {LocalError}</FieldError>
-                    )}
-                  </FieldContent>
-                </Field>
-                <Field>
-                  <FieldLabel>
-                    Email <span className="text-destructive">*</span>
-                  </FieldLabel>
-                  <FieldContent>
-                    <Input
-                      type="email"
-                      value={UserInput.email}
-                      onChange={(event) =>
-                        updateFields({ email: event.target.value })
-                      }
-                      placeholder="e.g. john.doe@example.com"
-                      required
-                      aria-invalid={LocalError.includes("Email")}
-                      disabled={IsSubmitting}
-                    />
-                    <FieldDescription>
-                      Enter the{" "}
-                      {UserInput.isSupervisor ? "supervisor's" : "workstudy's"}{" "}
-                      email address
-                      {LocalError.includes("Email") && (
-                        <span className="text-destructive"> Required</span>
-                      )}
-                    </FieldDescription>
-                    {!UserInput.email && (
-                      <span className="text-destructive"> Required</span>
-                    )}
-                  </FieldContent>
-                </Field>
-                <Field>
-                  <FieldLabel>
-                    Password <span className="text-destructive">*</span>
-                  </FieldLabel>
-                  <FieldContent>
-                    <PasswordInput
-                      value={UserInput.password}
-                      onChange={(event) =>
-                        updateFields({ password: event.target.value })
-                      }
-                      placeholder="Enter a strong password"
-                      required
-                      aria-invalid={LocalError.includes("Password")}
-                      disabled={IsSubmitting}
-                    />
-                    <FieldDescription>
-                      Enter a strong password for the{" "}
-                      {UserInput.isSupervisor ? "supervisor's" : "workstudy's"}{" "}
-                      account
-                      {LocalError.includes("Password") && (
-                        <span className="text-destructive"> Required</span>
-                      )}
-                    </FieldDescription>
-                    {!UserInput.password && (
-                      <span className="text-destructive"> Required</span>
-                    )}
-                  </FieldContent>
-                </Field>
-                <Field>
-                  <FieldLabel>
-                    Department <span className="text-destructive">*</span>
-                  </FieldLabel>
-                  <FieldContent>
-                    <Select
-                      value={
-                        UserInput.department_id
-                          ? String(UserInput.department_id)
-                          : undefined
-                      }
-                      onValueChange={(value) =>
-                        updateFields({ department_id: Number(value) })
-                      }
-                    >
-                      <SelectTrigger
-                        className="w-full"
-                        aria-invalid={LocalError.toLowerCase().includes(
-                          "department",
+            {IsSubmitting ? (
+              <LoadingCard
+                message={
+                  UserInput.isSupervisor
+                    ? "Adding supervisor"
+                    : "Adding workstudy"
+                }
+                className="min-h-auto!"
+              />
+            ) : (
+              <>
+                <FormSection
+                  icon={<UserRoundIcon />}
+                  title={`${UserInput.isSupervisor ? "Supervisor" : "Workstudy"} Account Details`}
+                >
+                  <FieldGroup className="grid grid-cols-1 md:grid-cols-2 grid-rows-2">
+                    <Field>
+                      <FieldLabel>
+                        Display Name <span className="text-destructive">*</span>
+                      </FieldLabel>
+                      <FieldContent>
+                        <Input
+                          type="text"
+                          value={UserInput.displayname}
+                          onChange={(event) =>
+                            updateFields({ displayname: event.target.value })
+                          }
+                          placeholder="e.g. John Doe"
+                          required
+                          aria-invalid={LocalError.includes("Display name")}
+                          disabled={IsSubmitting}
+                        />
+                        <FieldDescription>
+                          Enter the{" "}
+                          {UserInput.isSupervisor
+                            ? "supervisor's"
+                            : "workstudy's"}{" "}
+                          display name <br />
+                          {!UserInput.displayname && (
+                            <span className="text-destructive"> Required</span>
+                          )}
+                        </FieldDescription>
+                        {LocalError.includes("Display name") && (
+                          <FieldError> {LocalError}</FieldError>
                         )}
-                        disabled={IsSubmitting}
-                      >
-                        <SelectValue placeholder="Select a department" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectLabel>Departments</SelectLabel>
-                          {Departments.map((department) => (
-                            <SelectItem
-                              key={department.id}
-                              value={String(department.id)}
-                            >
-                              {department.name}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                    <FieldDescription>
-                      Enter the{" "}
-                      {UserInput.isSupervisor ? "supervisor's" : "workstudy's"}{" "}
-                      department
-                    </FieldDescription>
-                    {LocalError.toLowerCase().includes("department") && (
-                      <FieldError>{LocalError}</FieldError>
-                    )}
-                  </FieldContent>
-                </Field>
-              </FieldGroup>
-            </FormSection>
-            <FormSection icon={<InfoIcon />} title="Additional Information">
-              <FieldGroup className="grid grid-cols-1 md:grid-cols-2 grid-rows-1">
-                <Field>
-                  <FieldLabel>Role</FieldLabel>
-                  <FieldContent className="flex flex-row! gap-2 items-center">
-                    <Button
-                      type="button"
-                      className={`${UserInput.isSupervisor ? "btn-primary" : ""} w-1/2 cursor-pointer`}
-                      variant={UserInput.isSupervisor ? "default" : "outline"}
-                      onClick={() => {
-                        if (UserInput.isSupervisor) return; // Stops re-rendering if the user is already a supervisor
-                        updateFields({ isSupervisor: true });
-                      }}
-                      disabled={IsSubmitting}
-                    >
-                      Supervisor
-                    </Button>
-                    <Button
-                      type="button"
-                      className={`${!UserInput.isSupervisor ? "btn-primary" : ""} w-1/2 cursor-pointer`}
-                      variant={UserInput.isSupervisor ? "outline" : "default"}
-                      onClick={() => {
-                        if (!UserInput.isSupervisor) return; // Stops re-rendering if the user is already a workstudy
-                        updateFields({ isSupervisor: false });
-                      }}
-                      disabled={IsSubmitting}
-                    >
-                      WorkStudy
-                    </Button>
-                  </FieldContent>
-                  <FieldDescription>
-                    Select the role for the new account.
-                    <br /> Supervisors have elevated permissions and can manage
-                    workstudy accounts.
-                  </FieldDescription>
-                </Field>
-                <Field>
-                  <FieldLabel>
-                    Time Slots <span className="text-destructive">*</span>
-                  </FieldLabel>
-                  <FieldContent>
-                    <TimeSlots
-                      userinput={UserInput}
-                      updateFields={updateFields}
-                      disabled={IsSubmitting}
-                    />
-                    <FieldDescription>
-                      Select the time slots for the{" "}
-                      {UserInput.isSupervisor ? "supervisor" : "workstudy"} to
-                      be available. <br />
-                      At least one time slot must be selected.
-                    </FieldDescription>
-                  </FieldContent>
-                </Field>
-              </FieldGroup>
-            </FormSection>
+                      </FieldContent>
+                    </Field>
+                    <Field>
+                      <FieldLabel>
+                        Email <span className="text-destructive">*</span>
+                      </FieldLabel>
+                      <FieldContent>
+                        <Input
+                          type="email"
+                          value={UserInput.email}
+                          onChange={(event) =>
+                            updateFields({ email: event.target.value })
+                          }
+                          placeholder="e.g. john.doe@example.com"
+                          required
+                          aria-invalid={LocalError.includes("Email")}
+                          disabled={IsSubmitting}
+                        />
+                        <FieldDescription>
+                          Enter the{" "}
+                          {UserInput.isSupervisor
+                            ? "supervisor's"
+                            : "workstudy's"}{" "}
+                          email address
+                          {LocalError.includes("Email") && (
+                            <span className="text-destructive"> Required</span>
+                          )}
+                        </FieldDescription>
+                        {!UserInput.email && (
+                          <span className="text-destructive"> Required</span>
+                        )}
+                      </FieldContent>
+                    </Field>
+                    <Field>
+                      <FieldLabel>
+                        Password <span className="text-destructive">*</span>
+                      </FieldLabel>
+                      <FieldContent>
+                        <PasswordInput
+                          value={UserInput.password}
+                          onChange={(event) =>
+                            updateFields({ password: event.target.value })
+                          }
+                          placeholder="Enter a strong password"
+                          required
+                          aria-invalid={LocalError.includes("Password")}
+                          disabled={IsSubmitting}
+                        />
+                        <FieldDescription>
+                          Enter a strong password for the{" "}
+                          {UserInput.isSupervisor
+                            ? "supervisor's"
+                            : "workstudy's"}{" "}
+                          account
+                          {LocalError.includes("Password") && (
+                            <span className="text-destructive"> Required</span>
+                          )}
+                        </FieldDescription>
+                        {!UserInput.password && (
+                          <span className="text-destructive"> Required</span>
+                        )}
+                      </FieldContent>
+                    </Field>
+                    <Field>
+                      <FieldLabel>
+                        Department <span className="text-destructive">*</span>
+                      </FieldLabel>
+                      <FieldContent>
+                        <Select
+                          value={
+                            UserInput.department_id
+                              ? String(UserInput.department_id)
+                              : undefined
+                          }
+                          onValueChange={(value) =>
+                            updateFields({ department_id: Number(value) })
+                          }
+                        >
+                          <SelectTrigger
+                            className="w-full"
+                            aria-invalid={LocalError.toLowerCase().includes(
+                              "department",
+                            )}
+                            disabled={IsSubmitting}
+                          >
+                            <SelectValue placeholder="Select a department" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel>Departments</SelectLabel>
+                              {Departments.map((department) => (
+                                <SelectItem
+                                  key={department.id}
+                                  value={String(department.id)}
+                                >
+                                  {department.name}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                        <FieldDescription>
+                          Enter the{" "}
+                          {UserInput.isSupervisor
+                            ? "supervisor's"
+                            : "workstudy's"}{" "}
+                          department
+                        </FieldDescription>
+                        {LocalError.toLowerCase().includes("department") && (
+                          <FieldError>{LocalError}</FieldError>
+                        )}
+                      </FieldContent>
+                    </Field>
+                  </FieldGroup>
+                </FormSection>
+                <FormSection icon={<InfoIcon />} title="Additional Information">
+                  <FieldGroup className="grid grid-cols-1 md:grid-cols-2 grid-rows-1">
+                    <Field>
+                      <FieldLabel>Role</FieldLabel>
+                      <FieldContent className="flex flex-row! gap-2 items-center">
+                        <Button
+                          type="button"
+                          className={`${UserInput.isSupervisor ? "btn-primary" : ""} w-1/2 cursor-pointer`}
+                          variant={
+                            UserInput.isSupervisor ? "default" : "outline"
+                          }
+                          onClick={() => {
+                            if (UserInput.isSupervisor) return; // Stops re-rendering if the user is already a supervisor
+                            updateFields({ isSupervisor: true });
+                          }}
+                          disabled={IsSubmitting}
+                        >
+                          Supervisor
+                        </Button>
+                        <Button
+                          type="button"
+                          className={`${!UserInput.isSupervisor ? "btn-primary" : ""} w-1/2 cursor-pointer`}
+                          variant={
+                            UserInput.isSupervisor ? "outline" : "default"
+                          }
+                          onClick={() => {
+                            if (!UserInput.isSupervisor) return; // Stops re-rendering if the user is already a workstudy
+                            updateFields({ isSupervisor: false });
+                          }}
+                          disabled={IsSubmitting}
+                        >
+                          WorkStudy
+                        </Button>
+                      </FieldContent>
+                      <FieldDescription>
+                        Select the role for the new account.
+                        <br /> Supervisors have elevated permissions and can
+                        manage workstudy accounts.
+                      </FieldDescription>
+                    </Field>
+                    <Field>
+                      <FieldLabel>
+                        Time Slots <span className="text-destructive">*</span>
+                      </FieldLabel>
+                      <FieldContent>
+                        <TimeSlots
+                          userinput={UserInput}
+                          updateFields={updateFields}
+                          disabled={IsSubmitting}
+                        />
+                        <FieldDescription>
+                          Select the time slots for the{" "}
+                          {UserInput.isSupervisor ? "supervisor" : "workstudy"}{" "}
+                          to be available. <br />
+                          At least one time slot must be selected.
+                        </FieldDescription>
+                      </FieldContent>
+                    </Field>
+                  </FieldGroup>
+                </FormSection>
+              </>
+            )}
           </CardContent>
           <CardFooter className="justify-end gap-3">
             <Button

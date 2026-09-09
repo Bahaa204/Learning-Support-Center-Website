@@ -294,180 +294,190 @@ export default function StudentRecords() {
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
-            <FormSection
-              icon={<UserRoundIcon />}
-              title="Student Information"
-              disableCollapse={IsSubmitting}
-            >
-              <FieldGroup className="grid grid-cols-1 md:grid-cols-2 grid-rows-2">
-                <Field>
-                  <FieldLabel>
-                    Student Name <span className="text-destructive">*</span>
-                  </FieldLabel>
-                  <FieldContent>
-                    <Input
-                      type="text"
-                      value={StudentInput.studentName}
-                      onChange={(event) =>
-                        UpdateFields({ studentName: event.target.value })
-                      }
-                      required
-                      aria-invalid={LocalError.includes("Student name")}
-                      disabled={IsSubmitting}
-                      placeholder="e.g John Doe"
-                    />
-                    <FieldDescription>
-                      Enter the Student's full name <br />
-                      {!StudentInput.studentName && (
-                        <span className="text-destructive">Required</span>
-                      )}
-                    </FieldDescription>
-                    {LocalError.includes("Student name") && (
-                      <FieldError>{LocalError}</FieldError>
-                    )}
-                  </FieldContent>
-                </Field>
-                <Field>
-                  <FieldLabel>
-                    Student ID <span className="text-destructive">*</span>
-                  </FieldLabel>
-                  <FieldContent>
-                    <Input
-                      type="number"
-                      value={StudentInput.studentId}
-                      onChange={(event) =>
-                        UpdateFields({ studentId: Number(event.target.value) })
-                      }
-                      required
-                      aria-invalid={LocalError.includes("Student ID")}
-                      disabled={IsSubmitting}
-                      placeholder="e.g 123456"
-                    />
-                    <FieldDescription>
-                      Enter the Student's RHU ID
-                      <br />
-                      {!StudentInput.studentId && (
-                        <span className="text-destructive">Required</span>
-                      )}
-                    </FieldDescription>
-                    {LocalError.includes("Student ID") && (
-                      <FieldError>{LocalError}</FieldError>
-                    )}
-                  </FieldContent>
-                </Field>
-                <Field>
-                  <FieldLabel>Student email</FieldLabel>
-                  <FieldContent>
-                    <Input
-                      type="email"
-                      value={StudentInput.email || ""}
-                      onChange={(event) =>
-                        UpdateFields({ email: event.target.value })
-                      }
-                      aria-invalid={LocalError.includes("Invalid email")}
-                      disabled={IsSubmitting}
-                      placeholder="e.g john.doe@students.rhu.edu.lb"
-                    />
-                    <FieldDescription>
-                      Enter the Student's RHU email address <br /> Optional
-                    </FieldDescription>
-                    {LocalError.includes("Invalid email") && (
-                      <FieldError>{LocalError}</FieldError>
-                    )}
-                  </FieldContent>
-                </Field>
-                <Field>
-                  <FieldLabel>
-                    Student Department{" "}
-                    <span className="text-destructive">*</span>
-                  </FieldLabel>
-                  <FieldContent>
-                    <Select
-                      value={
-                        StudentInput.department_id
-                          ? String(StudentInput.department_id)
-                          : undefined
-                      }
-                      onValueChange={(value) =>
-                        UpdateFields({ department_id: Number(value) })
-                      }
-                    >
-                      <SelectTrigger
-                        className="w-full"
-                        aria-invalid={LocalError.toLowerCase().includes(
-                          "department",
+            {IsSubmitting ? (
+              <LoadingCard message="Adding Student" className="min-h-auto!" />
+            ) : (
+              <>
+                <FormSection
+                  icon={<UserRoundIcon />}
+                  title="Student Information"
+                  disableCollapse={IsSubmitting}
+                >
+                  <FieldGroup className="grid grid-cols-1 md:grid-cols-2 grid-rows-2">
+                    <Field>
+                      <FieldLabel>
+                        Student Name <span className="text-destructive">*</span>
+                      </FieldLabel>
+                      <FieldContent>
+                        <Input
+                          type="text"
+                          value={StudentInput.studentName}
+                          onChange={(event) =>
+                            UpdateFields({ studentName: event.target.value })
+                          }
+                          required
+                          aria-invalid={LocalError.includes("Student name")}
+                          disabled={IsSubmitting}
+                          placeholder="e.g John Doe"
+                        />
+                        <FieldDescription>
+                          Enter the Student's full name <br />
+                          {!StudentInput.studentName && (
+                            <span className="text-destructive">Required</span>
+                          )}
+                        </FieldDescription>
+                        {LocalError.includes("Student name") && (
+                          <FieldError>{LocalError}</FieldError>
                         )}
-                      >
-                        <SelectValue placeholder="Select a department" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectLabel>Departments</SelectLabel>
-                          {Departments.map((department, index) => (
-                            <SelectItem
-                              key={index}
-                              value={String(department.id)}
-                            >
-                              {department.name}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                    <FieldDescription>
-                      Select the Student's department
-                    </FieldDescription>
-                    {LocalError.toLowerCase().includes("department") && (
-                      <FieldError>{LocalError}</FieldError>
-                    )}
-                  </FieldContent>
-                </Field>
-              </FieldGroup>
-            </FormSection>
-            <FormSection
-              icon={<CalendarDaysIcon />}
-              title="Visit Details"
-              disableCollapse={IsSubmitting}
-            >
-              <Field>
-                <FieldLabel>Date And Time</FieldLabel>
-                <FieldContent>
-                  <DateTimePicker
-                    value={StudentInput.visitDateTime}
-                    onChange={(value) => UpdateFields({ visitDateTime: value })}
-                  />
-                  <FieldDescription>
-                    Date and Time of the student's visit <br />
-                    Defaults to the current date and time
-                  </FieldDescription>
-                  {LocalError.includes("date and time") && (
-                    <FieldError>{LocalError}</FieldError>
-                  )}
-                </FieldContent>
-              </Field>
-            </FormSection>
-            <FormSection
-              icon={<BookOpenIcon />}
-              title="Courses Asked About"
-              disableCollapse={IsSubmitting}
-            >
-              <Field>
-                <FieldLabel>Courses Asked About</FieldLabel>
-                <FieldContent>
-                  <CoursesComboboxMultiple
-                    courses={Courses}
-                    value={StudentInput.askedCourses}
-                    onValueChange={(value) =>
-                      UpdateFields({ askedCourses: value })
-                    }
-                  />
-                  <FieldDescription>
-                    Select the courses the student asked about during their
-                    visit. You can search by course code or title.
-                  </FieldDescription>
-                </FieldContent>
-              </Field>
-            </FormSection>
+                      </FieldContent>
+                    </Field>
+                    <Field>
+                      <FieldLabel>
+                        Student ID <span className="text-destructive">*</span>
+                      </FieldLabel>
+                      <FieldContent>
+                        <Input
+                          type="number"
+                          value={StudentInput.studentId}
+                          onChange={(event) =>
+                            UpdateFields({
+                              studentId: Number(event.target.value),
+                            })
+                          }
+                          required
+                          aria-invalid={LocalError.includes("Student ID")}
+                          disabled={IsSubmitting}
+                          placeholder="e.g 123456"
+                        />
+                        <FieldDescription>
+                          Enter the Student's RHU ID
+                          <br />
+                          {!StudentInput.studentId && (
+                            <span className="text-destructive">Required</span>
+                          )}
+                        </FieldDescription>
+                        {LocalError.includes("Student ID") && (
+                          <FieldError>{LocalError}</FieldError>
+                        )}
+                      </FieldContent>
+                    </Field>
+                    <Field>
+                      <FieldLabel>Student email</FieldLabel>
+                      <FieldContent>
+                        <Input
+                          type="email"
+                          value={StudentInput.email || ""}
+                          onChange={(event) =>
+                            UpdateFields({ email: event.target.value })
+                          }
+                          aria-invalid={LocalError.includes("Invalid email")}
+                          disabled={IsSubmitting}
+                          placeholder="e.g john.doe@students.rhu.edu.lb"
+                        />
+                        <FieldDescription>
+                          Enter the Student's RHU email address <br /> Optional
+                        </FieldDescription>
+                        {LocalError.includes("Invalid email") && (
+                          <FieldError>{LocalError}</FieldError>
+                        )}
+                      </FieldContent>
+                    </Field>
+                    <Field>
+                      <FieldLabel>
+                        Student Department{" "}
+                        <span className="text-destructive">*</span>
+                      </FieldLabel>
+                      <FieldContent>
+                        <Select
+                          value={
+                            StudentInput.department_id
+                              ? String(StudentInput.department_id)
+                              : undefined
+                          }
+                          onValueChange={(value) =>
+                            UpdateFields({ department_id: Number(value) })
+                          }
+                        >
+                          <SelectTrigger
+                            className="w-full"
+                            aria-invalid={LocalError.toLowerCase().includes(
+                              "department",
+                            )}
+                          >
+                            <SelectValue placeholder="Select a department" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel>Departments</SelectLabel>
+                              {Departments.map((department, index) => (
+                                <SelectItem
+                                  key={index}
+                                  value={String(department.id)}
+                                >
+                                  {department.name}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                        <FieldDescription>
+                          Select the Student's department
+                        </FieldDescription>
+                        {LocalError.toLowerCase().includes("department") && (
+                          <FieldError>{LocalError}</FieldError>
+                        )}
+                      </FieldContent>
+                    </Field>
+                  </FieldGroup>
+                </FormSection>
+                <FormSection
+                  icon={<CalendarDaysIcon />}
+                  title="Visit Details"
+                  disableCollapse={IsSubmitting}
+                >
+                  <Field>
+                    <FieldLabel>Date And Time</FieldLabel>
+                    <FieldContent>
+                      <DateTimePicker
+                        value={StudentInput.visitDateTime}
+                        onChange={(value) =>
+                          UpdateFields({ visitDateTime: value })
+                        }
+                      />
+                      <FieldDescription>
+                        Date and Time of the student's visit <br />
+                        Defaults to the current date and time
+                      </FieldDescription>
+                      {LocalError.includes("date and time") && (
+                        <FieldError>{LocalError}</FieldError>
+                      )}
+                    </FieldContent>
+                  </Field>
+                </FormSection>
+                <FormSection
+                  icon={<BookOpenIcon />}
+                  title="Courses Asked About"
+                  disableCollapse={IsSubmitting}
+                >
+                  <Field>
+                    <FieldLabel>Courses Asked About</FieldLabel>
+                    <FieldContent>
+                      <CoursesComboboxMultiple
+                        courses={Courses}
+                        value={StudentInput.askedCourses}
+                        onValueChange={(value) =>
+                          UpdateFields({ askedCourses: value })
+                        }
+                      />
+                      <FieldDescription>
+                        Select the courses the student asked about during their
+                        visit. You can search by course code or title.
+                      </FieldDescription>
+                    </FieldContent>
+                  </Field>
+                </FormSection>
+              </>
+            )}
           </CardContent>
           <CardFooter className="justify-end gap-3">
             <CardAction>
