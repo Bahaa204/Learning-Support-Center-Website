@@ -58,39 +58,68 @@ export default function FooterModal({ IsOpen, setIsOpen }: FooterModal) {
         },
       ],
     },
+    {
+      name: "Rand Al Yaman",
+      // avatar: RandProfile,
+      description: "Contact with Github",
+      actions: [
+        {
+          name: "Github",
+          link: "https://github.com/Rand550",
+          icon: Github,
+        },
+        {
+          name: "LinkedIn",
+          link: "https://www.linkedin.com/in/rand-al-yaman-8391173a3/",
+          icon: LinkedIn,
+        },
+      ],
+    },
+    {
+      name: "Ali Algharable",
+      // avatar: AliProfile,
+      description: "Contact with Github",
+      actions: [
+        {
+          name: "Github",
+          link: "https://github.com/alialgharable",
+          icon: Github,
+        },
+      ],
+    },
   ];
 
   return (
     <Dialog
       open={IsOpen}
-      as='div'
-      className='relative z-9999999 focus:outline-none'
+      as="div"
+      className="relative z-9999999 focus:outline-none"
       onClose={() => setIsOpen(false)}
     >
-      <div className='fixed inset-0 z-9999999 w-screen overflow-y-auto'>
-        <div className='flex min-h-full items-center justify-center p-4'>
-          <DialogBackdrop className='fixed inset-0 bg-black/15' />
+      <div className="fixed inset-0 z-9999999 w-screen overflow-y-auto">
+        <div className="flex min-h-full items-center justify-center p-4">
+          <DialogBackdrop className="fixed inset-0 bg-black/15" />
           <DialogPanel
             transition
-            className='w-full max-w-md rounded-xl bg-white dark:bg-card p-6 backdrop-blur-2xl duration-300 ease-out data-closed:transform-[scale(95%)] data-closed:opacity-0'
+            className="w-full max-w-md rounded-xl bg-white dark:bg-card p-6 backdrop-blur-2xl duration-300 ease-out data-closed:transform-[scale(95%)] data-closed:opacity-0"
           >
-            <Card className='ring-0!'>
+            <Card className="ring-0!">
               <CardHeader>
-                <CardTitle className='text-2xl'>
+                <CardTitle className="text-2xl">
                   <DialogTitle>RHU Learning Support Center Website</DialogTitle>
                 </CardTitle>
-                <CardDescription className='text-[16px]'>
+                <CardDescription className="text-[16px]">
                   Developed & Designed by
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <ItemAvatar items={items} />
               </CardContent>
-              <CardFooter className='bg-transparent'>
-                <CardAction className='size-full'>
+              <CardFooter className="bg-transparent">
+                <CardAction className="size-full">
                   <Button
                     onClick={() => setIsOpen(false)}
-                    className='size-full py-2 text-lg'
+                    className="size-full py-2 text-lg"
                   >
                     Close
                   </Button>
